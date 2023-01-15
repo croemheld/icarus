@@ -26,7 +26,7 @@ successfully work. The names of the packages may differ on other distributions.
 
 ### Building
 
-icarus is easily built using `cmake` and the Ninja build system via:
+**icarus** is easily built using `cmake` and the Ninja build system via:
 
 ```shell
 git clone https://github.com/croemheld/icarus.git
@@ -43,7 +43,14 @@ cmake -G "Unix Makefiles" ..
 make
 ```
 
+## License and third-party components
+
+**icarus** is licensed under the terms of the MIT license.
+
+The static analysis tool contains the [nlohmann::json](https://github.com/nlohmann/json) single-file header library
+also licensed under the MIT license.
+
 ## Contributions
 
-icarus has been developed since early 2020 and is currently undergoing maintenance. Thus, we do not accept any
+**icarus** has been developed since early 2020 and is currently undergoing maintenance. Thus, we do not accept any
 contributions for the time being. 
