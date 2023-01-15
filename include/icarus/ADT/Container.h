@@ -7,8 +7,58 @@
 
 #include <algorithm>
 #include <memory>
+#include <map>
+#include <vector>
+#include <queue>
+#include <set>
 
 namespace icarus {
+
+/**
+ * Base template for all container traits. It is used in the files located in the Threads directory
+ * for automatically generating the appropriate thread safe implementation of an STL container.
+ * @tparam C The type of the container.
+ */
+template <typename C>
+struct ContainerTraits {
+  using container_type = C;
+  using value_type = typename C::value_type;
+};
+
+/**
+ * Partial specialization of the ContainerTraits template for queues. A std::queue is a container, but
+ * it does not possess iterators, which is why it does not belong to the IterableTraits below.
+ */
+template <typename T> using QueueTraits = ContainerTraits<std::queue<T>>;
+
+/**
+ * Extension to the ContainerTraits template above. It adds the iterator and const_iterator traits for
+ * a container that is iterable.
+ * @tparam C
+ */
+template <typename C>
+struct IterableTraits : public ContainerTraits<C> {
+  using iterator = typename C::iterator;
+  using const_iterator = typename C::const_iterator;
+};
+
+/**
+ * Partial specialization of the IterableTraits template above. Vectors, deques and sets all belong to
+ * the category of iterable containers.
+ */
+template <typename T> using VectorTraits = IterableTraits<std::vector<T>>;
+template <typename T> using DequeTraits = IterableTraits<std::deque<T>>;
+template <typename T> using SetTraits = IterableTraits<std::set<T>>;
+
+/**
+ * Extension to the IterableTraits for map containers. Maps possess two more important types, namely a
+ * key and a value type. All traits have the same name as in the C++ STL library.
+ */
+template <typename K, typename V>
+struct MapTraits : public IterableTraits<std::map<K, V>> {
+  using key_type = K;
+  using mapped_type = V;
+};
 
 /*
  * Reference utility methods
