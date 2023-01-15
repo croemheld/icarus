@@ -19,6 +19,7 @@ add_executable(icarus
         Icarus.cpp
         Passes/IcarusPass.cpp
         Passes/ICCPass.cpp
+        Passes/CPAPass.cpp
         Support/String.cpp
 )
 
