@@ -14,7 +14,7 @@ namespace icarus {
  * Register pass in icarus
  */
 
-static RegisterPass<ICCPass> ICCPassRegistrator(nullptr);
+static RegisterPass<ICCPass> ICCPass(nullptr);
 
 /*
  * ICCPass methods
@@ -37,7 +37,7 @@ int ICCPass::runAnalysisPass(IcarusPassArguments &Arguments) {
   forEachModule(Arguments, lambda::ptr<void, IcarusModule &>(IndirectCallHandler));
 
   for (auto &[Path, Count] : IndirectCalls) {
-    llvm::errs() << Path << ": " << Count << "\n";
+    INFO(Path, ": ", Count);
   }
 
   return 0;

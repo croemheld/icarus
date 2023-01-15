@@ -12,6 +12,8 @@
 
 #include <icarus/ADT/Container.h>
 
+#include <icarus/Logger/Logger.h>
+
 #include <icarus/Support/Registry.h>
 #include <icarus/Support/String.h>
 #include <icarus/Support/Lambda.h>
@@ -236,7 +238,7 @@ struct IcarusPassParser : public RegistryListener<const PassInfo *, PassRegistry
   void onRegistration(const PassInfo *PI) override {
     if (PI->isGeneralCategory())
       return;
-    llvm::errs() << "Register pass '" << PI->getPassName() << "' (" << PI->getPassOption() << ")...\n";
+    EARLY_CONF("Register pass '", PI->getPassName(), "' (", PI->getPassOption(), ")...");
     if (findOption(PI->getPassOption()) != getNumOptions()) {
       llvm::errs() << "Trying to register pass with same argument: " << PI->getPassOption() << "\n";
       llvm_unreachable(nullptr);

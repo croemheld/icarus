@@ -11,11 +11,28 @@
 namespace icarus {
 
 /**
+ * Helper method for generating formatted strings in printf style.
+ * @tparam Args deduced The type of the arguments passed to this method.
+ * @param Format The format string.
+ * @param args The arbitrarily typed arguments to include in this format string.
+ * @return A newly formatted string with the provided arguments.
+ */
+template <typename ... Args>
+std::string format(const char *Format, Args&&... args) {
+  int Size = std::snprintf(nullptr, 0, Format, args...);
+  if (Size <= 0)
+    throw std::runtime_error("Error during formatting");
+  std::string Formatted(Size, char());
+  std::snprintf(Formatted.data(), Size + 1, Format, args...);
+  return Formatted;
+}
+
+/**
  * Concatenate two or more strings at compile-time. This is useful for the
  * string generation in case components are scattered throughout the project.
  * @tparam Strings The strings to concatenate.
  */
-template<std::string_view const &... Strings>
+template <std::string_view const &... Strings>
 struct ConcatStrings {
   static constexpr auto impl() noexcept {
     constexpr std::size_t Length = (Strings.size() + ... + 0);

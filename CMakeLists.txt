@@ -17,6 +17,7 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 
 add_executable(icarus
         Icarus.cpp
+        Logger/Logger.cpp
         Passes/IcarusPass.cpp
         Passes/ICCPass.cpp
         Passes/CPAPass.cpp
