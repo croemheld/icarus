@@ -7,22 +7,16 @@
 
 #include <llvm/ADT/APInt.h>
 
-#include <llvm/Support/FormattedStream.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/Process.h>
+#include <llvm/Support/FormattedStream.h>
+#include <llvm/Support/raw_os_ostream.h>
 
-#include <icarus/Support/Lambda.h>
 #include <icarus/Support/Math.h>
 #include <icarus/Support/String.h>
 
 #include <icarus/Threads/ThreadPool.h>
 
-#include <mutex>
-#include <shared_mutex>
-#include <thread>
-#include <map>
 #include <iostream>
 #include <iomanip>
 #include <fstream>

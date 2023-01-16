@@ -16,7 +16,6 @@
 
 #include <icarus/Support/Registry.h>
 #include <icarus/Support/String.h>
-#include <icarus/Support/Lambda.h>
 #include <icarus/Support/Namespaces.h>
 
 #include <nlohmann/json.hpp>
@@ -37,7 +36,7 @@ class IcarusModule {
 
 public:
 
-  IcarusModule(std::string &FilePath);
+  explicit IcarusModule(std::string &FilePath);
 
   std::string getFilePath() const;
   std::string getFileName() const;
@@ -104,7 +103,7 @@ class IcarusPass {
 
 protected:
 
-  IcarusPass() {};
+  IcarusPass() = default;
 
 public:
 
@@ -129,7 +128,7 @@ public:
  * @param Arguments The provided arguments in the CLI.
  * @param Callback The callback function to apply for every LLVM module.
  */
-void forEachModule(IcarusPassArguments &Arguments, std::function<void(IcarusModule &)> Callback);
+void forEachModule(IcarusPassArguments &Arguments, const std::function<void(IcarusModule &)>& Callback);
 
 /*
  *
@@ -185,7 +184,7 @@ struct PassRegistry : public ObjectRegistry<std::string_view, const PassInfo, Pa
    * @param PassOption The name of the pass as used in the CLI of icarus.
    * @return A new instance of the selected IcarusPass.
    */
-  IcarusPass *getPassOrNull(std::string PassOption);
+  IcarusPass *getPassOrNull(const std::string& PassOption);
 
   /**
    * Get a list of all onRegistration OptionCategory instances for icarus.
@@ -211,7 +210,7 @@ struct RegisterPass : public PassInfo {
    * Public constructor for pass registration.
    * @param PassName The name of the pass as used in the CLI of icarus.
    */
-  RegisterPass(cl::OptionCategory *Category)
+  explicit RegisterPass(cl::OptionCategory *Category)
       : PassInfo(PassClass::OPTION, PassClass::NAME, createObj<PassClass, IcarusPass>, Category) {
     PassRegistry::getObjectRegistry()->registerObject(*this);
   }
@@ -222,7 +221,7 @@ struct RegisterPass : public PassInfo {
  */
 struct IcarusPassParser : public RegistryListener<const PassInfo *, PassRegistry>,
                           public cl::parser<const PassInfo *> {
-  IcarusPassParser(cl::Option &O) : cl::parser<const PassInfo *>(O) {
+  explicit IcarusPassParser(cl::Option &O) : cl::parser<const PassInfo *>(O) {
     PassRegistry::getObjectRegistry()->addRegistrationListener(this);
   }
 
@@ -230,37 +229,15 @@ struct IcarusPassParser : public RegistryListener<const PassInfo *, PassRegistry
    * Called from cl::list::done after initialization is finished. Iterate over all
    * passes that were registered before the initialization of cl::list occurred.
    */
-  void initialize() {
-    cl::parser<const PassInfo *>::initialize();
-    enumerateObjects();
-  }
+  void initialize();
 
-  void onRegistration(const PassInfo *PI) override {
-    if (PI->isGeneralCategory())
-      return;
-    EARLY_CONF("Register pass '", PI->getPassName(), "' (", PI->getPassOption(), ")...");
-    if (findOption(PI->getPassOption()) != getNumOptions()) {
-      llvm::errs() << "Trying to register pass with same argument: " << PI->getPassOption() << "\n";
-      llvm_unreachable(nullptr);
-    }
-    addLiteralOption(PI->getPassOption(), PI, PI->getPassName());
-  }
-
-  void apply(const PassInfo *PI) override {
-    onRegistration(PI);
-  }
-
-  void printOptionInfo(const cl::Option &O, size_t GlobalWidth) const override {
-    IcarusPassParser *IPP = const_cast<IcarusPassParser*>(this);
-    llvm::array_pod_sort(IPP->Values.begin(), IPP->Values.end(), ValCompare);
-    cl::parser<const PassInfo*>::printOptionInfo(O, GlobalWidth);
-  }
+  void onRegistration(const PassInfo *PI) override;
+  void apply(const PassInfo *PI) override;
+  void printOptionInfo(const cl::Option &O, size_t GlobalWidth) const override;
 
 private:
 
-  static int ValCompare(const IcarusPassParser::OptionInfo *VT1, const IcarusPassParser::OptionInfo *VT2) {
-    return VT1->Name.compare(VT2->Name);
-  }
+  static int ValCompare(const IcarusPassParser::OptionInfo *VT1, const IcarusPassParser::OptionInfo *VT2);
 
 };
 

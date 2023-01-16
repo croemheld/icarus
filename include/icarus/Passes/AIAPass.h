@@ -6,11 +6,8 @@
 #define ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
 
 #include <llvm/IR/InstVisitor.h>
-#include <llvm/Support/CommandLine.h>
 
 #include <icarus/Passes/IcarusPass.h>
-
-#include <icarus/Support/Namespaces.h>
 
 namespace icarus {
 

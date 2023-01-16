@@ -125,7 +125,7 @@ IcarusPassArguments::iterator IcarusPassArguments::end() {
  * IcarusPass helper methods
  */
 
-void forEachModule(IcarusPassArguments &Arguments, std::function<void(IcarusModule &)> Callback) {
+void forEachModule(IcarusPassArguments &Arguments, const std::function<void(IcarusModule &)>& Callback) {
   for (IcarusModule &IM : Arguments) {
     Callback(IM);
   }
@@ -168,7 +168,7 @@ void PassRegistry::registerObject(const PassInfo &PI) {
   }
 }
 
-IcarusPass *PassRegistry::getPassOrNull(std::string PassOption) {
+IcarusPass *PassRegistry::getPassOrNull(const std::string& PassOption) {
   if (const PassInfo *PD = this->getObjectOrNull(PassOption))
     return PD->getPassInstance();
   return nullptr;
@@ -177,6 +177,40 @@ IcarusPass *PassRegistry::getPassOrNull(std::string PassOption) {
 void PassRegistry::populateOptionCategories(std::vector<cl::OptionCategory *> &OptionCategories) {
   for (auto &[_, PI] : ObjectMap)
     if (PI) OptionCategories.push_back(PI->getCategory());
+}
+
+/*
+ * IcarusPassParser methods
+ */
+
+void IcarusPassParser::initialize() {
+  cl::parser<const PassInfo *>::initialize();
+  enumerateObjects();
+}
+
+void IcarusPassParser::onRegistration(const PassInfo *PI) {
+  if (PI->isGeneralCategory())
+    return;
+  EARLY_CONF("Register pass '", PI->getPassName(), "' (", PI->getPassOption(), ")...");
+  if (findOption(PI->getPassOption()) != getNumOptions()) {
+    llvm::errs() << "Trying to register pass with same argument: " << PI->getPassOption() << "\n";
+    llvm_unreachable(nullptr);
+  }
+  addLiteralOption(PI->getPassOption(), PI, PI->getPassName());
+}
+
+void IcarusPassParser::apply(const PassInfo *PI) {
+  onRegistration(PI);
+}
+
+void IcarusPassParser::printOptionInfo(const cl::Option &O, size_t GlobalWidth) const {
+  auto *IPP = const_cast<IcarusPassParser*>(this);
+  llvm::array_pod_sort(IPP->Values.begin(), IPP->Values.end(), ValCompare);
+  cl::parser<const PassInfo*>::printOptionInfo(O, GlobalWidth);
+}
+
+int IcarusPassParser::ValCompare(const IcarusPassParser::OptionInfo *VT1, const IcarusPassParser::OptionInfo *VT2) {
+  return VT1->Name.compare(VT2->Name);
 }
 
 }

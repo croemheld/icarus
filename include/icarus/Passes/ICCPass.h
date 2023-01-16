@@ -5,11 +5,7 @@
 #ifndef ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
 #define ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
 
-#include <llvm/Support/CommandLine.h>
-
 #include <icarus/Passes/IcarusPass.h>
-
-#include <icarus/Support/Namespaces.h>
 
 namespace icarus {
 

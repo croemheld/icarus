@@ -2,11 +2,7 @@
 // Created by croemheld on 06.01.2023.
 //
 
-#include <llvm/Support/CommandLine.h>
-
-#include <set>
-#include <mutex>
-#include "icarus/Logger/Logger.h"
+#include <icarus/Logger/Logger.h>
 
 namespace icarus {
 
