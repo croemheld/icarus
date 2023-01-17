@@ -7,7 +7,7 @@
 
 #include <icarus/ADT/Container.h>
 
-#include <icarus/Threads/ThreadQueue.h>
+#include <icarus/Threads/ThreadSafeQueue.h>
 
 #include <atomic>
 #include <future>

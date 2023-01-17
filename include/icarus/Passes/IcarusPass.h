@@ -14,7 +14,7 @@
 
 #include <icarus/Logger/Logger.h>
 
-#include <icarus/Support/Registry.h>
+#include <icarus/Support/ObjectRegistry.h>
 #include <icarus/Support/String.h>
 #include <icarus/Support/Namespaces.h>
 
