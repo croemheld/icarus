@@ -2,8 +2,7 @@
 // Created by croemheld on 04.01.2023.
 //
 
-#include <icarus/Passes/IcarusPass.h>
-#include <icarus/Passes/AIAPass.h>
+#include <icarus/Passes/CPAPass.h>
 
 namespace icarus {
 

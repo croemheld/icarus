@@ -2,8 +2,8 @@
 // Created by croemheld on 04.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
+#ifndef ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H
+#define ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H
 
 #include <llvm/IR/InstVisitor.h>
 
@@ -57,37 +57,6 @@ public:
 
 };
 
-/*
- * Constant Propagation Analysis (CPA) Pass
- */
-
-using CPAContextRetTy = void;
-
-/**
- * AnalysisContext specialization for constant propagation-based analyses. The AnalysisContext is part
- * of the template parameter for the CPAPass class below.
- */
-struct CPAContext : AnalysisContext<CPAContext, CPAContextRetTy> {
-
-  static constexpr std::string_view OPTION = "CPA";
-  static constexpr std::string_view NAME = "Constant Propagation Analysis";
-
-};
-
-/**
- * Base class for constant propagation-based analysis with the underlying abstract interpretation pass
- * for performing a flow- and context-sensitive analysis on a program.
- */
-class CPAPass : public AIAPass<CPAContext> {
-
-public:
-
-  CPAPass() = default;
-
-  int runAnalysisPass(IcarusPassArguments &Arguments) override;
-
-};
-
 }
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
+#endif // ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H
