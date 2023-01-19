@@ -45,10 +45,13 @@ make
 
 ## License and third-party components
 
-**icarus** is licensed under the terms of the MIT license.
+**icarus** is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
 
-The static analysis tool contains the [nlohmann::json](https://github.com/nlohmann/json) single-file header library
-also licensed under the MIT license.
+The project contains the [nlohmann::json](https://github.com/nlohmann/json) single-file header library
+also licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+The project contains modified classes from the [LLVM Compiler Infrastructure](https://llvm.org/) which are licensed
+under the [Apache 2.0 License](https://opensource.org/licenses/Apache-2.0).
 
 ## Contributions
 
