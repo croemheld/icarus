@@ -63,12 +63,15 @@ int main(int argc, char *argv[]) {
     return EINVAL;
 
   IcarusPass *IP = PR->getPassOrNull(Pass.getValue());
-  if (!IP || !IP->checkPassArguments())
+  if (!IP)
     return EINVAL;
 
   IcarusPassArguments IPA(File.getValue(), JSON.getValue());
   if (!IPA.getNumFiles())
     return ENOENT;
+
+  if (!IP->checkPassArguments(IPA))
+    return EINVAL;
 
   ThreadPool::initialize(Threads.getValue());
   initLoggerOptions(DebugOnly, DebugFile);

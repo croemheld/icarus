@@ -13,13 +13,13 @@ namespace icarus {
  * Constant Propagation Analysis (CPA) Pass
  */
 
-using CPAContextRetTy = void;
+using IAAContextRetTy = void;
 
 /**
  * AnalysisContext specialization for constant propagation-based analyses. The AnalysisContext is part
  * of the template parameter for the CPAPass class below.
  */
-struct CPAContext : public AnalysisContext<CPAContext, CPAContextRetTy> {
+struct CPAContext : public AnalysisContext<CPAContext, IAAContextRetTy> {
 
   static constexpr std::string_view OPTION = "CPA";
   static constexpr std::string_view NAME = "Constant Propagation Analysis";

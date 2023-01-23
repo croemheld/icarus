@@ -9,6 +9,8 @@
 
 #include <icarus/Passes/IcarusPass.h>
 
+#include <icarus/Support/Traits.h>
+
 namespace icarus {
 
 /**
@@ -32,6 +34,14 @@ protected:
 
 };
 
+
+/**
+ * Alias to determine whether or not a class inherits from the AIAContext above. This is necessary for
+ * ensuring the AIAPass below receives a correct template argument at compile-time.
+ */
+template <typename AIAContextImpl>
+using is_aiacontext_impl = is_template_base_of<AnalysisContext, AIAContextImpl>;
+
 /*
  * Abstract Interpretation Analysis (AIA) Pass
  */
@@ -39,15 +49,15 @@ protected:
 /**
  * Base class for all abstract interpretation-based analyses. The core logic of this class is provided
  * by the AIAContext (AnalysisContext) subclass passed as the template parameter.
- * @tparam AIAContext The AnalysisContext subclass which implements the core algorithm.
+ * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContext>
+template <typename AIAContextImpl, std::enable_if_t<is_aiacontext_impl<AIAContextImpl>::value, bool> = true>
 class AIAPass : public IcarusPass {
 
 public:
 
-  static constexpr std::string_view OPTION = AIAContext::OPTION;
-  static constexpr std::string_view NAME = AIAContext::NAME;
+  static constexpr std::string_view OPTION = AIAContextImpl::OPTION;
+  static constexpr std::string_view NAME = AIAContextImpl::NAME;
 
   /**
    * Creates a new abstract interpretation-based analysis pass with the provided AnalysisContext. With

@@ -112,7 +112,7 @@ public:
    * check if the provided CLI arguments are all valid for this specific pass.
    * @return True, if all required CLI arguments are valid.
    */
-  virtual bool checkPassArguments() { return true; }
+  virtual bool checkPassArguments(IcarusPassArguments &Arguments) { return true; }
 
   /**
    * Each pass has different purposes and components to execute. These should all be
