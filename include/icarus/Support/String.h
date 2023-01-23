@@ -5,10 +5,54 @@
 #ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
 #define ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
 
+#include <llvm/IR/Value.h>
+#include <llvm/IR/Instructions.h>
+
 #include <array>
 #include <string_view>
 
 namespace icarus {
+
+namespace adl_serializer {
+
+using std::to_string;
+
+/**
+ * Helper function for converting a llvm::Value instance to a string representation that can be logged
+ * in our threaded logger. Needs to be declared before adl_serializer::as_string so that the lookup is
+ * going to succeed.
+ */
+std::string to_string(const llvm::Value& V);
+
+/**
+ * Core function for all adl_serializer::to_string functions for different argument types. In order to
+ * make this work, simply implement a function with the name to_string in this namespace with the only
+ * argument being the reference to the instance that should be converted into a string.
+ * @tparam T The type of the object to convert into a string.
+ * @param t The instance that is going to be converted into a string.
+ * @return A string representation based on the custom implementation provided by to_string.
+ */
+template <typename T>
+std::string as_string(const T& t) {
+  return to_string(t);
+}
+
+}
+
+template <typename T>
+std::string to_string(const T& t) {
+  return adl_serializer::as_string(t);
+}
+
+/**
+ * Defining operator<< for llvm::Value objects and derivatives. This is necessary for storing it in an
+ * instance of std::stringstream for the threaded logger. Without it, we would not be able to print an
+ * instruction or value in general.
+ * @param Out The stream to which to write the llvm::Value instance as a string.
+ * @param V The value to write to the stream in a string representation.
+ * @return The provided stream to allow operator chaining.
+ */
+std::ostream& operator<<(std::ostream& Out, const llvm::Value& V);
 
 /**
  * Helper method for generating formatted strings in printf style.
