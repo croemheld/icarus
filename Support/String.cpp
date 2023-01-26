@@ -11,7 +11,7 @@
 
 namespace icarus {
 
-namespace adl_serializer {
+namespace adl_string {
 
 std::string to_string(const llvm::Value &V) {
   std::string String;

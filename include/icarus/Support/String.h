@@ -13,21 +13,21 @@
 
 namespace icarus {
 
-namespace adl_serializer {
+namespace adl_string {
 
 using std::to_string;
 
 /**
  * Helper function for converting a llvm::Value instance to a string representation that can be logged
- * in our threaded logger. Needs to be declared before adl_serializer::as_string so that the lookup is
- * going to succeed.
+ * in our threaded logger. Needs to be declared before adl_string::as_string, so that the lookup might
+ * succeed in the first place.
  */
 std::string to_string(const llvm::Value& V);
 
 /**
- * Core function for all adl_serializer::to_string functions for different argument types. In order to
- * make this work, simply implement a function with the name to_string in this namespace with the only
- * argument being the reference to the instance that should be converted into a string.
+ * Core function for all adl_string::to_string functions for different argument types in order to make
+ * this work, simply implement a function with the name to_string in this namespace with the arguments
+ * being the reference to the instance that should be converted into a string.
  * @tparam T The type of the object to convert into a string.
  * @param t The instance that is going to be converted into a string.
  * @return A string representation based on the custom implementation provided by to_string.
@@ -39,9 +39,16 @@ std::string as_string(const T& t) {
 
 }
 
+/**
+ * Core function in icarus namespace for to_string. All calls to to_string go through here, before the
+ * appropriate function is looked up in the adl_string namespace defined above.
+ * @tparam T The type of the object to convert into a string.
+ * @param t The instance that is going to be converted into a string.
+ * @return A string representation based on the custom implementation provided by to_string.
+ */
 template <typename T>
 std::string to_string(const T& t) {
-  return adl_serializer::as_string(t);
+  return adl_string::as_string(t);
 }
 
 /**
