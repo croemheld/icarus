@@ -102,7 +102,7 @@ unsigned int IcarusPassArguments::getNumFiles() const {
   return Modules.size();
 }
 
-nlohmann::json IcarusPassArguments::getJSONObject() const {
+nlohmann::json& IcarusPassArguments::getJSONObject() {
   return JSON;
 }
 
@@ -111,6 +111,10 @@ IcarusModule *IcarusPassArguments::getModule(std::string_view Name) {
     if (M->getFileName() == Name)
       return M.get();
   return nullptr;
+}
+
+IcarusModule *IcarusPassArguments::getModuleAt(unsigned N) {
+  return Modules.at(N).get();
 }
 
 IcarusPassArguments::iterator IcarusPassArguments::begin() {

@@ -16,7 +16,7 @@ static RegisterPass<CPAPass> CPAPass(nullptr);
  * AIAPass methods
  */
 
-int CPAPass::runAnalysisPass(IcarusPassArguments &Arguments) {
+int CPAPass::runAnalysisPass(IcarusPassArguments &IPA) {
   return 0;
 }
 

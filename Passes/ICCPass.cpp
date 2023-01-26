@@ -18,8 +18,8 @@ static RegisterPass<ICCPass> ICCPass(nullptr);
  * ICCPass methods
  */
 
-int ICCPass::runAnalysisPass(IcarusPassArguments &Arguments) {
-  forEachModule(Arguments, [&](IcarusModule &IM) {
+int ICCPass::runAnalysisPass(IcarusPassArguments &IPA) {
+  forEachModule(IPA, [&](IcarusModule &IM) {
     llvm::Module *M = IM.getModule();
     for (llvm::Function &F : *M) {
       IndirectCalls[IM.getFilePath()] += llvm::findIndirectCalls(F).size();

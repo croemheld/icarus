@@ -64,7 +64,7 @@ public:
   std::string getFile() const;
   std::string getJSON() const;
   unsigned int getNumFiles() const;
-  nlohmann::json getJSONObject() const;
+  nlohmann::json& getJSONObject();
 
   /**
    * Get the IcarusModule instance for the provided file name. This method does only look
@@ -74,6 +74,13 @@ public:
    * @return The associated IcarusModule instance for the provided name.
    */
   IcarusModule *getModule(std::string_view Name);
+
+  /**
+   * Return the module at the specified index. The modules are sorted in insertion order.
+   * @param N The index of the vector from which to retrieve the module.
+   * @return The IcarusModule instance at index N.
+   */
+  IcarusModule *getModuleAt(unsigned N);
 
   /*
    * Iterators
@@ -112,14 +119,14 @@ public:
    * check if the provided CLI arguments are all valid for this specific pass.
    * @return True, if all required CLI arguments are valid.
    */
-  virtual bool checkPassArguments(IcarusPassArguments &Arguments) { return true; }
+  virtual bool checkPassArguments(IcarusPassArguments &IPA) { return true; }
 
   /**
    * Each pass has different purposes and components to execute. These should all be
    * included in this method that is called after the specific pass has been selected.
    * @return 0 on success, else any other number indicating the error status.
    */
-  virtual int runAnalysisPass(IcarusPassArguments &Arguments) = 0;
+  virtual int runAnalysisPass(IcarusPassArguments &IPA) = 0;
 
 };
 
