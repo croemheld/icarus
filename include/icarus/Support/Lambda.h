@@ -5,6 +5,8 @@
 #ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_LAMBDA_H
 #define ICARUS_INCLUDE_ICARUS_SUPPORT_LAMBDA_H
 
+#include <utility>
+
 namespace icarus {
 
 struct lambda {
