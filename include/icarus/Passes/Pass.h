@@ -7,10 +7,8 @@
 
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CommandLine.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 
-#include <icarus/ADT/Container.h>
+#include <icarus/Passes/PassArguments.h>
 
 #include <icarus/Logger/Logger.h>
 
@@ -18,78 +16,7 @@
 #include <icarus/Support/String.h>
 #include <icarus/Support/Namespaces.h>
 
-#include <nlohmann/json.hpp>
-
 namespace icarus {
-
-/*
- * Pass arguments as a class
- */
-
-class IcarusModule {
-
-  std::string FilePath;
-  std::string FileName;
-  llvm::SMDiagnostic Err;
-  llvm::LLVMContext Context;
-  std::unique_ptr<llvm::Module> IRModule;
-
-public:
-
-  explicit IcarusModule(std::string &FilePath);
-
-  std::string getFilePath() const;
-  std::string getFileName() const;
-  llvm::Module *getModule() const;
-
-};
-
-class IcarusPassArguments {
-
-  using ModuleVector = std::vector<std::unique_ptr<IcarusModule>>;
-  using iterator = DereferenceIterator<ModuleVector::iterator>;
-
-  std::string FileArg;
-  std::string JSONArg;
-  ModuleVector Modules;
-
-  nlohmann::json JSON;
-
-  void insertModule(std::string &FilePath);
-
-public:
-
-  IcarusPassArguments(std::string &FileArg, std::string &JSONArg);
-
-  std::string getFile() const;
-  std::string getJSON() const;
-  unsigned int getNumFiles() const;
-  nlohmann::json& getJSONObject();
-
-  /**
-   * Get the IcarusModule instance for the provided file name. This method does only look
-   * for the file name, and not the entire path. If there are multiple files registered that
-   * have the same name (even with different paths), we only return the first one found.
-   * @param Name The name of the LLVM IR file to lookup.
-   * @return The associated IcarusModule instance for the provided name.
-   */
-  IcarusModule *getModule(std::string_view Name);
-
-  /**
-   * Return the module at the specified index. The modules are sorted in insertion order.
-   * @param N The index of the vector from which to retrieve the module.
-   * @return The IcarusModule instance at index N.
-   */
-  IcarusModule *getModuleAt(unsigned N);
-
-  /*
-   * Iterators
-   */
-
-  iterator begin();
-  iterator end();
-
-};
 
 /*
  * Passes for the icarus tool
@@ -98,7 +25,7 @@ public:
 /**
  * Base class of all passes in icarus.
  *
- * Each derived subclass of IcarusPass has to define two static constexpr member
+ * Each derived subclass of Pass has to define two static constexpr member
  * variables of type std::string_view with the name OPTION and NAME, which state
  * the CLI pass option and the full name for descriptiveness, respectively.
  * An example for the Indirect Call Counter pass is listed below.
@@ -106,11 +33,11 @@ public:
  * static constexpr std::string_view OPTION = "ICC";
  * static constexpr std::string_view NAME = "Indirect Call Counter";
  */
-class IcarusPass {
+class Pass {
 
 protected:
 
-  IcarusPass() = default;
+  Pass() = default;
 
 public:
 
@@ -119,14 +46,14 @@ public:
    * check if the provided CLI arguments are all valid for this specific pass.
    * @return True, if all required CLI arguments are valid.
    */
-  virtual bool checkPassArguments(IcarusPassArguments &IPA) { return true; }
+  virtual bool checkPassArguments(PassArguments &IPA) { return true; }
 
   /**
    * Each pass has different purposes and components to execute. These should all be
    * included in this method that is called after the specific pass has been selected.
    * @return 0 on success, else any other number indicating the error status.
    */
-  virtual int runAnalysisPass(IcarusPassArguments &IPA) = 0;
+  virtual int runAnalysisPass(PassArguments &IPA) = 0;
 
 };
 
@@ -135,13 +62,13 @@ public:
  * @param Arguments The provided arguments in the CLI.
  * @param Callback The callback function to apply for every LLVM module.
  */
-void forEachModule(IcarusPassArguments &Arguments, const std::function<void(IcarusModule &)>& Callback);
+void forEachModule(PassArguments &Arguments, const std::function<void(IcarusModule &)>& Callback);
 
 /*
  *
  */
 
-using PassConstructor = IcarusPass*(*)();
+using PassConstructor = Pass*(*)();
 
 /**
  * Contains information about a pass instance.
@@ -171,7 +98,7 @@ public:
   bool isGeneralCategory() const;
   std::string_view getPassOption() const;
   std::string_view getPassName() const;
-  IcarusPass *getPassInstance() const;
+  Pass *getPassInstance() const;
   cl::OptionCategory *getCategory() const;
 
 };
@@ -189,9 +116,9 @@ struct PassRegistry : public ObjectRegistry<std::string_view, const PassInfo, Pa
   /**
    * Helper method to directly return the requested pass instance.
    * @param PassOption The name of the pass as used in the CLI of icarus.
-   * @return A new instance of the selected IcarusPass.
+   * @return A new instance of the selected Pass.
    */
-  IcarusPass *getPassOrNull(const std::string& PassOption);
+  Pass *getPassOrNull(const std::string& PassOption);
 
   /**
    * Get a list of all onRegistration OptionCategory instances for icarus.
@@ -218,7 +145,7 @@ struct RegisterPass : public PassInfo {
    * @param PassName The name of the pass as used in the CLI of icarus.
    */
   explicit RegisterPass(cl::OptionCategory *Category)
-      : PassInfo(PassClass::OPTION, PassClass::NAME, createObj<PassClass, IcarusPass>, Category) {
+      : PassInfo(PassClass::OPTION, PassClass::NAME, createObj<PassClass, Pass>, Category) {
     PassRegistry::getObjectRegistry()->registerObject(*this);
   }
 };
@@ -250,7 +177,7 @@ private:
 
 /**
  * Helper template to generate constant expression for cl::OptionCategory strings
- * @tparam PassClass The IcarusPass subclass for which the string should be generated.
+ * @tparam PassClass The Pass subclass for which the string should be generated.
  */
 template <typename PassClass>
 struct OptionCategory {
@@ -263,7 +190,7 @@ struct OptionCategory {
 
 /**
  * Returns the string generated by OptionCategory above.
- * @tparam PassClass The IcarusPass subclass for which the string should be generated.
+ * @tparam PassClass The Pass subclass for which the string should be generated.
  */
 template <typename PassClass>
 static constexpr std::string_view Category = OptionCategory<PassClass>::Value;

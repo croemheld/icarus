@@ -1,6 +1,6 @@
 #include <llvm/Support/CommandLine.h>
 
-#include <icarus/Passes/IcarusPass.h>
+#include <icarus/Passes/Pass.h>
 
 #include <icarus/Logger/Logger.h>
 
@@ -13,8 +13,8 @@ using namespace icarus;
 cl::OptionCategory IcarusCategory("General options for icarus");
 
 cl::opt<std::string>
-Pass("pass", cl::desc("Pass option to run"), cl::cat(IcarusCategory), cl::Required);
-cl::alias PassAlias("p", cl::desc("Alias for --pass"), cl::aliasopt(Pass));
+PassOpt("pass", cl::desc("Pass option to run"), cl::cat(IcarusCategory), cl::Required);
+cl::alias PassAlias("p", cl::desc("Alias for --pass"), cl::aliasopt(PassOpt));
 
 cl::list<const PassInfo *, bool, IcarusPassParser>
 PassesList(cl::desc("Choices for --pass= (without leading --)"), cl::cat(IcarusCategory));
@@ -62,11 +62,11 @@ int main(int argc, char *argv[]) {
   if (!cl::ParseCommandLineOptions(argc, argv) || File.empty())
     return EINVAL;
 
-  IcarusPass *IP = PR->getPassOrNull(Pass.getValue());
+  Pass *IP = PR->getPassOrNull(PassOpt.getValue());
   if (!IP)
     return EINVAL;
 
-  IcarusPassArguments IPA(File.getValue(), JSON.getValue());
+  PassArguments IPA(File.getValue(), JSON.getValue());
   if (!IPA.getNumFiles())
     return ENOENT;
 

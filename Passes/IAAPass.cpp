@@ -2,38 +2,14 @@
 // Created by croemheld on 18.01.2023.
 //
 
+#include <llvm/AsmParser/Parser.h>
+
 #include <icarus/Passes/IAAPass.h>
 
 #include <icarus/Support/JSON.h>
+#include <icarus/Support/LLVMTypes.h>
 
 namespace icarus {
-
-namespace adl_json {
-
-void from_json(const nlohmann::json &JSON, VariableDef &VD, llvm::Module *M) {
-
-}
-
-void from_json(const nlohmann::json &JSON, CallContext &CC, llvm::Module *M) {
-
-}
-
-void from_json(const nlohmann::json &JSON, InputArguments &IA, llvm::Module *M) {
-  if (JSON.contains("variables"))
-    from_json(JSON.at("variables"), IA.Variables, M);
-
-  if (JSON.contains("functions"))
-    from_json(JSON.at("functions"), IA.Functions, M);
-
-  /*
-   * We don't need a custom from_json method for std::vector<std::string> as this is already supported
-   * by the nlohmann::json library, and it does not require additional arguments for the conversion.
-   */
-  if (JSON.contains("simulated"))
-    JSON.at("simulated").get_to(IA.Simulated);
-}
-
-}
 
 /*
  * Register pass in icarus
@@ -58,14 +34,14 @@ void IAAContext::worker(ProgramContext& PC) {
  * AIAPass methods
  */
 
-void IAAPass::parseJSONArguments(IcarusPassArguments &IPA) {
+void IAAPass::parseJSONArguments(PassArguments &IPA) {
 
   IcarusModule *IM = IPA.getModuleAt(0);
   nlohmann::json& JSON = IPA.getJSONObject();
-  from_json(JSON, IA, IM->getModule());
+  from_json(JSON, IA, IM);
 }
 
-bool IAAPass::checkPassArguments(IcarusPassArguments &IPA) {
+bool IAAPass::checkPassArguments(PassArguments &IPA) {
   std::string JSON = IPA.getJSON();
 
   /*
@@ -80,7 +56,7 @@ bool IAAPass::checkPassArguments(IcarusPassArguments &IPA) {
   return true;
 }
 
-int IAAPass::runAnalysisPass(IcarusPassArguments &IPA) {
+int IAAPass::runAnalysisPass(PassArguments &IPA) {
   parseJSONArguments(IPA);
   return 0;
 }

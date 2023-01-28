@@ -15,27 +15,6 @@
 namespace icarus {
 
 /*
- * Input argument structure
- */
-
-struct VariableDef {
-  std::string Name;
-  llvm::Constant *CVal;
-};
-
-struct CallContext {
-  std::string Name;
-  llvm::Function *Func;
-  std::map<unsigned, llvm::Constant *> Args;
-};
-
-struct InputArguments {
-  std::vector<VariableDef> Variables;
-  std::vector<CallContext> Functions;
-  std::vector<std::string> Simulated;
-};
-
-/*
  * Constant Propagation Analysis (CPA) Pass
  */
 
@@ -61,13 +40,13 @@ class IAAPass : public EEAPass<IAAContext> {
 
   InputArguments IA;
 
-  void parseJSONArguments(IcarusPassArguments &IPA);
+  void parseJSONArguments(PassArguments &IPA);
 
 public:
 
-  bool checkPassArguments(IcarusPassArguments &IPA) override;
+  bool checkPassArguments(PassArguments &IPA) override;
 
-  int runAnalysisPass(IcarusPassArguments &IPA) override;
+  int runAnalysisPass(PassArguments &IPA) override;
 
 };
 

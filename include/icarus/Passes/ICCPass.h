@@ -5,11 +5,11 @@
 #ifndef ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
 #define ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
 
-#include <icarus/Passes/IcarusPass.h>
+#include <icarus/Passes/Pass.h>
 
 namespace icarus {
 
-class ICCPass : public IcarusPass {
+class ICCPass : public Pass {
 
   std::map<std::string, unsigned long> IndirectCalls;
 
@@ -18,7 +18,7 @@ public:
   static constexpr std::string_view OPTION = "ICC";
   static constexpr std::string_view NAME = "Indirect Call Counter";
 
-  int runAnalysisPass(IcarusPassArguments &IPA) override;
+  int runAnalysisPass(PassArguments &IPA) override;
 
 };
 

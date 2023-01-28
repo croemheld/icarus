@@ -7,7 +7,7 @@
 
 #include <llvm/IR/InstVisitor.h>
 
-#include <icarus/Passes/IcarusPass.h>
+#include <icarus/Passes/Pass.h>
 
 #include <icarus/Support/Traits.h>
 
@@ -52,7 +52,7 @@ using is_aiacontext_impl = is_template_base_of<AnalysisContext, AIAContextImpl>;
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
 template <typename AIAContextImpl, std::enable_if_t<is_aiacontext_impl<AIAContextImpl>::value, bool> = true>
-class AIAPass : public IcarusPass {
+class AIAPass : public Pass {
 
 public:
 
@@ -63,7 +63,7 @@ public:
    * Creates a new abstract interpretation-based analysis pass with the provided AnalysisContext. With
    * the AnalysisContext template argument, we implement the basic techniques for the pass.
    */
-  AIAPass() : IcarusPass() {}
+  AIAPass() : Pass() {}
 
 };
 

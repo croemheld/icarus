@@ -5,7 +5,9 @@
 #ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_JSON_H
 #define ICARUS_INCLUDE_ICARUS_SUPPORT_JSON_H
 
-#include <llvm/IR/Module.h>
+#include <llvm/ADT/ArrayRef.h>
+
+#include <icarus/Logger/Logger.h>
 
 #include <nlohmann/json.hpp>
 
@@ -14,6 +16,7 @@ namespace icarus {
 struct VariableDef;
 struct CallContext;
 struct InputArguments;
+struct IcarusModule;
 
 namespace adl_json {
 
@@ -21,17 +24,17 @@ namespace adl_json {
  * Conversion function for nlohmann::json -> VariableDef.
  * @param JSON The reference to the nlohmann::json instance.
  * @param VD The reference to the VariableRef instance.
- * @param M Pointer to the llvm::Module in order to completely initialize the class.
+ * @param IM Pointer to the IcarusModule in order to completely initialize the class.
  */
-void from_json(const nlohmann::json& JSON, VariableDef& VD, llvm::Module *M);
+void from_json(const nlohmann::json& JSON, VariableDef& VD, IcarusModule *IM);
 
 /**
  * Conversion function for nlohmann::json -> CallContext.
  * @param JSON The reference to the nlohmann::json instance.
  * @param VD The reference to the CallContext instance.
- * @param M Pointer to the llvm::Module in order to completely initialize the class.
+ * @param IM Pointer to the IcarusModule in order to completely initialize the class.
  */
-void from_json(const nlohmann::json& JSON, CallContext& CC, llvm::Module *M);
+void from_json(const nlohmann::json& JSON, CallContext& CC, IcarusModule *IM);
 
 /**
  * Convert JSON object from nlohmann::json to InputArguments to generate a initial state for analysis.
@@ -44,7 +47,7 @@ void from_json(const nlohmann::json& JSON, CallContext& CC, llvm::Module *M);
  *  holder is a JSON object with properties "type" and "elem" for the type and its elements. Arrays in
  *  this example would be: { "type": "[5 x i32]", "elem": { <variable>, <variable>, ..., <variable> }}
  *
- *  - "functions": [ "<name>": { "0": <variable>, ... }, ... ]
+ *  - "functions": [ { "func": "<name>", "0": <variable>, "1": <variable>, ... }, ... ]
  *  <name> specifies the name of the function at which to start the analysis. It is allowed to specify
  *  multiple functions (even the same function twice or thrice), each with different arguments. Assign
  *  a function argument by specifying the index in the function property (e.g. "0", "1", ...) followed
@@ -57,8 +60,14 @@ void from_json(const nlohmann::json& JSON, CallContext& CC, llvm::Module *M);
  *
  * @param JSON The nlohmann::json object which to use to populate a FunctionContext.
  * @param IA The reference to the InputArguments instance which to populate.
+ * @param IM Pointer to the IcarusModule in order to completely initialize the class.
  */
-void from_json(const nlohmann::json& JSON, InputArguments& IA, llvm::Module *M);
+void from_json(const nlohmann::json& JSON, InputArguments& IA, IcarusModule *IM);
+
+/*
+ * WARNING: All partially specialized template classes will fail if the provided type is NOT trivially
+ * constructible. Because of variadic templates, there doesn't seem to be a way for a static check.
+ */
 
 /**
  * Base template class for all types and additional arguments. To add support for other types, we need
@@ -75,6 +84,7 @@ struct from_json_function {
    * @param args The additional arguments.
    */
   void operator()(const nlohmann::json& JSON, T& t, Args&&... args) {
+    INFO(JSON);
     from_json(JSON, t, std::forward<Args>(args)...);
   }
 };
@@ -87,33 +97,46 @@ struct from_json_function {
 template <typename T, typename ... Args>
 struct from_json_function<std::vector<T>, Args...> {
   /**
-   * Function call overload for this partially specialized template class.
+   * Function call overload for this partially specialized template class. This function assumes, that
+   * the provided JSON object is iterable, i.e. it will fail if the user provides a JSON object, which
+   * does not match a type that can be natively converted into a vector.
    * @param JSON The reference to the nlohmann::json instance.
    * @param v The reference to the std::vector to populate.
    * @param args The additional arguments.
    */
   void operator()(const nlohmann::json& JSON, std::vector<T>& v, Args&&... args) {
     for (auto &Element : JSON) {
-      v.emplace_back(T());
+      v.push_back(T());
       from_json(Element, v.back(), std::forward<Args>(args)...);
     }
   }
 };
 
 /**
- * Core function for all conversion function from nlohmann::json to an arbitrary type T. It works like
- * the adl_string::to_string function, but also works with partial specialization. This works, because
- * we use a template class instead of a template function overload.
- * @tparam T The type of the object to populate.
- * @tparam Args The deduced types of the additional arguments.
- * @param JSON The reference to the nlohmann::json instance.
- * @param t The object to populate.
- * @param args The additional arguments to pass to the custom from_json function.
+ * Partial specialization of from_json_function with std::map elements.
+ * @tparam V The type of the values stored in the map.
+ * @tparam Args The types of the additional arguments.
  */
-template <typename T, typename ... Args>
-void from_json_impl(const nlohmann::json& JSON, T& t, Args&&... args) {
-  return from_json_function<T, Args...>()(JSON, t, std::forward<Args>(args)...);
-}
+template <typename V, typename ... Args>
+struct from_json_function<std::map<std::string, V>, Args...> {
+  /**
+   * Function call overload for this partially specialized template class. This function assumes, that
+   * the provided JSON object is an actual object with key-value ("key" : <value>) pairs.
+   * @param JSON The reference to the nlohmann::json instance.
+   * @param m  The reference to the std::map to populate.
+   * @param args The additional arguments.
+   */
+  void operator()(const nlohmann::json& JSON, std::map<std::string, V>& m, Args&&... args) {
+    /*
+     * By the JSON specification the identifiers (keys) are always strings. Thus, we can simply insert
+     * the Key variable directly for the lookup and don't need to explicitly convert it to a string.
+     */
+    for (auto &[Key, Val] : JSON.items()) {
+      m[Key] = V();
+      from_json(Val, m[Key], std::forward<Args>(args)...);
+    }
+  }
+};
 
 }
 
@@ -127,7 +150,7 @@ void from_json_impl(const nlohmann::json& JSON, T& t, Args&&... args) {
  */
 template <typename T, typename ... Args>
 void from_json(const nlohmann::json& JSON, T& t, Args&&... args) {
-  adl_json::from_json_impl(JSON, t, std::forward<Args>(args)...);
+  adl_json::from_json_function<T, Args...>()(JSON, t, std::forward<Args>(args)...);
 }
 
 }

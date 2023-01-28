@@ -25,6 +25,11 @@ using std::to_string;
 std::string to_string(const llvm::Value& V);
 
 /**
+ * Helper function for converting a llvm::Type instance to a string representation that can be logged.
+ */
+std::string to_string(const llvm::Type& V);
+
+/**
  * Core function for all adl_string::to_string functions for different argument types in order to make
  * this work, simply implement a function with the name to_string in this namespace with the arguments
  * being the reference to the instance that should be converted into a string.
@@ -60,6 +65,14 @@ std::string to_string(const T& t) {
  * @return The provided stream to allow operator chaining.
  */
 std::ostream& operator<<(std::ostream& Out, const llvm::Value& V);
+
+/**
+ * Defining operator<< for llvm::Value objects and derivatives.
+ * @param Out The stream to which to write the llvm::Value instance as a string.
+ * @param T The type to write to the stream in a string representation.
+ * @return The provided stream to allow operator chaining.
+ */
+std::ostream& operator<<(std::ostream& Out, const llvm::Type& T);
 
 /**
  * Helper method for generating formatted strings in printf style.

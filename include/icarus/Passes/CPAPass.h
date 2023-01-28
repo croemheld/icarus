@@ -34,7 +34,7 @@ class CPAPass : public AIAPass<CPAContext> {
 
 public:
 
-  int runAnalysisPass(IcarusPassArguments &IPA) override;
+  int runAnalysisPass(PassArguments &IPA) override;
 
 };
 

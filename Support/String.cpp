@@ -27,10 +27,21 @@ std::string to_string(const llvm::Value &V) {
   return String;
 }
 
+std::string to_string(const llvm::Type& T) {
+  std::string String;
+  llvm::raw_string_ostream OS(String);
+  T.print(OS, false);
+  return String;
+}
+
 }
 
 std::ostream& operator<<(std::ostream& Out, const llvm::Value& V) {
   return Out << to_string(V);
+}
+
+std::ostream& operator<<(std::ostream& Out, const llvm::Type& T) {
+  return Out << to_string(T);
 }
 
 bool startsWith(std::string_view Str, std::string_view Pre) {

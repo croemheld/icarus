@@ -18,10 +18,13 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 add_executable(icarus
         Icarus.cpp
         Logger/Logger.cpp
-        Passes/IcarusPass.cpp
+        Passes/Pass.cpp
+        Passes/PassArguments.cpp
         Passes/IAAPass.cpp
         Passes/ICCPass.cpp
         Passes/CPAPass.cpp
+        Support/LLVMTypes.cpp
+        Support/LLVMValue.cpp
         Support/String.cpp
         Threads/ThreadPool.cpp
         Analysis/FunctionContext.cpp
