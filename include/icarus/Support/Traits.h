@@ -27,7 +27,7 @@ struct is_template_base_of_impl {
 /**
  * Helper alias for is_template_base_of_impl that directly returns the type trait.
  */
-template < template <typename...> class Base, typename Derived>
+template <template <typename ...> class Base, typename Derived>
 using is_template_base_of = typename is_template_base_of_impl<Base, Derived>::type;
 
 }
