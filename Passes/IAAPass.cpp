@@ -16,32 +16,20 @@ namespace icarus {
  */
 
 static RegisterPass<IAAPass> IAAPass(nullptr);
-
-/*
- * IAAContext methods
- */
-
-void IAAContext::worker(ProgramContext& PC) {
-  while (!PC.isStackEmpty()) {
-    FunctionContext &FC = PC.getCurrentFunctionStack();
-    llvm::Instruction &I = FC.iterateNextInstruction();
-    INFO_WITH("iaa", "Interpreting: ", I);
-    visit(I);
-  }
-}
+static RegisterPass<IATPass> IATPass(nullptr);
 
 /*
  * AIAPass methods
  */
 
-void IAAPass::parseJSONArguments(PassArguments &IPA) {
+void IAAPassImpl::parseJSONArguments(PassArguments &IPA) {
 
   IcarusModule *IM = IPA.getModuleAt(0);
   nlohmann::json& JSON = IPA.getJSONObject();
   from_json(JSON, IA, IM);
 }
 
-bool IAAPass::checkPassArguments(PassArguments &IPA) {
+bool IAAPassImpl::checkPassArguments(PassArguments &IPA) {
   std::string JSON = IPA.getJSON();
 
   /*
@@ -56,7 +44,7 @@ bool IAAPass::checkPassArguments(PassArguments &IPA) {
   return true;
 }
 
-int IAAPass::runAnalysisPass(PassArguments &IPA) {
+int IAAPassImpl::runAnalysisPass(PassArguments &IPA) {
   parseJSONArguments(IPA);
   return 0;
 }

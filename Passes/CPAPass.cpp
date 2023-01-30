@@ -11,12 +11,17 @@ namespace icarus {
  */
 
 static RegisterPass<CPAPass> CPAPass(nullptr);
+static RegisterPass<CPTPass> CPTPass(nullptr);
 
 /*
- * AIAPass methods
+ * CPAPassImpl methods
  */
 
-int CPAPass::runAnalysisPass(PassArguments &IPA) {
+bool CPAPassImpl::checkPassArguments(PassArguments &IPA) {
+  return true;
+}
+
+int CPAPassImpl::runAnalysisPass(PassArguments &IPA) {
   return 0;
 }
 

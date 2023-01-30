@@ -7,6 +7,7 @@
 
 #include <llvm/IR/InstVisitor.h>
 
+#include <icarus/Analysis/ProgramContext.h>
 #include <icarus/Passes/Pass.h>
 
 #include <icarus/Support/Traits.h>
@@ -40,7 +41,7 @@ protected:
  * ensuring the AIAPass below receives a correct template argument at compile-time.
  */
 template <typename AIAContextImpl>
-using is_aiacontext_impl = is_template_base_of<AnalysisContext, AIAContextImpl>;
+using enable_if_aiacontext = std::enable_if_t<is_template_base_of<AnalysisContext, AIAContextImpl>::value, bool>;
 
 /*
  * Abstract Interpretation Analysis (AIA) Pass
@@ -48,22 +49,40 @@ using is_aiacontext_impl = is_template_base_of<AnalysisContext, AIAContextImpl>;
 
 /**
  * Base class for all abstract interpretation-based analyses. The core logic of this class is provided
- * by the AIAContext (AnalysisContext) subclass passed as the template parameter.
+ * by the AIAContext (AnalysisContext) subclass passed as the template parameter. In order to use this
+ * class, one has to inherit from both Pass and ThreadedAIAPass.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, std::enable_if_t<is_aiacontext_impl<AIAContextImpl>::value, bool> = true>
-class AIAPass : public Pass {
+template <typename AIAContextImpl, bool Threaded, enable_if_aiacontext<AIAContextImpl> = true>
+class ThreadedAIAPass {
 
 public:
-
-  static constexpr std::string_view OPTION = AIAContextImpl::OPTION;
-  static constexpr std::string_view NAME = AIAContextImpl::NAME;
 
   /**
    * Creates a new abstract interpretation-based analysis pass with the provided AnalysisContext. With
    * the AnalysisContext template argument, we implement the basic techniques for the pass.
    */
-  AIAPass() : Pass() {}
+  ThreadedAIAPass() = default;
+
+  /**
+   * Schedule method for ThreadedAIAPass subclasses that support multithreading.
+   * @tparam UseThreadPool If UseThreadPool is true, enable this method.
+   * @param PC The program context to schedule.
+   */
+  template <bool UseThreadPool = Threaded, typename std::enable_if_t<UseThreadPool, bool>::value = true>
+  void schedule(ProgramContext& PC) {
+
+  }
+
+  /**
+   * Schedule method for ThreadedAIAPass subclasses that do NOT support multithreading.
+   * @tparam UseThreadPool If UseThreadPool is false, enable this method.
+   * @param PC The program context to schedule.
+   */
+  template <bool UseThreadPool = Threaded, typename std::enable_if_t<!UseThreadPool, bool>::value = true>
+  void schedule(ProgramContext& PC) {
+
+  }
 
 };
 

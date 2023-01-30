@@ -25,21 +25,23 @@ using IAAContextRetTy = void;
  */
 struct IAAContext : EEAContext<IAAContext, IAAContextRetTy> {
 
-  static constexpr std::string_view OPTION = "IAA";
-  static constexpr std::string_view NAME = "Input-Aware Analysis";
-
-  void worker(ProgramContext& PC);
+  void worker(ProgramContext &PC);
 
 };
 
 /**
- * Base class for input-aware analyses with the underlying abstract interpretation-based pass. It uses
- * user-provided input to generate initial program states in order to "interpret" the program.
+ * Similar to CPAPassImpl, we implement the virtual methods from the Pass class here to avoid code du-
+ * plication and implementing the methods in header files. Is inherited from by ThreadedIAAPass.
  */
-class IAAPass : public EEAPass<IAAContext> {
+class IAAPassImpl : public Pass {
 
   InputArguments IA;
 
+  /**
+   * Parse the provided JSON arguments located in the JSON file. The exact structures of the supported
+   * identifiers are described in the appropriate JSON functions from_json.
+   * @param IPA The reference to the class with the CLI options.
+   */
   void parseJSONArguments(PassArguments &IPA);
 
 public:
@@ -48,6 +50,23 @@ public:
 
   int runAnalysisPass(PassArguments &IPA) override;
 
+};
+
+/**
+ * Base class for input-aware analyses with the underlying abstract interpretation-based pass. It uses
+ * user-provided input to generate initial program states in order to "interpret" the program.
+ */
+template<bool Threaded>
+class ThreadedIAAPass : public IAAPassImpl, public EEAPass<IAAContext, Threaded> {};
+
+struct IAAPass : public ThreadedIAAPass<false> {
+  static constexpr std::string_view OPTION = "IAA";
+  static constexpr std::string_view NAME = "Input-Aware Analysis";
+};
+
+struct IATPass : public ThreadedIAAPass<true> {
+  static constexpr std::string_view OPTION = "IAT";
+  static constexpr std::string_view NAME = "Input-Aware Analysis (Threaded)";
 };
 
 }
