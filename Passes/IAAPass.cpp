@@ -49,4 +49,15 @@ int IAAPassImpl::runAnalysisPass(PassArguments &IPA) {
   return 0;
 }
 
+/*
+ * IATPass methods
+ */
+
+bool IATPass::checkPassArguments(PassArguments &IPA) {
+  if (!IAAPassImpl::checkPassArguments(IPA))
+    return false;
+  initializeThreadPool(IPA.getNumThreads());
+  return true;
+}
+
 }

@@ -49,7 +49,7 @@ class IAAPassImpl : public Pass {
 
 public:
 
-  bool checkPassArguments(PassArguments &IPA) override;
+  virtual bool checkPassArguments(PassArguments &IPA) override;
 
   int runAnalysisPass(PassArguments &IPA) override;
 
@@ -68,6 +68,8 @@ struct IAAPass : public IAAPassImpl, public EEAPass<IAAContext, IAAContext::Iter
 struct IATPass : public IAAPassImpl, public EETPass<IAAContext, IAAContext::Iter> {
   static constexpr std::string_view OPTION = "IAT";
   static constexpr std::string_view NAME = "Input-Aware Analysis (Threaded)";
+
+  bool checkPassArguments(PassArguments &IPA);
 };
 
 }
