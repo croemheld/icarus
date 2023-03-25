@@ -24,7 +24,7 @@ struct ThreadSafeQueue : public ThreadSafeContainer<ThreadSafeQueue<SubClass, T>
    * Pushes an element to the end of the queue while holding an unique (read-write) lock.
    * @param t The element to push to the end of the queue.
    */
-  void push(const T &t) {
+  void push(T&& t) {
     std::unique_lock<std::shared_mutex> Lock(this->Mutex);
     this->Container.push(std::move(t));
     this->Condition.notify_one();

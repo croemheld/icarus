@@ -73,10 +73,9 @@ protected:
    * @param hasColors True, if the logger supports colors.
    */
   LoggerImpl(std::ostream &Stream, bool hasColors)
-      : MessageQueue(nullptr),
-        ROStream(Stream),
-        FOStream(ROStream)
-  {
+      : MessageQueue(nullptr)
+      , ROStream(Stream)
+      , FOStream(ROStream) {
     FOStream.enable_colors(hasColors);
     FOStream.changeColor(llvm::raw_ostream::Colors::WHITE, false, false);
   }
@@ -132,7 +131,9 @@ public:
    * does not support colors: The default implementation of the base LoggerImpl class suffices.
    * @param File The path to the output file, which will be created if it does not exist yet.
    */
-  explicit FileLogger(llvm::StringRef File) : FileStream(File.str()), LoggerImpl(FileStream, false) {}
+  explicit FileLogger(llvm::StringRef File)
+      : FileStream(File.str())
+      , LoggerImpl(FileStream, false) {}
 
 };
 
@@ -170,10 +171,9 @@ public:
    * @param Logger The logger instance to launch in a new thread.
    */
   explicit LogThread(LoggerImpl *Logger)
-    : Logger(Logger),
-      MessageQueue(new LogMessageQueue()),
-      LoggerThread(&LoggerImpl::worker, Logger, MessageQueue)
-  {}
+      : Logger(Logger)
+      , MessageQueue(new LogMessageQueue())
+      , LoggerThread(&LoggerImpl::worker, Logger, MessageQueue) {}
 
   /**
    * Stores the log type and the associated message in the message queue. The queue is thread safe and
@@ -204,7 +204,7 @@ class Logger {
   /**
    * @return Return a reference to the single static instance of the logger.
    */
-  static Logger& get();
+  static Logger &get();
 
   /**
    * Stores any early messages in a single static vector. This method is only used for printing before
@@ -223,7 +223,7 @@ class Logger {
    * @return A formatted string of the log message including timestamp and normalized thread ID.
    */
   template <typename ... Args>
-  static std::string formatMessage(unsigned ThreadID, Args&& ... args) {
+  static std::string formatMessage(unsigned ThreadID, Args &&... args) {
     std::stringstream Buffer;
     auto Clock = std::chrono::system_clock::now();
     auto Time = std::chrono::system_clock::to_time_t(Clock);
@@ -246,7 +246,7 @@ class Logger {
    * @param args The different arguments of the message string.
    */
   template <typename ... Args>
-  void doLogs(enum LogTypeEnum LogType, Args&& ... args) {
+  void doLogs(enum LogTypeEnum LogType, Args &&... args) {
     unsigned ThreadID = ThreadPool::getThreadID();
     std::string Message = formatMessage(ThreadID, std::forward<Args>(args)...);
     for (LogThread *L : Loggers) {
@@ -282,7 +282,7 @@ public:
    * @param args The different arguments of the message string.
    */
   template <typename ... Args>
-  static void logs(enum LogTypeEnum LogType, Args&& ... args) {
+  static void logs(enum LogTypeEnum LogType, Args &&... args) {
     get().doLogs(LogType, std::forward<Args>(args)...);
   }
 
@@ -293,7 +293,7 @@ public:
    * @param args The different arguments of the message string.
    */
   template <typename ... Args>
-  static void earlyLogs(enum LogTypeEnum LogType, Args&& ... args) {
+  static void earlyLogs(enum LogTypeEnum LogType, Args &&... args) {
     std::string Message = formatMessage(UINT32_MAX, std::forward<Args>(args)...);
     getEarlyMessages().push_back({LogType, Message});
   }

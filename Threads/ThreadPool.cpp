@@ -13,7 +13,7 @@ ThreadPool &ThreadPool::get() {
 
 void ThreadPool::worker() {
   while (Running) {
-    std::unique_ptr<ThreadPoolTask> Task;
+    std::unique_ptr<Task> Task;
     if (Tasks.pop(Task)) {
       Task->execute();
       --TotalTasks;

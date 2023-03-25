@@ -15,6 +15,44 @@
 namespace icarus {
 
 /**
+ * General class representing a thread pool task. The class is used as an interface, since a derived
+ * class (see ThreadTask below) always has different types depending on the template arguments. This
+ * allows us to run any function with any signature in the thread pool.
+ */
+struct Task {
+  Task() = default;
+  Task(const Task& Other) = delete;
+  Task(Task&& Other) = default;
+  virtual ~Task() = default;
+  Task& operator=(const Task& Other) = delete;
+  Task& operator=(Task&& Other) = default;
+
+  /**
+   * Executes the provided function in this thread pool task. The implementation is done by subclass
+   * as it requires a template argument that cannot be done in this interface.
+   */
+  virtual void execute() = 0;
+};
+
+/**
+ * Implementation of the Task class above. It wraps any function in a Task class
+ * instance that is moved to the task queue of the thread pool.
+ * @tparam Func The function signature of the task to schedule.
+ */
+template <typename Func>
+class ThreadTask : public Task {
+  Func ThreadFunction;
+public:
+  explicit ThreadTask(Func &&Function) : ThreadFunction(std::move(Function)) {}
+  ThreadTask(const ThreadTask& Other) = delete;
+  ThreadTask(ThreadTask&& Other) = delete;
+  ~ThreadTask() override = default;
+  ThreadTask& operator=(const ThreadTask& Other) = delete;
+  ThreadTask& operator=(ThreadTask&& Other) noexcept = default;
+  void execute() override { ThreadFunction(); }
+};
+
+/**
  * The class for a global thread pool instance. There should only be one single thread pool that can be accessed
  * via static methods to ensure uniformity and maximum throughput for all threads. Do not create a local or even
  * one or more global thread pools. Instead, use only the static methods via ThreadPool::initialize, ...
@@ -22,48 +60,10 @@ namespace icarus {
 class ThreadPool {
 
   /**
-   * Internal class representing a thread pool task. The class is used as an interface since a derived
-   * class (see ThreadTask below) always has different types depending on the template arguments. This
-   * allows us to run any function with any signature in the thread pool.
-   */
-  struct ThreadPoolTask {
-    ThreadPoolTask() = default;
-    ThreadPoolTask(const ThreadPoolTask& Other) = delete;
-    ThreadPoolTask(ThreadPoolTask&& Other) = default;
-    virtual ~ThreadPoolTask() = default;
-    ThreadPoolTask& operator=(const ThreadPoolTask& Other) = delete;
-    ThreadPoolTask& operator=(ThreadPoolTask&& Other) = default;
-
-    /**
-     * Executes the provided function in this thread pool task. The implementation is done by subclass
-     * as it requires a template argument that cannot be done in this interface.
-     */
-    virtual void execute() = 0;
-  };
-
-  /**
-   * Implementation of the ThreadPoolTask class above. It wraps any function in a ThreadPoolTask class
-   * instance that is moved to the task queue of the thread pool.
-   * @tparam Func The function signature of the task to schedule.
-   */
-  template <typename Func>
-  class ThreadTask : public ThreadPoolTask {
-    Func ThreadFunction;
-  public:
-    explicit ThreadTask(Func &&Function) : ThreadFunction(std::move(Function)) {}
-    ThreadTask(const ThreadTask& Other) = delete;
-    ThreadTask(ThreadTask&& Other) = delete;
-    ~ThreadTask() override = default;
-    ThreadTask& operator=(const ThreadTask& Other) = delete;
-    ThreadTask& operator=(ThreadTask&& Other) noexcept = default;
-    void execute() override { ThreadFunction(); }
-  };
-
-  /**
    * Specialization of the thread safe queue for scheduling thread pool tasks. All tasks stored in the
    * queue are wrapped in std::unique_ptr so that they are deallocated automatically after completion.
    */
-  struct TaskQueue : public ThreadSafeQueue<TaskQueue, std::unique_ptr<ThreadPoolTask>> {};
+  struct TaskQueue : public ThreadSafeQueue<TaskQueue, std::unique_ptr<Task>> {};
 
   std::atomic_bool Running = false;
 
@@ -114,13 +114,15 @@ class ThreadPool {
    * @param args The arguments to pass to the function.
    * @return A std::future that allows us to wait for the scheduled function to return.
    */
-  template <typename Func, typename ... Args,
-      typename RetTy = std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>,
-      typename PTask = std::packaged_task<RetTy()>,
-      typename TaskT = ThreadTask<PTask>>
+  template <typename Func, typename ... Args>
   auto doSubmit(Func &&Function, Args&&... args) {
     auto Task = std::bind(std::forward<Func>(Function), std::forward<Args>(args)...);
-    std::packaged_task<RetTy()> PackagedTask(std::move(Task));
+
+    using RetTy = std::result_of_t<decltype(Task)()>;
+    using PTask = std::packaged_task<RetTy()>;
+    using TaskT = ThreadTask<PTask>;
+
+    PTask PackagedTask(std::move(Task));
     std::future<RetTy> Future(PackagedTask.get_future());
     Tasks.push(std::make_unique<TaskT>(std::move(PackagedTask)));
     ++TotalTasks;

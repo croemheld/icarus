@@ -16,7 +16,7 @@ namespace icarus {
  * @tparam Base The template base class (without any template parameters) to check against.
  * @tparam Derived The derived class to check.
  */
-template < template <typename...> class Base, typename Derived>
+template <template <typename ...> class Base, typename Derived>
 struct is_template_base_of_impl {
   template<typename... Ts>
   static constexpr std::true_type eval(const Base<Ts...> *);
