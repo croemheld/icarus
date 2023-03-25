@@ -78,6 +78,7 @@ class PassArguments {
 
   std::string FileArg;
   std::string JSONArg;
+  unsigned NumThreads;
   ModuleVector Modules;
 
   nlohmann::json JSON;
@@ -86,10 +87,11 @@ class PassArguments {
 
 public:
 
-  PassArguments(std::string &FileArg, std::string &JSONArg);
+  PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads);
 
   std::string getFile() const;
   std::string getJSON() const;
+  unsigned getNumThreads() const;
   unsigned int getNumFiles() const;
   nlohmann::json& getJSONObject();
 

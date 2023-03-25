@@ -27,8 +27,8 @@ add_executable(icarus
         Support/LLVMValue.cpp
         Support/String.cpp
         Threads/ThreadPool.cpp
-        Analysis/FunctionContext.cpp
-        Analysis/ProgramContext.cpp
+        Analysis/EngineValue.cpp
+        Analysis/ExecutionEngine.cpp
 )
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)

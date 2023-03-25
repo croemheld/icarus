@@ -11,8 +11,63 @@
 #include <icarus/Passes/Pass.h>
 
 #include <icarus/Support/Traits.h>
+#include <icarus/Support/LLVMValue.h>
+
+#include <queue>
 
 namespace icarus {
+
+/**
+ * Depending on the pass, the AnalysisContext instance may be applied in the default instruction order
+ * or, if it is a backward analysis (e.g. Live-Variable Analysis), in reverse order. We assume that an
+ * arbitrary pass usually performs forward analyses, so we use DefaultAnalysisIterator as a default param.
+ *
+ *
+ */
+
+class DefaultAnalysisIterator {
+
+  DefaultAnalysisIterator() = default;
+
+public:
+
+  using Iter = llvm::BasicBlock::iterator;
+
+  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) {
+    return F.isDeclaration() ? nullptr : &F.getEntryBlock();
+  }
+
+  static Iter init(llvm::BasicBlock *BB) {
+    return BB->begin();
+  }
+
+  static Iter exit(llvm::BasicBlock *BB) {
+    return BB->end();
+  }
+
+};
+
+class ReverseAnalysisIterator {
+
+  ReverseAnalysisIterator() = default;
+
+public:
+
+  using Iter = llvm::BasicBlock::reverse_iterator;
+
+  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) {
+    return F.isDeclaration() ? nullptr : getUniqueExitBlock(F);
+  }
+
+  static Iter init(llvm::BasicBlock *BB) {
+    return BB->rbegin();
+  }
+
+  static Iter exit(llvm::BasicBlock *BB) {
+    return BB->rend();
+  }
+
+};
 
 /**
  * Base template class for all passes that wish to use the abstract interpretation-based analyses. The
@@ -20,11 +75,12 @@ namespace icarus {
  * @tparam SubClass The subclass that specializes this template.
  * @tparam RetTy The return type of each instruction handler. By default it is a void return type.
  */
-template <typename SubClass, typename RetTy = void>
+template <typename AnalysisIterator, typename SubClass, typename RetTy = void>
 struct AnalysisContext : public llvm::InstVisitor<SubClass, RetTy> {
 
-
 protected:
+
+  ProgramContext<AnalysisIterator> PC;
 
   /**
    * Creates a new AnalysisContext instance that inherits all methods from the llvm::InstVisitor class
@@ -34,7 +90,6 @@ protected:
   AnalysisContext() = default;
 
 };
-
 
 /**
  * Alias to determine whether or not a class inherits from the AIAContext above. This is necessary for
@@ -53,8 +108,23 @@ using enable_if_aiacontext = std::enable_if_t<is_template_base_of<AnalysisContex
  * class, one has to inherit from both Pass and ThreadedAIAPass.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, bool Threaded, enable_if_aiacontext<AIAContextImpl> = true>
+template <typename AIAContextImpl, bool Threaded, typename AnalysisIterator, typename = void>
 class ThreadedAIAPass {
+
+protected:
+
+  void scheduleAnalysisContext(AIAContextImpl &AIAContext) {
+
+  }
+
+  void ProgramContextWorker(ProgramContext<AnalysisIterator> &PC) {
+    while (!PC.isStackEmpty()) {
+      auto &FC = PC.getCurrentFunctionStack();
+      llvm::Instruction &I = FC->nextInstruction();
+      INFO_WITH("iaa", "Interpreting: ", I);
+      AIAContextImpl::visit(I);
+    }
+  }
 
 public:
 
@@ -64,24 +134,75 @@ public:
    */
   ThreadedAIAPass() = default;
 
-  /**
-   * Schedule method for ThreadedAIAPass subclasses that support multithreading.
-   * @tparam UseThreadPool If UseThreadPool is true, enable this method.
-   * @param PC The program context to schedule.
-   */
-  template <bool UseThreadPool = Threaded, typename std::enable_if_t<UseThreadPool, bool>::value = true>
-  void schedule(ProgramContext& PC) {
+};
 
+/**
+ * Partial specialization for all abstract interpretation-based analyses, that do NOT support multiple
+ * threads during the analysis (logger threads not counted).
+ * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
+ */
+template <typename AIAContextImpl, typename BasicBlockIterator>
+class ThreadedAIAPass<AIAContextImpl, false, BasicBlockIterator, enable_if_aiacontext<AIAContextImpl>> {
+
+  std::queue<std::unique_ptr<Task>> TaskQueue;
+
+public:
+
+  /**
+   * Schedule method for ThreadedAIAPass subclasses that do NOT support multithreading. It essentially
+   * uses the same method signature from the ThreadPool class except that the queue is not thread-safe
+   * as there is only one thread running during the analysis (logger threads not counted).
+   * @tparam Func The type of the function to submit.
+   * @tparam Args The variadic types of the function arguments.
+   * @tparam RetTy The return type of the function.
+   * @tparam PTask Type of the packaged task wrapping the callable function.
+   * @tparam TaskT The ThreadTask type with the template parameter from the function.
+   * @param Function The function to execute in a thread pool task.
+   * @param args The arguments to pass to the function.
+   */
+  template <typename Func, typename ... Args,
+      typename RetTy = std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>,
+      typename PTask = std::packaged_task<RetTy()>,
+      typename TaskT = ThreadTask<PTask>>
+  void schedule(Func &&Function, Args &&... args) {
+    auto Task = std::bind(std::forward<Func>(Function), std::forward<Args>(args)...);
+    std::packaged_task<RetTy()> PackagedTask(std::move(Task));
+    TaskQueue.emplace(std::make_unique<TaskT>(std::move(PackagedTask)));
   }
 
-  /**
-   * Schedule method for ThreadedAIAPass subclasses that do NOT support multithreading.
-   * @tparam UseThreadPool If UseThreadPool is false, enable this method.
-   * @param PC The program context to schedule.
-   */
-  template <bool UseThreadPool = Threaded, typename std::enable_if_t<!UseThreadPool, bool>::value = true>
-  void schedule(ProgramContext& PC) {
+};
 
+/**
+ * Partial specialization for all abstract interpretation-based analyses, that support multithreading.
+ * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
+ */
+template <typename AIAContextImpl, typename BasicBlockIterator>
+class ThreadedAIAPass<AIAContextImpl, true, BasicBlockIterator, enable_if_aiacontext<AIAContextImpl>> {
+
+  ThreadPool ThreadPool;
+
+protected:
+
+  /**
+   * Initialize the pass thread pool with the specified number of threads.
+   * @param NumThreads The number of worker threads to initialize.
+   */
+  void initializeThreadPool(unsigned NumThreads) {
+    ThreadPool.initialize(NumThreads);
+  }
+
+public:
+
+  /**
+   * Schedule method for ThreadedAIAPass subclasses that support multithreading.
+   * @tparam Func The type of the function to submit.
+   * @tparam Args The variadic types of the function arguments.
+   * @param Function The function to execute in a thread pool task.
+   * @param args The arguments to pass to the function.
+   */
+  template <typename Func, typename ... Args>
+  void schedule(Func &&Function, Args &&... args) {
+    ThreadPool.submit(Function, std::forward<Args>(args)...);
   }
 
 };

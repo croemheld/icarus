@@ -66,14 +66,13 @@ int main(int argc, char *argv[]) {
   if (!IP)
     return EINVAL;
 
-  PassArguments IPA(File.getValue(), JSON.getValue());
+  PassArguments IPA(File.getValue(), JSON.getValue(), Threads.getValue());
   if (!IPA.getNumFiles())
     return ENOENT;
 
   if (!IP->checkPassArguments(IPA))
     return EINVAL;
 
-  ThreadPool::initialize(Threads.getValue());
   initLoggerOptions(DebugOnly, DebugFile);
 
   INFO_WITH("init", "Start icarus...");

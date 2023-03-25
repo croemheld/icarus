@@ -6,6 +6,7 @@
 #define ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H
 
 #include <icarus/Analysis/FunctionContext.h>
+#include <icarus/Analysis/EngineValue.h>
 
 #include <stack>
 
@@ -18,21 +19,29 @@ namespace icarus {
  * This class represents a global execution context (i.e. the program state of a program). For a local
  * execution context, we user the class described in icarus::FunctionContext.
  */
+template <typename AnalysisIterator>
 class ProgramContext {
 
-  std::stack<FunctionContext> FCStack;
-  llvm::GenericValue ExitValue;
+  /* Map of names and addresses to global values in LLVM IR */
+  std::map<std::string, llvm::Value *> NamedValues;
+  std::map<uint64_t, llvm::Value *> AddressableValues;
+
+  /* Map of global regions in memory, uniquely identifiable */
+  std::map<llvm::Value *, EngineValue> EngineValues;
+
+  std::deque<FunctionContext<AnalysisIterator>> FCStack;
 
 public:
 
   ProgramContext() = default;
 
-  bool isStackEmpty() const;
+  bool isStackEmpty() const {
+    return FCStack.empty();
+  }
 
-  /**
-   * @return A reference to the FunctionContext currently sitting on top of the stack.
-   */
-  FunctionContext& getCurrentFunctionStack();
+  FunctionContext<AnalysisIterator> &getCurrentFunctionStack() {
+    return FCStack.front().get();
+  }
 
 };
 

@@ -7,5 +7,6 @@
 
 namespace cl = llvm::cl;
 namespace fs = llvm::sys::fs;
+namespace sys = llvm::sys;
 
 #endif // ICARUS_INCLUDE_ICARUS_SUPPORT_NAMESPACES_H

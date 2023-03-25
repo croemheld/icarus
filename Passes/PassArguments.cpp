@@ -128,9 +128,9 @@ llvm::Constant *IcarusModule::parseConstant(const nlohmann::json& JSON, llvm::Ty
       }
     }
     return getConstant(T, Elements);
-  } else {
-    assert((false) && "Unsupported JSON object for LLVM IR parser");
   }
+
+  return nullptr;
 }
 
 llvm::Constant *IcarusModule::parseConstant(const nlohmann::json& JSON) {
@@ -147,8 +147,8 @@ llvm::Function *IcarusModule::parseFunction(const nlohmann::json& JSON) {
  * PassArguments methods
  */
 
-PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg)
-    : FileArg(FileArg), JSONArg(JSONArg) {
+PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads)
+    : FileArg(FileArg), JSONArg(JSONArg), NumThreads(NumThreads) {
   /*
    * First, check if the input files exists and parse all potential LLVM modules
    * in the object instance. If no input files were found, icarus will exit here.
@@ -205,6 +205,10 @@ std::string PassArguments::getFile() const {
 
 std::string PassArguments::getJSON() const {
   return JSONArg;
+}
+
+unsigned PassArguments::getNumThreads() const {
+  return NumThreads;
 }
 
 unsigned int PassArguments::getNumFiles() const {

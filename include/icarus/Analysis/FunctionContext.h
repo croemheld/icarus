@@ -10,6 +10,8 @@
 
 #include <llvm/ExecutionEngine/GenericValue.h>
 
+#include <icarus/Analysis/EngineValue.h>
+
 #include <nlohmann/json.hpp>
 
 namespace icarus {
@@ -23,21 +25,29 @@ namespace icarus {
  * This class represents a local execution context (i.e. the program state for a call frame). The code
  * for a global execution context is located in icarus::ProgramContext.
  */
+template <typename AnalysisIterator>
 class FunctionContext {
 
   llvm::BasicBlock *BB;
-  llvm::BasicBlock::iterator II;
+  typename AnalysisIterator::Iter II;
   llvm::CallBase *Caller;
-  std::map<llvm::Value *, llvm::GenericValue> Values;
+  std::map<llvm::Value *, ValueDelegate> Values;
+
+protected:
+
+  /**
+   * Create a new program state for a function context
+   */
+  FunctionContext()
+      : BB(nullptr)
+      , II(nullptr)
+      , Caller(nullptr) {}
 
 public:
 
-  /**
-   * Create a new program state
-   */
-  FunctionContext() : BB(nullptr), II(nullptr), Caller(nullptr) {}
-
-  llvm::Instruction& iterateNextInstruction();
+  llvm::Instruction *nextInstruction() {
+    return *II++;
+  }
 
 };
 

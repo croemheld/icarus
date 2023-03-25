@@ -5,8 +5,8 @@
 #ifndef ICARUS_INCLUDE_ICARUS_PASSES_EEAPASS_H
 #define ICARUS_INCLUDE_ICARUS_PASSES_EEAPASS_H
 
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/GenericValue.h>
+#include <icarus/Analysis/EngineValue.h>
+#include <icarus/Analysis/ExecutionEngine.h>
 
 #include <icarus/Passes/AIAPass.h>
 
@@ -15,31 +15,53 @@
 namespace icarus {
 
 /**
- * AnalysisContext implementation that uses the llvm::ExecutionEngine methods with llvm::GenericValues
- * to interpret the analyzed programs. The implementation of this class is a modified version of LLVMs
- * llvm::Interpreter class for which no include-able header file exists.
+ * AnalysisContext implementation that uses the custom ExecutionEngine class with the new ProgramValue
+ * to interpret the analyzed programs.
  * @tparam SubClass The context that implements the llvm::InstVisitor methods.
  * @tparam RetTy The return type of the individual llvm::InstVisitor methods.
  */
-template <typename SubClass, typename RetTy = void>
-struct EEAContext : public llvm::ExecutionEngine, public AnalysisContext<SubClass, RetTy> {
+template<typename AnalysisIterator, typename SubClass, typename RetTy = void>
+class EEAContext : public ExecutionEngine, public AnalysisContext<SubClass, RetTy> {
 
-  void worker(ProgramContext& PC) {
-    while (!PC.isStackEmpty()) {
-      FunctionContext &FC = PC.getCurrentFunctionStack();
-      llvm::Instruction &I = FC.iterateNextInstruction();
-      INFO_WITH("iaa", "Interpreting: ", I);
-      AnalysisContext<SubClass, RetTy>::visit(I);
-    }
+  ProgramContext<AnalysisIterator> PC;
+  ValueDelegate ExitValue;
+
+public:
+
+  EEAContext(ProgramContext<AnalysisIterator> &PC, const llvm::DataLayout &DL)
+      : ExecutionEngine(DL)
+      , AnalysisContext<SubClass, RetTy>()
+      , PC(PC) {}
+
+  /*
+   * Virtual methods from ExecutionEngine
+   */
+
+  ValueDelegate executeFunction(llvm::Function *F, llvm::ArrayRef<ValueDelegate> ArgValues) override {
+    return ValueDelegate();
+  }
+
+  virtual void *getPointerToNamedFunction(llvm::StringRef Name, bool AbortOnFailure = true) override {
+    return nullptr;
+  }
+
+  /**
+   * Prepare the current program context for a call to the specified function with the given arguments
+   * stored in an array. The actual function call is handled by the main loop.
+   * @param F The function to call in the next iteration.
+   * @param ArgValues The arguments to pass to this function.
+   */
+  void callFunction(llvm::Function *F, llvm::ArrayRef<llvm::GenericValue> ArgValues) {
+
   }
 
 };
 
 /**
  * Alias to determine whether or not a class inherits from the EEAContext above. This is necessary for
- * ensuring the EEAPass below receives a correct template argument at compile-time.
+ * ensuring the ThreadedEEAPass below receives a correct template argument at compile-time.
  */
-template <typename EEAContextImpl>
+template<typename EEAContextImpl>
 using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EEAContextImpl>::value, bool>;
 
 /**
@@ -47,8 +69,16 @@ using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EE
  * only possible to work with this pass if an appropriate EAAContextImpl type has been provided.
  * @tparam EEAContextImpl The EEAContext implementation that uses llvm::ExecutionEngine methods.
  */
-template <typename EEAContextImpl, bool Threaded, enable_if_eeacontext<EEAContextImpl> = true>
-struct EEAPass : public ThreadedAIAPass<EEAContextImpl, Threaded> {};
+
+template<typename EEAContextImpl, typename AnalysisIterator>
+struct EEAPass : ThreadedAIAPass<EEAContextImpl, false, AnalysisIterator, enable_if_eeacontext<EEAContextImpl>> {
+
+};
+
+template<typename EEAContextImpl, typename AnalysisIterator>
+struct EETPass : ThreadedAIAPass<EEAContextImpl, true, AnalysisIterator, enable_if_eeacontext<EEAContextImpl>> {
+
+};
 
 }
 

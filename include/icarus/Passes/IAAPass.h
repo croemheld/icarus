@@ -23,9 +23,12 @@ using IAAContextRetTy = void;
 /**
  * EEAContext specialization for Input-Aware Analysis used for the IAAPass class below.
  */
-struct IAAContext : EEAContext<IAAContext, IAAContextRetTy> {
+struct IAAContext : EEAContext<DefaultAnalysisIterator, IAAContext, IAAContextRetTy> {
 
-  void worker(ProgramContext &PC);
+  using Iter = DefaultAnalysisIterator;
+
+  IAAContext(ProgramContext<DefaultAnalysisIterator> &PC, const llvm::DataLayout &DL)
+      : EEAContext<DefaultAnalysisIterator, IAAContext, IAAContextRetTy>(PC, DL) {}
 
 };
 
@@ -56,15 +59,13 @@ public:
  * Base class for input-aware analyses with the underlying abstract interpretation-based pass. It uses
  * user-provided input to generate initial program states in order to "interpret" the program.
  */
-template<bool Threaded>
-class ThreadedIAAPass : public IAAPassImpl, public EEAPass<IAAContext, Threaded> {};
 
-struct IAAPass : public ThreadedIAAPass<false> {
+struct IAAPass : public IAAPassImpl, public EEAPass<IAAContext, IAAContext::Iter> {
   static constexpr std::string_view OPTION = "IAA";
   static constexpr std::string_view NAME = "Input-Aware Analysis";
 };
 
-struct IATPass : public ThreadedIAAPass<true> {
+struct IATPass : public IAAPassImpl, public EETPass<IAAContext, IAAContext::Iter> {
   static constexpr std::string_view OPTION = "IAT";
   static constexpr std::string_view NAME = "Input-Aware Analysis (Threaded)";
 };

@@ -19,7 +19,7 @@ using IAAContextRetTy = void;
  * AnalysisContext specialization for constant propagation-based analyses. The AnalysisContext is part
  * of the template parameter for the CPAPass class below.
  */
-struct CPAContext : public AnalysisContext<CPAContext, IAAContextRetTy> {
+struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, IAAContextRetTy> {
 
 };
 
@@ -42,7 +42,7 @@ struct CPAPassImpl : public Pass {
  * for performing a flow- and context-sensitive analysis on a program.
  */
 template <bool Threaded>
-class ThreadedCPAPass : public CPAPassImpl, public ThreadedAIAPass<CPAContext, Threaded> {};
+class ThreadedCPAPass : public CPAPassImpl, public ThreadedAIAPass<CPAContext, Threaded, DefaultAnalysisIterator> {};
 
 /**
  * ThreadedCPAPass class with multithreading support disabled.
