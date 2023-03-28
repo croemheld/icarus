@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.9.6)
 project(icarus)
 
+if (NOT DEFINED LLVM_VERSION)
+    set(LLVM_VERSION 11)
+endif (NOT DEFINED LLVM_VERSION)
+
 # This project requires LLVM to be installed
-find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM ${LLVM_VERSION} REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
@@ -29,7 +33,7 @@ add_executable(icarus
         Threads/ThreadPool.cpp
         Analysis/EngineValue.cpp
         Analysis/ExecutionEngine.cpp
-)
+        )
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 
