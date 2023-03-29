@@ -11,6 +11,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <map>
+#include <condition_variable>
 #include <atomic>
 
 namespace icarus {
@@ -21,7 +22,7 @@ namespace icarus {
  * is because they are seldom used in icarus. Yet, for some cases they are still necessary.
  * @tparam C The container type to wrap in a thread safe container.
  */
-template<typename SubClass,
+template <typename SubClass,
     typename Traits = ContainerTraits<SubClass>,
     typename C = typename Traits::container_type,
     typename T = typename Traits::value_type>
@@ -30,7 +31,7 @@ class ThreadSafeContainer {
 protected:
 
   C Container;
-  std::atomic_bool Status = { true };
+  std::atomic_bool Status = {true};
   mutable std::shared_mutex Mutex;
   std::condition_variable_any Condition;
 
@@ -116,7 +117,7 @@ public:
    * @param args The arguments to pass to the function.
    */
   template <typename Func, typename ... Args>
-  void lock(Func &&Function, Args&&... args) {
+  void lock(Func &&Function, Args &&... args) {
     std::unique_lock<std::shared_mutex> Lock(Mutex);
     return std::forward<Func>(Function)(std::forward<Args>(args)...);
   }
