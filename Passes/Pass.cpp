@@ -15,7 +15,7 @@ namespace icarus {
  * Pass helper methods
  */
 
-void forEachModule(PassArguments &Arguments, const std::function<void(IcarusModule &)>& Callback) {
+void forEachModule(PassArguments &Arguments, const std::function<void(IcarusModule &)> &Callback) {
   for (IcarusModule &IM : Arguments) {
     Callback(IM);
   }
@@ -58,7 +58,7 @@ void PassRegistry::registerObject(const PassInfo &PI) {
   }
 }
 
-Pass *PassRegistry::getPassOrNull(const std::string& PassOption) {
+Pass *PassRegistry::getPassOrNull(const std::string &PassOption) {
   if (const PassInfo *PD = this->getObjectOrNull(PassOption))
     return PD->getPassInstance();
   return nullptr;
@@ -66,7 +66,8 @@ Pass *PassRegistry::getPassOrNull(const std::string& PassOption) {
 
 void PassRegistry::populateOptionCategories(std::vector<cl::OptionCategory *> &OptionCategories) {
   for (auto &[_, PI] : ObjectMap)
-    if (PI) OptionCategories.push_back(PI->getCategory());
+    if (PI)
+      OptionCategories.push_back(PI->getCategory());
 }
 
 /*
@@ -81,12 +82,15 @@ void IcarusPassParser::initialize() {
 void IcarusPassParser::onRegistration(const PassInfo *PI) {
   if (PI->isGeneralCategory())
     return;
-  EARLY_CONF("Register pass '", PI->getPassName(), "' (", PI->getPassOption(), ")...");
-  if (findOption(PI->getPassOption()) != getNumOptions()) {
-    llvm::errs() << "Trying to register pass with same argument: " << PI->getPassOption() << "\n";
+  
+  std::string PN = std::string(PI->getPassName()), PO = std::string(PI->getPassOption());
+
+  EARLY_CONF("Register pass '", PN, "' (", PO, ")...");
+  if (findOption(PO) != getNumOptions()) {
+    llvm::errs() << "Trying to register pass with same argument: " << PO << "\n";
     llvm_unreachable(nullptr);
   }
-  addLiteralOption(PI->getPassOption(), PI, PI->getPassName());
+  addLiteralOption(PO, PI, PN);
 }
 
 void IcarusPassParser::apply(const PassInfo *PI) {
@@ -94,9 +98,9 @@ void IcarusPassParser::apply(const PassInfo *PI) {
 }
 
 void IcarusPassParser::printOptionInfo(const cl::Option &O, size_t GlobalWidth) const {
-  auto *IPP = const_cast<IcarusPassParser*>(this);
+  auto *IPP = const_cast<IcarusPassParser *>(this);
   llvm::array_pod_sort(IPP->Values.begin(), IPP->Values.end(), ValCompare);
-  cl::parser<const PassInfo*>::printOptionInfo(O, GlobalWidth);
+  cl::parser<const PassInfo *>::printOptionInfo(O, GlobalWidth);
 }
 
 int IcarusPassParser::ValCompare(const IcarusPassParser::OptionInfo *VT1, const IcarusPassParser::OptionInfo *VT2) {
