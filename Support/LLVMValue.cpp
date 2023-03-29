@@ -9,6 +9,7 @@
 #include <llvm/IR/Constants.h>
 
 #include <icarus/Support/LLVMValue.h>
+#include <icarus/Support/Clang.h>
 
 namespace icarus {
 
@@ -19,8 +20,12 @@ std::vector<llvm::BasicBlock *> getBasicBlocks(llvm::Function &F) {
 }
 
 std::vector<llvm::BasicBlock *> getExitBlocks(llvm::Function &F) {
-  return getBasicBlocks(F, [](llvm::BasicBlock& BB) {
+  return getBasicBlocks(F, [](llvm::BasicBlock &BB) {
+#if ICARUS_CLANG_VERSION >= 7
     return !llvm::succ_size(&BB);
+#else
+    return !std::distance(llvm::succ_begin(&BB), llvm::succ_end(&BB));
+#endif
   });
 }
 
