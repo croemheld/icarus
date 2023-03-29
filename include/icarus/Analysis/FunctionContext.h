@@ -30,7 +30,7 @@ class FunctionContext {
 
   llvm::BasicBlock *BB;
   typename AnalysisIterator::Iter II;
-  llvm::CallBase *Caller;
+  llvm::CallInst *Caller;
   std::map<llvm::Value *, ValueDelegate> Values;
 
 protected:
