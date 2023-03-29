@@ -11,6 +11,7 @@
 
 #include <atomic>
 #include <future>
+#include <functional>
 
 namespace icarus {
 
@@ -21,11 +22,11 @@ namespace icarus {
  */
 struct Task {
   Task() = default;
-  Task(const Task& Other) = delete;
-  Task(Task&& Other) = default;
+  Task(const Task &Other) = delete;
+  Task(Task &&Other) = default;
   virtual ~Task() = default;
-  Task& operator=(const Task& Other) = delete;
-  Task& operator=(Task&& Other) = default;
+  Task &operator=(const Task &Other) = delete;
+  Task &operator=(Task &&Other) = default;
 
   /**
    * Executes the provided function in this thread pool task. The implementation is done by subclass
@@ -44,11 +45,13 @@ class ThreadTask : public Task {
   Func ThreadFunction;
 public:
   explicit ThreadTask(Func &&Function) : ThreadFunction(std::move(Function)) {}
-  ThreadTask(const ThreadTask& Other) = delete;
-  ThreadTask(ThreadTask&& Other) = delete;
+
+  ThreadTask(const ThreadTask &Other) = delete;
+  ThreadTask(ThreadTask &&Other) = delete;
   ~ThreadTask() override = default;
-  ThreadTask& operator=(const ThreadTask& Other) = delete;
-  ThreadTask& operator=(ThreadTask&& Other) noexcept = default;
+  ThreadTask &operator=(const ThreadTask &Other) = delete;
+  ThreadTask &operator=(ThreadTask &&Other) noexcept = default;
+
   void execute() override { ThreadFunction(); }
 };
 
@@ -115,7 +118,7 @@ class ThreadPool {
    * @return A std::future that allows us to wait for the scheduled function to return.
    */
   template <typename Func, typename ... Args>
-  auto doSubmit(Func &&Function, Args&&... args) {
+  auto doSubmit(Func &&Function, Args &&... args) {
     auto Task = std::bind(std::forward<Func>(Function), std::forward<Args>(args)...);
 
     using RetTy = std::result_of_t<decltype(Task)()>;
@@ -169,7 +172,7 @@ public:
    * @return A std::future that allows us to wait for the scheduled function to return.
    */
   template <typename Func, typename ... Args>
-  static auto submit(Func &&Function, Args&&... args) {
+  static auto submit(Func &&Function, Args &&... args) {
     return get().doSubmit(std::forward<Func>(Function), std::forward<Args>(args)...);
   }
 
