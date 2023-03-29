@@ -6,6 +6,7 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/FileSystem.h>
 
 #include <icarus/Passes/PassArguments.h>
 
