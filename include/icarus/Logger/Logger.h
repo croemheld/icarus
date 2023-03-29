@@ -14,6 +14,7 @@
 
 #include <icarus/Support/Math.h>
 #include <icarus/Support/String.h>
+#include <icarus/Support/Clang.h>
 
 #include <icarus/Threads/ThreadPool.h>
 
@@ -76,7 +77,9 @@ protected:
       : MessageQueue(nullptr)
       , ROStream(Stream)
       , FOStream(ROStream) {
+#if ICARUS_CLANG_VERSION > 9
     FOStream.enable_colors(hasColors);
+#endif
     FOStream.changeColor(llvm::raw_ostream::Colors::WHITE, false, false);
   }
 

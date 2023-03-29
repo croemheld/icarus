@@ -13,6 +13,7 @@
 #include <icarus/Support/LLVMValue.h>
 #include <icarus/Support/JSON.h>
 #include <icarus/Support/String.h>
+#include <icarus/Support/Clang.h>
 
 #include <nlohmann/json.hpp>
 
@@ -29,7 +30,7 @@ void from_json(const nlohmann::json &JSON, VariableDef &VD, IcarusModule *IM) {
 void from_json(const nlohmann::json &JSON, CallContext &CC, IcarusModule *IM) {
   CC.Func = IM->parseFunction(JSON.at("func").get<std::string>());
 
-  const nlohmann::json& Args = JSON.at("args");
+  const nlohmann::json &Args = JSON.at("args");
   for (auto &[Key, Val] : Args.items()) {
     llvm::Value *Argument = CC.Func->getArg(getAsInteger(Key));
     CC.Args[Argument] = IM->parseConstant(Val);
@@ -74,11 +75,11 @@ llvm::Module *IcarusModule::getModule() const {
   return IRModule.get();
 }
 
-llvm::SMDiagnostic& IcarusModule::getDiagnostics() {
+llvm::SMDiagnostic &IcarusModule::getDiagnostics() {
   return Err;
 }
 
-llvm::Type *IcarusModule::parseType(const nlohmann::json& JSON) {
+llvm::Type *IcarusModule::parseType(const nlohmann::json &JSON) {
   llvm::Type *T;
 
   /* First, try to parse type directly */
@@ -86,7 +87,11 @@ llvm::Type *IcarusModule::parseType(const nlohmann::json& JSON) {
   T = llvm::parseType(Asm, Err, *IRModule);
   if (!T) {
     /* Secondly, find a struct by name */
+#if ICARUS_CLANG_VERSION > 11
+    T = llvm::StructType::getTypeByName(IRModule->getContext(), Asm);
+#else
     T = IRModule->getTypeByName(Asm);
+#endif
   }
 
   return T;
@@ -96,7 +101,7 @@ llvm::Constant *IcarusModule::parseConstant(std::string Asm) {
   return llvm::parseConstantValue(Asm, Err, *IRModule);
 }
 
-llvm::Constant *IcarusModule::parseConstant(const nlohmann::json& JSON, llvm::Type *T) {
+llvm::Constant *IcarusModule::parseConstant(const nlohmann::json &JSON, llvm::Type *T) {
 
   /*
    * We currently support three types of aggregate elements: arrays, structs, and C-style strings that
@@ -109,15 +114,15 @@ llvm::Constant *IcarusModule::parseConstant(const nlohmann::json& JSON, llvm::Ty
 
     /* Add support for strings with "char" and "null" */
   } else if (JSON.contains("char") && JSON.contains("null")) {
-    const nlohmann::json& Char = JSON.at("char");
-    const nlohmann::json& Null = JSON.at("null");
+    const nlohmann::json &Char = JSON.at("char");
+    const nlohmann::json &Null = JSON.at("null");
     return llvm::ConstantDataArray::getString(IRModule->getContext(), Char.get<std::string>(), Null.get<bool>());
 
     /* Add support for arrays and structs with "elem" */
   } else if (JSON.contains("elem")) {
     unsigned long NumElements = getNumElements(T);
     std::vector<llvm::Constant *> Elements(NumElements);
-    const nlohmann::json& Elem = JSON.at("elem");
+    const nlohmann::json &Elem = JSON.at("elem");
     for (unsigned long N = 0; N < NumElements; ++N) {
       std::string S = to_string(N);
       llvm::Type *E = getElementTypeAt(T, N);
@@ -133,13 +138,13 @@ llvm::Constant *IcarusModule::parseConstant(const nlohmann::json& JSON, llvm::Ty
   return nullptr;
 }
 
-llvm::Constant *IcarusModule::parseConstant(const nlohmann::json& JSON) {
+llvm::Constant *IcarusModule::parseConstant(const nlohmann::json &JSON) {
   if (JSON.contains("type"))
     return parseConstant(JSON, parseType(JSON.at("type").get<std::string>()));
   return parseConstant(JSON, nullptr);
 }
 
-llvm::Function *IcarusModule::parseFunction(const nlohmann::json& JSON) {
+llvm::Function *IcarusModule::parseFunction(const nlohmann::json &JSON) {
   return IRModule->getFunction(JSON.get<std::string>());
 }
 
@@ -148,7 +153,9 @@ llvm::Function *IcarusModule::parseFunction(const nlohmann::json& JSON) {
  */
 
 PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads)
-    : FileArg(FileArg), JSONArg(JSONArg), NumThreads(NumThreads) {
+    : FileArg(FileArg)
+    , JSONArg(JSONArg)
+    , NumThreads(NumThreads) {
   /*
    * First, check if the input files exists and parse all potential LLVM modules
    * in the object instance. If no input files were found, icarus will exit here.
@@ -163,7 +170,7 @@ PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigne
    */
   if (endsWith(FileArg, ".bc") || endsWith(FileArg, ".ll")) {
     insertModule(FileArg);
-  } else if (endsWith(FileArg, ".txt") ) {
+  } else if (endsWith(FileArg, ".txt")) {
     std::ifstream InputFile(FileArg);
     std::string FileLine;
     while (std::getline(InputFile, FileLine)) {
@@ -194,7 +201,7 @@ PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigne
 }
 
 void PassArguments::insertModule(std::string &FilePath) {
-  if (auto M = std::make_unique<IcarusModule>(FilePath) ) {
+  if (auto M = std::make_unique<IcarusModule>(FilePath)) {
     Modules.push_back(std::move(M));
   }
 }
@@ -215,7 +222,7 @@ unsigned int PassArguments::getNumFiles() const {
   return Modules.size();
 }
 
-nlohmann::json& PassArguments::getJSONObject() {
+nlohmann::json &PassArguments::getJSONObject() {
   return JSON;
 }
 
