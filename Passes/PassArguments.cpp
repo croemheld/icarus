@@ -32,7 +32,13 @@ void from_json(const nlohmann::json &JSON, CallContext &CC, IcarusModule *IM) {
 
   const nlohmann::json &Args = JSON.at("args");
   for (auto &[Key, Val] : Args.items()) {
+#if ICARUS_CLANG_VERSION < 10
+    unsigned Arg = getAsInteger(Key);
+    assert((Arg >= CC.Func->arg_size()) && "Arg out of bounds");
+    llvm::Value *Argument = CC.Func->arg_begin() + Arg;
+#else
     llvm::Value *Argument = CC.Func->getArg(getAsInteger(Key));
+#endif
     CC.Args[Argument] = IM->parseConstant(Val);
   }
 }
