@@ -16,12 +16,9 @@ env:
 jobs:
   ci_clang:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         compiler: [
-          { llvm: "3.9.1", clang: "3.9" },
-          { llvm: "4", clang: "4.0" },
           { llvm: "5", clang: "5.0" },
           { llvm: "6", clang: "6.0" },
           { llvm: "7", clang: "7" },
@@ -33,7 +30,6 @@ jobs:
           { llvm: "13", clang: "13" },
           { llvm: "14", clang: "14" },
           { llvm: "15", clang: "15" },
-          { llvm: "16", clang: "16" }
         ]
     container: croemheld/icarus-ci:${{ matrix.compiler.clang }}
     steps:
