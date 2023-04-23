@@ -96,8 +96,8 @@ public:
    * a non-capturing function (lambda) which solely accepts an element type as the only argument. Upon reaching the
    * end of the function, the lock is automatically released.
    * [1] https://stackoverflow.com/a/54449603/3741284
-   * @tparam RetTy
-   * @param Func
+   * @tparam Func The type of the function, deduced automatically.
+   * @param Function The callback function to call for each element in the container.
    */
   template <typename Func>
   void forEach(Func &&Function) {

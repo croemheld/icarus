@@ -62,13 +62,13 @@ public:
  * @param Arguments The provided arguments in the CLI.
  * @param Callback The callback function to apply for every LLVM module.
  */
-void forEachModule(PassArguments &Arguments, const std::function<void(IcarusModule &)>& Callback);
+void forEachModule(PassArguments &Arguments, const std::function<void(IcarusModule &)> &Callback);
 
 /*
  *
  */
 
-using PassConstructor = Pass*(*)();
+using PassConstructor = Pass *(*)();
 
 /**
  * Contains information about a pass instance.
@@ -93,7 +93,10 @@ public:
            std::string_view PassName,
            PassConstructor Ctor,
            cl::OptionCategory *Category)
-      : PassOption(PassOption), PassName(PassName), Ctor(Ctor), Category(Category) {}
+      : PassOption(PassOption)
+      , PassName(PassName)
+      , Ctor(Ctor)
+      , Category(Category) {}
 
   bool isGeneralCategory() const;
   std::string_view getPassOption() const;
@@ -118,7 +121,7 @@ struct PassRegistry : public ObjectRegistry<std::string_view, const PassInfo, Pa
    * @param PassOption The name of the pass as used in the CLI of icarus.
    * @return A new instance of the selected Pass.
    */
-  Pass *getPassOrNull(const std::string& PassOption);
+  Pass *getPassOrNull(const std::string &PassOption);
 
   /**
    * Get a list of all onRegistration OptionCategory instances for icarus.
@@ -132,9 +135,11 @@ struct PassRegistry : public ObjectRegistry<std::string_view, const PassInfo, Pa
  * In order to do that we only have to create a static variable and category
  * as illustrated in the example below.
  *
+ * ~~~{.cpp}
  * static cl::OptionCategory XCategory(Category<PassClass>);
  * // Populate XCategory with pass-specific options ...
  * static RegisterPass<PassClass> X(&XCategory);
+ * ~~~
  *
  * This is essentially a simple knockoff of the llvm::RegisterPass template.
  */
@@ -142,7 +147,7 @@ template <typename PassClass>
 struct RegisterPass : public PassInfo {
   /**
    * Public constructor for pass registration.
-   * @param PassName The name of the pass as used in the CLI of icarus.
+   * @param Category The option category of the new pass to register.
    */
   explicit RegisterPass(cl::OptionCategory *Category)
       : PassInfo(PassClass::OPTION, PassClass::NAME, createObj<PassClass, Pass>, Category) {

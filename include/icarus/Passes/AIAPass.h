@@ -179,7 +179,7 @@ public:
 template <typename AIAContextImpl, typename BasicBlockIterator>
 class ThreadedAIAPass<AIAContextImpl, true, BasicBlockIterator, enable_if_aiacontext<AIAContextImpl>> {
 
-  ThreadPool ThreadPool;
+  ThreadPool TP;
 
 protected:
 
@@ -188,7 +188,7 @@ protected:
    * @param NumThreads The number of worker threads to initialize.
    */
   void initializeThreadPool(unsigned NumThreads) {
-    ThreadPool.initialize(NumThreads);
+    TP.initialize(NumThreads);
   }
 
 public:
@@ -202,7 +202,7 @@ public:
    */
   template <typename Func, typename ... Args>
   void schedule(Func &&Function, Args &&... args) {
-    ThreadPool.submit(Function, std::forward<Args>(args)...);
+    TP.submit(Function, std::forward<Args>(args)...);
   }
 
 };
