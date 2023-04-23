@@ -1,0 +1,1 @@
+target_sources(${PROJECT_EXECUTABLE} PRIVATE CPAPass.cpp IAAPass.cpp ICCPass.cpp Pass.cpp PassArguments.cpp)

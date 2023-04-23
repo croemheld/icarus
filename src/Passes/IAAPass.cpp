@@ -4,10 +4,10 @@
 
 #include <llvm/AsmParser/Parser.h>
 
-#include <icarus/Passes/IAAPass.h>
+#include "icarus/Passes/IAAPass.h"
 
-#include <icarus/Support/JSON.h>
-#include <icarus/Support/LLVMTypes.h>
+#include "icarus/Support/JSON.h"
+#include "icarus/Support/LLVMTypes.h"
 
 namespace icarus {
 
@@ -25,7 +25,7 @@ static RegisterPass<IATPass> IATPass(nullptr);
 void IAAPassImpl::parseJSONArguments(PassArguments &IPA) {
 
   IcarusModule *IM = IPA.getModuleAt(0);
-  nlohmann::json& JSON = IPA.getJSONObject();
+  nlohmann::json &JSON = IPA.getJSONObject();
   from_json(JSON, IA, IM);
 }
 

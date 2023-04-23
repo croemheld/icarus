@@ -5,7 +5,7 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/ADT/APInt.h>
 
-#include <icarus/Support/LLVMTypes.h>
+#include "icarus/Support/LLVMTypes.h"
 
 namespace icarus {
 

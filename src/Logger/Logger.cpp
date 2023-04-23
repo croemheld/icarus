@@ -2,7 +2,7 @@
 // Created by croemheld on 06.01.2023.
 //
 
-#include <icarus/Logger/Logger.h>
+#include "icarus/Logger/Logger.h"
 
 namespace icarus {
 
@@ -16,11 +16,11 @@ struct LogTypeInfo {
 };
 
 static std::array<LogTypeInfo, 4> LogTypes = {{
-    {" ERROR ", COLOR_CODE(RED, true)},
-    {"WARNING", COLOR_CODE(YELLOW, false)},
-    {"SUCCESS", COLOR_CODE(GREEN, false)},
-    {"MESSAGE", COLOR_CODE(CYAN, false)}
-}};
+                                                  {" ERROR ", COLOR_CODE(RED, true)},
+                                                  {"WARNING", COLOR_CODE(YELLOW, false)},
+                                                  {"SUCCESS", COLOR_CODE(GREEN, false)},
+                                                  {"MESSAGE", COLOR_CODE(CYAN, false)}
+                                              }};
 
 /*
  * LoggerImpl methods
@@ -73,7 +73,7 @@ void LogThread::shutdown() {
  * Logger methods
  */
 
-Logger& Logger::get() {
+Logger &Logger::get() {
   static Logger Logger;
   return Logger;
 }

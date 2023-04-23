@@ -8,8 +8,8 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Constants.h>
 
-#include <icarus/Support/LLVMValue.h>
-#include <icarus/Support/Clang.h>
+#include "icarus/Support/LLVMValue.h"
+#include "icarus/Support/Clang.h"
 
 namespace icarus {
 

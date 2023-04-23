@@ -2,13 +2,13 @@
 // Created by croemheld on 26.12.2022.
 //
 
-#include <icarus/Support/Clang.h>
+#include "icarus/Support/Clang.h"
 
 #if ICARUS_CLANG_VERSION >= 8
 #include <llvm/Analysis/IndirectCallVisitor.h>
 #endif
 
-#include <icarus/Passes/ICCPass.h>
+#include "icarus/Passes/ICCPass.h"
 
 namespace icarus {
 

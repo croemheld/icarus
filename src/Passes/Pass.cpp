@@ -5,7 +5,7 @@
 #include <llvm/AsmParser/Parser.h>
 #include <llvm/IR/Type.h>
 
-#include <icarus/Passes/Pass.h>
+#include "icarus/Passes/Pass.h"
 
 #include <fstream>
 
@@ -82,7 +82,7 @@ void IcarusPassParser::initialize() {
 void IcarusPassParser::onRegistration(const PassInfo *PI) {
   if (PI->isGeneralCategory())
     return;
-  
+
   std::string PN = std::string(PI->getPassName()), PO = std::string(PI->getPassOption());
 
   EARLY_CONF("Register pass '", PN, "' (", PO, ")...");

@@ -5,7 +5,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 
-#include <icarus/Support/String.h>
+#include "icarus/Support/String.h"
 
 #include <string>
 
@@ -27,7 +27,7 @@ std::string to_string(const llvm::Value &V) {
   return String;
 }
 
-std::string to_string(const llvm::Type& T) {
+std::string to_string(const llvm::Type &T) {
   std::string String;
   llvm::raw_string_ostream OS(String);
   T.print(OS, false);
@@ -36,11 +36,11 @@ std::string to_string(const llvm::Type& T) {
 
 }
 
-std::ostream& operator<<(std::ostream& Out, const llvm::Value& V) {
+std::ostream &operator<<(std::ostream &Out, const llvm::Value &V) {
   return Out << to_string(V);
 }
 
-std::ostream& operator<<(std::ostream& Out, const llvm::Type& T) {
+std::ostream &operator<<(std::ostream &Out, const llvm::Type &T) {
   return Out << to_string(T);
 }
 

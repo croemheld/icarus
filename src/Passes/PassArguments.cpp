@@ -8,15 +8,15 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
 
-#include <icarus/Passes/PassArguments.h>
+#include "icarus/Passes/PassArguments.h"
 
-#include <icarus/Support/LLVMTypes.h>
-#include <icarus/Support/LLVMValue.h>
-#include <icarus/Support/JSON.h>
-#include <icarus/Support/String.h>
-#include <icarus/Support/Clang.h>
+#include "icarus/Support/LLVMTypes.h"
+#include "icarus/Support/LLVMValue.h"
+#include "icarus/Support/JSON.h"
+#include "icarus/Support/String.h"
+#include "icarus/Support/Clang.h"
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 #include <fstream>
 
