@@ -10,9 +10,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
   ci_clang:
     runs-on: ubuntu-latest
@@ -39,7 +36,7 @@ jobs:
       - name: Get minimum CMake version for build
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: 3.9.6
+          cmakeVersion: 3.13.0
       - name: Set environment variables
         run: echo "CC=clang CXX=clang++" >> "$GITHUB_ENV"
       - name: Run CMake and build ICARUS
