@@ -1,0 +1,26 @@
+name: Doxygen
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Install doxygen and components
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+      - name: Create doxygen documentation
+        run: |
+          mkdir build && cd build
+          cmake -DOPTION_BUILD_DOCS=On ..
+          make doxygen
+      - name: Create .nojekyll file
+        run: touch build/docs/doxygen/html/.nojekyll
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          folder: build/docs/doxygen/html
