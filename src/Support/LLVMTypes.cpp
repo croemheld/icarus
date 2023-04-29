@@ -2,8 +2,8 @@
 // Created by croemheld on 27.01.2023.
 //
 
-#include <llvm/IR/DerivedTypes.h>
 #include <llvm/ADT/APInt.h>
+#include <llvm/IR/DerivedTypes.h>
 
 #include "icarus/Support/LLVMTypes.h"
 
@@ -31,4 +31,4 @@ unsigned long getAsInteger(llvm::StringRef Str, unsigned int Radix) {
   return Int.getZExtValue();
 }
 
-}
+} // namespace icarus

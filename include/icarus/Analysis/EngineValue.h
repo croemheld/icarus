@@ -20,8 +20,8 @@ class EngineValue;
  */
 class ValueDelegate {
 
-  uint64_t isNode: 1;
-  uint64_t Offset: 63;
+  uint64_t isNode : 1;
+  uint64_t Offset : 63;
 
   union {
     EngineValue *Node;
@@ -29,24 +29,13 @@ class ValueDelegate {
   };
 
 public:
+  ValueDelegate() : isNode(false), Offset(0) {}
 
-  ValueDelegate()
-      : isNode(false)
-      , Offset(0) {}
+  ValueDelegate(EngineValue *Node, uint64_t Offset = 0) : isNode(true), Offset(Offset), Node(Node) {}
 
-  ValueDelegate(EngineValue *Node, uint64_t Offset = 0)
-      : isNode(true)
-      , Offset(Offset)
-      , Node(Node) {}
+  ValueDelegate(llvm::Value *CVal) : isNode(false), Offset(0), CVal(CVal) {}
 
-  ValueDelegate(llvm::Value *CVal)
-      : isNode(false)
-      , Offset(0)
-      , CVal(CVal) {}
-
-  ValueDelegate(const ValueDelegate &Other)
-      : isNode(Other.isNode)
-      , Offset(Other.Offset) {
+  ValueDelegate(const ValueDelegate &Other) : isNode(Other.isNode), Offset(Other.Offset) {
     if (isNodeDelegate())
       Node = Other.Node;
     else
@@ -65,7 +54,6 @@ public:
   EngineValue *getNode() const;
   uint64_t getOffset() const;
   ValueDelegate getDelegate() const;
-
 };
 
 class EngineValue {
@@ -75,14 +63,12 @@ class EngineValue {
   uint64_t Size;
 
 public:
-
   EngineValue(unsigned Size = 0) : Size(Size) {}
 
   ValueDelegate getDelegate(const ValueDelegate &Delegate);
   void setDelegate(uint64_t Offset, ValueDelegate &Delegate);
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_ENGINEVALUE_H

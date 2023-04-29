@@ -7,12 +7,12 @@
 
 #include <icarus/ADT/Container.h>
 
-#include <thread>
+#include <atomic>
+#include <condition_variable>
+#include <map>
 #include <mutex>
 #include <shared_mutex>
-#include <map>
-#include <condition_variable>
-#include <atomic>
+#include <thread>
 
 namespace icarus {
 
@@ -22,21 +22,17 @@ namespace icarus {
  * is because they are seldom used in icarus. Yet, for some cases they are still necessary.
  * @tparam C The container type to wrap in a thread safe container.
  */
-template <typename SubClass,
-    typename Traits = ContainerTraits<SubClass>,
-    typename C = typename Traits::container_type,
-    typename T = typename Traits::value_type>
+template <typename SubClass, typename Traits = ContainerTraits<SubClass>, typename C = typename Traits::container_type,
+          typename T = typename Traits::value_type>
 class ThreadSafeContainer {
 
 protected:
-
   C Container;
   std::atomic_bool Status = {true};
   mutable std::shared_mutex Mutex;
   std::condition_variable_any Condition;
 
 public:
-
   /**
    * Creates a new thread safe container object that wraps the original STL container member variable.
    * Each wrapped container hast to provide a ContainerTraits<SubClass> trait that contains the traits
@@ -48,9 +44,7 @@ public:
    * Upon destroying this object we need to notify all threads that are potentially waiting in line to
    * access the elements in this container.
    */
-  ~ThreadSafeContainer() {
-    invalidate();
-  };
+  ~ThreadSafeContainer() { invalidate(); };
 
   /**
    * Returns the size of this container while holding a shared (a reader-only) lock on this structure.
@@ -99,8 +93,7 @@ public:
    * @tparam Func The type of the function, deduced automatically.
    * @param Function The callback function to call for each element in the container.
    */
-  template <typename Func>
-  void forEach(Func &&Function) {
+  template <typename Func> void forEach(Func &&Function) {
     std::unique_lock<std::shared_mutex> Lock(Mutex);
     for (T &Element : Container) {
       std::forward<Func>(Function)(Element);
@@ -116,14 +109,12 @@ public:
    * @param Function The function to call.
    * @param args The arguments to pass to the function.
    */
-  template <typename Func, typename ... Args>
-  void lock(Func &&Function, Args &&... args) {
+  template <typename Func, typename... Args> void lock(Func &&Function, Args &&...args) {
     std::unique_lock<std::shared_mutex> Lock(Mutex);
     return std::forward<Func>(Function)(std::forward<Args>(args)...);
   }
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_THREAD_THREADSAFECONTAINER_H

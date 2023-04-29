@@ -24,7 +24,7 @@ struct ThreadSafeQueue : public ThreadSafeContainer<ThreadSafeQueue<SubClass, T>
    * Pushes an element to the end of the queue while holding an unique (read-write) lock.
    * @param t The element to push to the end of the queue.
    */
-  void push(T&& t) {
+  void push(T &&t) {
     std::unique_lock<std::shared_mutex> Lock(this->Mutex);
     this->Container.push(std::move(t));
     this->Condition.notify_one();
@@ -49,18 +49,15 @@ struct ThreadSafeQueue : public ThreadSafeContainer<ThreadSafeQueue<SubClass, T>
    */
   bool pop(T &t) {
     std::unique_lock<std::shared_mutex> Lock(this->Mutex);
-    this->Condition.wait(Lock, [&]() {
-      return !this->Container.empty() || !this->Status;
-    });
+    this->Condition.wait(Lock, [&]() { return !this->Container.empty() || !this->Status; });
     if (!this->Status)
       return false;
     t = std::move(this->Container.front());
     this->Container.pop();
     return true;
   }
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_THREADS_THREADSAFEQUEUE_H

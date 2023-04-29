@@ -12,23 +12,20 @@ using namespace icarus;
 
 cl::OptionCategory IcarusCategory("General options for icarus");
 
-cl::opt<std::string>
-    PassOpt("pass", cl::desc("Pass option to run"), cl::cat(IcarusCategory), cl::Required);
+cl::opt<std::string> PassOpt("pass", cl::desc("Pass option to run"), cl::cat(IcarusCategory), cl::Required);
 cl::alias PassAlias("p", cl::desc("Alias for --pass"), cl::aliasopt(PassOpt));
 
-cl::list<const PassInfo *, bool, IcarusPassParser>
-    PassesList(cl::desc("Choices for --pass= (without leading --)"), cl::cat(IcarusCategory));
+cl::list<const PassInfo *, bool, IcarusPassParser> PassesList(cl::desc("Choices for --pass= (without leading --)"),
+                                                              cl::cat(IcarusCategory));
 
-cl::opt<std::string>
-    File("file", cl::desc("Bitcode or IR (.bc, .ll), or path file (.txt)"), cl::cat(IcarusCategory), cl::Required);
+cl::opt<std::string> File("file", cl::desc("Bitcode or IR (.bc, .ll), or path file (.txt)"), cl::cat(IcarusCategory),
+                          cl::Required);
 cl::alias FileAlias("f", cl::desc("Alias for --file"), cl::aliasopt(File));
 
-cl::opt<std::string>
-    JSON("json", cl::desc("Path to JSON file for pass-specific arguments"), cl::cat(IcarusCategory));
+cl::opt<std::string> JSON("json", cl::desc("Path to JSON file for pass-specific arguments"), cl::cat(IcarusCategory));
 cl::alias JSONAlias("j", cl::desc("Alias for --json"), cl::aliasopt(JSON));
 
-cl::opt<unsigned>
-    Threads("threads", cl::desc("Number of threads to run in thread pool"), cl::cat(IcarusCategory));
+cl::opt<unsigned> Threads("threads", cl::desc("Number of threads to run in thread pool"), cl::cat(IcarusCategory));
 cl::alias ThreadsAlias("t", cl::desc("Alias for --threads"), cl::aliasopt(Threads));
 
 /*
@@ -43,14 +40,12 @@ cl::alias ThreadsAlias("t", cl::desc("Alias for --threads"), cl::aliasopt(Thread
 
 cl::OptionCategory DebugCategory("Debug options for icarus");
 
-cl::opt<bool, true>
-    Debug("debug", cl::desc("Enable all debug output"), cl::cat(DebugCategory), cl::location(llvm::DebugFlag));
+cl::opt<bool, true> Debug("debug", cl::desc("Enable all debug output"), cl::cat(DebugCategory),
+                          cl::location(llvm::DebugFlag));
 
-cl::opt<std::string>
-    DebugOnly("debug-only", cl::desc("Only print selective debug messages"), cl::cat(DebugCategory));
+cl::opt<std::string> DebugOnly("debug-only", cl::desc("Only print selective debug messages"), cl::cat(DebugCategory));
 
-cl::opt<std::string>
-    DebugFile("debug-file", cl::desc("File in which to save logger output"), cl::cat(DebugCategory));
+cl::opt<std::string> DebugFile("debug-file", cl::desc("File in which to save logger output"), cl::cat(DebugCategory));
 
 int main(int argc, char *argv[]) {
   PassRegistry *PR = PassRegistry::getObjectRegistry();

@@ -5,8 +5,8 @@
 #ifndef ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H
 #define ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H
 
-#include <icarus/Analysis/FunctionContext.h>
 #include <icarus/Analysis/EngineValue.h>
+#include <icarus/Analysis/FunctionContext.h>
 
 #include <stack>
 
@@ -19,8 +19,7 @@ namespace icarus {
  * This class represents a global execution context (i.e. the program state of a program). For a local
  * execution context, we user the class described in icarus::FunctionContext.
  */
-template <typename AnalysisIterator>
-class ProgramContext {
+template <typename AnalysisIterator> class ProgramContext {
 
   /* Map of names and addresses to global values in LLVM IR */
   std::map<std::string, llvm::Value *> NamedValues;
@@ -32,19 +31,13 @@ class ProgramContext {
   std::deque<FunctionContext<AnalysisIterator>> FCStack;
 
 public:
-
   ProgramContext() = default;
 
-  bool isStackEmpty() const {
-    return FCStack.empty();
-  }
+  bool isStackEmpty() const { return FCStack.empty(); }
 
-  FunctionContext<AnalysisIterator> &getCurrentFunctionStack() {
-    return FCStack.front().get();
-  }
-
+  FunctionContext<AnalysisIterator> &getCurrentFunctionStack() { return FCStack.front().get(); }
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H

@@ -10,8 +10,8 @@
 #include <icarus/Analysis/ProgramContext.h>
 #include <icarus/Passes/Pass.h>
 
-#include <icarus/Support/Traits.h>
 #include <icarus/Support/LLVMValue.h>
+#include <icarus/Support/Traits.h>
 
 #include <queue>
 
@@ -30,21 +30,13 @@ class DefaultAnalysisIterator {
   DefaultAnalysisIterator() = default;
 
 public:
-
   using Iter = llvm::BasicBlock::iterator;
 
-  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) {
-    return F.isDeclaration() ? nullptr : &F.getEntryBlock();
-  }
+  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) { return F.isDeclaration() ? nullptr : &F.getEntryBlock(); }
 
-  static Iter init(llvm::BasicBlock *BB) {
-    return BB->begin();
-  }
+  static Iter init(llvm::BasicBlock *BB) { return BB->begin(); }
 
-  static Iter exit(llvm::BasicBlock *BB) {
-    return BB->end();
-  }
-
+  static Iter exit(llvm::BasicBlock *BB) { return BB->end(); }
 };
 
 class ReverseAnalysisIterator {
@@ -52,21 +44,13 @@ class ReverseAnalysisIterator {
   ReverseAnalysisIterator() = default;
 
 public:
-
   using Iter = llvm::BasicBlock::reverse_iterator;
 
-  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) {
-    return F.isDeclaration() ? nullptr : getUniqueExitBlock(F);
-  }
+  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) { return F.isDeclaration() ? nullptr : getExitBlock(F); }
 
-  static Iter init(llvm::BasicBlock *BB) {
-    return BB->rbegin();
-  }
+  static Iter init(llvm::BasicBlock *BB) { return BB->rbegin(); }
 
-  static Iter exit(llvm::BasicBlock *BB) {
-    return BB->rend();
-  }
-
+  static Iter exit(llvm::BasicBlock *BB) { return BB->rend(); }
 };
 
 /**
@@ -79,7 +63,6 @@ template <typename Iterator, typename SubClass, typename RetTy = void>
 struct AnalysisContext : public llvm::InstVisitor<SubClass, RetTy> {
 
 protected:
-
   ProgramContext<Iterator> PC;
 
   /**
@@ -88,7 +71,6 @@ protected:
    * contains an entry basic block for the analysis.
    */
   AnalysisContext() = default;
-
 };
 
 /**
@@ -108,14 +90,10 @@ using enable_if_aiacontext = std::enable_if_t<is_template_base_of<AnalysisContex
  * class, one has to inherit from both Pass and ThreadedAIAPass.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, bool Threaded, typename Iterator>
-class ThreadedAIAPass : public Pass {
+template <typename AIAContextImpl, bool Threaded, typename Iterator> class ThreadedAIAPass : public Pass {
 
 protected:
-
-  void scheduleAnalysisContext(AIAContextImpl &AIAContext) {
-
-  }
+  void scheduleAnalysisContext(AIAContextImpl &AIAContext) {}
 
   void ProgramContextWorker(ProgramContext<Iterator> &PC) {
     while (!PC.isStackEmpty()) {
@@ -127,13 +105,11 @@ protected:
   }
 
 public:
-
   /**
    * Creates a new abstract interpretation-based analysis pass with the provided AnalysisContext. With
    * the AnalysisContext template argument, we implement the basic techniques for the pass.
    */
   ThreadedAIAPass() = default;
-
 };
 
 /**
@@ -147,7 +123,6 @@ class ThreadedAIAPass<AIAContextImpl, false, Iterator> : public Pass {
   std::queue<std::unique_ptr<Task>> TaskQueue;
 
 public:
-
   /**
    * Schedule method for ThreadedAIAPass subclasses that do NOT support multithreading. It essentially
    * uses the same method signature from the ThreadPool class except that the queue is not thread-safe
@@ -160,16 +135,14 @@ public:
    * @param Function The function to execute in a thread pool task.
    * @param args The arguments to pass to the function.
    */
-  template <typename Func, typename ... Args,
-      typename RetTy = std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>,
-      typename PTask = std::packaged_task<RetTy()>,
-      typename TaskT = ThreadTask<PTask>>
-  void schedule(Func &&Function, Args &&... args) {
+  template <typename Func, typename... Args,
+            typename RetTy = std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>,
+            typename PTask = std::packaged_task<RetTy()>, typename TaskT = ThreadTask<PTask>>
+  void schedule(Func &&Function, Args &&...args) {
     auto Task = std::bind(std::forward<Func>(Function), std::forward<Args>(args)...);
     std::packaged_task<RetTy()> PackagedTask(std::move(Task));
     TaskQueue.emplace(std::make_unique<TaskT>(std::move(PackagedTask)));
   }
-
 };
 
 /**
@@ -182,17 +155,13 @@ class ThreadedAIAPass<AIAContextImpl, true, Iterator> : public Pass {
   ThreadPool TP;
 
 protected:
-
   /**
    * Initialize the pass thread pool with the specified number of threads.
    * @param NumThreads The number of worker threads to initialize.
    */
-  void initializeThreadPool(unsigned NumThreads) {
-    TP.initialize(NumThreads);
-  }
+  void initializeThreadPool(unsigned NumThreads) { TP.initialize(NumThreads); }
 
 public:
-
   /**
    * Schedule method for ThreadedAIAPass subclasses that support multithreading.
    * @tparam Func The type of the function to submit.
@@ -200,13 +169,11 @@ public:
    * @param Function The function to execute in a thread pool task.
    * @param args The arguments to pass to the function.
    */
-  template <typename Func, typename ... Args>
-  void schedule(Func &&Function, Args &&... args) {
+  template <typename Func, typename... Args> void schedule(Func &&Function, Args &&...args) {
     TP.submit(Function, std::forward<Args>(args)...);
   }
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H

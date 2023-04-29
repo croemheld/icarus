@@ -10,8 +10,12 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - name: Install doxygen and components
-        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+      - name: Install base packages
+        run: sudo apt-get update && sudo apt-get install -y build-essential git python3 cmake flex bison graphviz
+      - name: Clone and build latest doxygen repository
+        run: |
+          git clone https://github.com/doxygen/doxygen.git && mkdir -p doxygen/build
+          cd doxygen/build && cmake -G "Unix Makefiles" .. && make && sudo make install
       - name: Create doxygen documentation
         run: |
           mkdir build && cd build

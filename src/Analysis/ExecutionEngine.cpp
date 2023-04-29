@@ -76,4 +76,4 @@ void ExecutionEngine::executeFunctionsInSection(llvm::Module *M, llvm::StringRef
   }
 }
 
-}
+} // namespace icarus

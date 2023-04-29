@@ -28,7 +28,6 @@ class EEAContext : public ExecutionEngine, public AnalysisContext<SubClass, RetT
   ValueDelegate ExitValue;
 
 public:
-
   EEAContext(ProgramContext<AnalysisIterator> &PC, const llvm::DataLayout &DL)
       : ExecutionEngine(DL)
       , AnalysisContext<SubClass, RetTy>()
@@ -42,9 +41,7 @@ public:
     return ValueDelegate();
   }
 
-  virtual void *getPointerToNamedFunction(llvm::StringRef Name, bool AbortOnFailure = true) override {
-    return nullptr;
-  }
+  virtual void *getPointerToNamedFunction(llvm::StringRef Name, bool AbortOnFailure = true) override { return nullptr; }
 
   /**
    * Prepare the current program context for a call to the specified function with the given arguments
@@ -52,10 +49,7 @@ public:
    * @param F The function to call in the next iteration.
    * @param ArgValues The arguments to pass to this function.
    */
-  void callFunction(llvm::Function *F, llvm::ArrayRef<llvm::GenericValue> ArgValues) {
-
-  }
-
+  void callFunction(llvm::Function *F, llvm::ArrayRef<llvm::GenericValue> ArgValues) {}
 };
 
 /**
@@ -71,16 +65,14 @@ using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EE
  * @tparam EEAContextImpl The EEAContext implementation that uses llvm::ExecutionEngine methods.
  */
 
-template <typename EEAContextImpl, bool Threaded, typename Iterator, typename = void>
-struct ThreadedEEAPass : ThreadedAIAPass<EEAContextImpl, Threaded, Iterator> {
-
-};
+template <typename EEAContextImpl, bool Threaded, typename Iterator>
+struct ThreadedEEAPass : ThreadedAIAPass<EEAContextImpl, Threaded, Iterator> {};
 
 template <typename EEAContextImpl, typename Iterator>
 struct ThreadedEEAPass<EEAContextImpl, true, Iterator> : public ThreadedAIAPass<EEAContextImpl, true, Iterator> {
   using ThreadedAIAPass<EEAContextImpl, true, Iterator>::initializeThreadPool;
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_PASSES_EEAPASS_H

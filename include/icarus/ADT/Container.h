@@ -6,11 +6,11 @@
 #define ICARUS_INCLUDE_ICARUS_ADT_CONTAINER_H
 
 #include <algorithm>
-#include <memory>
 #include <map>
-#include <vector>
+#include <memory>
 #include <queue>
 #include <set>
+#include <vector>
 
 namespace icarus {
 
@@ -19,8 +19,7 @@ namespace icarus {
  * for automatically generating the appropriate thread safe implementation of an STL container.
  * @tparam C The type of the container.
  */
-template <typename C>
-struct ContainerTraits {
+template <typename C> struct ContainerTraits {
   using container_type = C;
   using value_type = typename C::value_type;
 };
@@ -36,8 +35,7 @@ template <typename T> using QueueTraits = ContainerTraits<std::queue<T>>;
  * a container that is iterable.
  * @tparam C
  */
-template <typename C>
-struct IterableTraits : public ContainerTraits<C> {
+template <typename C> struct IterableTraits : public ContainerTraits<C> {
   using iterator = typename C::iterator;
   using const_iterator = typename C::const_iterator;
 };
@@ -54,8 +52,7 @@ template <typename T> using SetTraits = IterableTraits<std::set<T>>;
  * Extension to the IterableTraits for map containers. Maps possess two more important types, namely a
  * key and a value type. All traits have the same name as in the C++ STL library.
  */
-template <typename K, typename V>
-struct MapTraits : public IterableTraits<std::map<K, V>> {
+template <typename K, typename V> struct MapTraits : public IterableTraits<std::map<K, V>> {
   using key_type = K;
   using mapped_type = V;
 };
@@ -75,9 +72,7 @@ struct MapTraits : public IterableTraits<std::map<K, V>> {
 template <template <typename, typename> class Container, typename T, typename Allocator = std::allocator<T>>
 auto toReferences(const Container<T, Allocator> &C) {
   Container<std::reference_wrapper<typename T::element_type>, Allocator> Refs;
-  std::transform(C.begin(), C.end(), std::back_inserter(Refs), [](auto &E) {
-    return std::ref(*E);
-  });
+  std::transform(C.begin(), C.end(), std::back_inserter(Refs), [](auto &E) { return std::ref(*E); });
   return Refs;
 }
 
@@ -88,13 +83,10 @@ auto toReferences(const Container<T, Allocator> &C) {
  * @param V The std::vector to transform into a vector of references.
  * @return A std::vector with the wrapped references to the original elements.
  */
-template <typename T, typename Allocator = std::allocator<T>>
-auto toReferences(const std::vector<T, Allocator> &V) {
+template <typename T, typename Allocator = std::allocator<T>> auto toReferences(const std::vector<T, Allocator> &V) {
   std::vector<std::reference_wrapper<typename T::element_type>, Allocator> Refs;
   Refs.reserve(V.size());
-  std::transform(V.begin(), V.end(), std::back_inserter(Refs), [](auto &E) {
-    return std::ref(*E);
-  });
+  std::transform(V.begin(), V.end(), std::back_inserter(Refs), [](auto &E) { return std::ref(*E); });
   return Refs;
 }
 
@@ -102,24 +94,16 @@ auto toReferences(const std::vector<T, Allocator> &V) {
  * Special iterator used to iterate over dereference-able elements.
  * @tparam BaseIterator The original iterator type of the container.
  */
-template <class BaseIterator>
-struct DereferenceIterator : public BaseIterator {
+template <class BaseIterator> struct DereferenceIterator : public BaseIterator {
   using value_type = typename BaseIterator::value_type::element_type;
 
   explicit DereferenceIterator(const BaseIterator &Other) : BaseIterator(Other) {}
 
-  value_type &operator*() const {
-    return *(BaseIterator::operator*());
-  }
+  value_type &operator*() const { return *(BaseIterator::operator*()); }
 
-  value_type *operator->() const {
-    return BaseIterator::operator*().get();
-  }
+  value_type *operator->() const { return BaseIterator::operator*().get(); }
 
-  value_type &operator[](size_t N) const {
-    return *(BaseIterator::operator[](N));
-  }
-
+  value_type &operator[](size_t N) const { return *(BaseIterator::operator[](N)); }
 };
 
 /**
@@ -128,11 +112,10 @@ struct DereferenceIterator : public BaseIterator {
  * @param I The instance of the iterator to convert.
  * @return A dereference-able iterator instance for the original iterator.
  */
-template <typename BaseIterator>
-DereferenceIterator<BaseIterator> deref_iterator(BaseIterator I) {
+template <typename BaseIterator> DereferenceIterator<BaseIterator> deref_iterator(BaseIterator I) {
   return DereferenceIterator<BaseIterator>(I);
 }
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_ADT_CONTAINER_H

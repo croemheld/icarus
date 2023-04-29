@@ -15,12 +15,10 @@ struct LogTypeInfo {
   std::string ColorCode;
 };
 
-static std::array<LogTypeInfo, 4> LogTypes = {{
-                                                  {" ERROR ", COLOR_CODE(RED, true)},
-                                                  {"WARNING", COLOR_CODE(YELLOW, false)},
-                                                  {"SUCCESS", COLOR_CODE(GREEN, false)},
-                                                  {"MESSAGE", COLOR_CODE(CYAN, false)}
-                                              }};
+static std::array<LogTypeInfo, 4> LogTypes = {{{" ERROR ", COLOR_CODE(RED, true)},
+                                               {"WARNING", COLOR_CODE(YELLOW, false)},
+                                               {"SUCCESS", COLOR_CODE(GREEN, false)},
+                                               {"MESSAGE", COLOR_CODE(CYAN, false)}}};
 
 /*
  * LoggerImpl methods
@@ -100,7 +98,6 @@ void Logger::doWaitFinished() {
   for (LogThread *L : Loggers) {
     doLogs(LogTypeEnum::LOGTYPETERM, "");
     L->shutdown();
-
   }
 }
 
@@ -160,4 +157,4 @@ void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile) {
   setDebugTypes(DebugOnly);
 }
 
-}
+} // namespace icarus

@@ -22,4 +22,4 @@ static RegisterPass<IATPass> IATPass(nullptr);
  * IATPass methods
  */
 
-}
+} // namespace icarus

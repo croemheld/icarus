@@ -5,8 +5,8 @@
 #ifndef ICARUS_INCLUDE_ICARUS_PASSES_IAAPASS_H
 #define ICARUS_INCLUDE_ICARUS_PASSES_IAAPASS_H
 
-#include <icarus/Analysis/ProgramContext.h>
 #include <icarus/Analysis/FunctionContext.h>
+#include <icarus/Analysis/ProgramContext.h>
 
 #include <icarus/Support/JSON.h>
 
@@ -29,15 +29,13 @@ struct IAAContext : EEAContext<DefaultAnalysisIterator, IAAContext, IAAContextRe
 
   IAAContext(ProgramContext<DefaultAnalysisIterator> &PC, const llvm::DataLayout &DL)
       : EEAContext<DefaultAnalysisIterator, IAAContext, IAAContextRetTy>(PC, DL) {}
-
 };
 
 /**
  * Base class for input-aware analyses with the underlying abstract interpretation-based pass. It uses
  * user-provided input to generate initial program states in order to "interpret" the program.
  */
-template <bool Threaded>
-class ThreadedIAAPass : public ThreadedEEAPass<IAAContext, Threaded, IAAContext::Iter> {
+template <bool Threaded> class ThreadedIAAPass : public ThreadedEEAPass<IAAContext, Threaded, IAAContext::Iter> {
 
   InputArguments IA;
 
@@ -52,13 +50,14 @@ class ThreadedIAAPass : public ThreadedEEAPass<IAAContext, Threaded, IAAContext:
     from_json(JSON, IA, IM);
   }
 
-public:
+protected:
+  bool checkJSON(PassArguments &IPA) { return !IPA.getJSON().empty(); }
 
+public:
   int runAnalysisPass(PassArguments &IPA) override {
     parseJSONArguments(IPA);
     return 0;
   }
-
 };
 
 struct IAAPass : public ThreadedIAAPass<false> {
@@ -66,15 +65,7 @@ struct IAAPass : public ThreadedIAAPass<false> {
   static constexpr std::string_view OPTION = "IAA";
   static constexpr std::string_view NAME = "Input-Aware Analysis";
 
-  bool checkPassArguments(PassArguments &IPA) override {
-    std::string JSON = IPA.getJSON();
-
-    if (JSON.empty())
-      return false;
-
-    return true;
-  }
-
+  bool checkPassArguments(PassArguments &IPA) override { return ThreadedIAAPass<false>::checkJSON(IPA); }
 };
 
 struct IATPass : public ThreadedIAAPass<true> {
@@ -83,24 +74,17 @@ struct IATPass : public ThreadedIAAPass<true> {
   static constexpr std::string_view NAME = "Input-Aware Analysis (Threaded)";
 
 protected:
-
-  using ThreadedEEAPass<IAAContext, true, IAAContext::Iter>::initializeThreadPool;
+  using ThreadedIAAPass<true>::initializeThreadPool;
 
 public:
-
   bool checkPassArguments(PassArguments &IPA) override {
-    std::string JSON = IPA.getJSON();
-
-    if (JSON.empty())
+    if (!ThreadedIAAPass<true>::checkJSON(IPA))
       return false;
-
     initializeThreadPool(IPA.getNumThreads());
-
     return true;
   }
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_PASSES_IAAPASS_H

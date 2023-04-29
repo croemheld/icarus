@@ -25,8 +25,7 @@ namespace icarus {
  * This class represents a local execution context (i.e. the program state for a call frame). The code
  * for a global execution context is located in icarus::ProgramContext.
  */
-template <typename AnalysisIterator>
-class FunctionContext {
+template <typename AnalysisIterator> class FunctionContext {
 
   llvm::BasicBlock *BB;
   typename AnalysisIterator::Iter II;
@@ -34,23 +33,15 @@ class FunctionContext {
   std::map<llvm::Value *, ValueDelegate> Values;
 
 protected:
-
   /**
    * Create a new program state for a function context
    */
-  FunctionContext()
-      : BB(nullptr)
-      , II(nullptr)
-      , Caller(nullptr) {}
+  FunctionContext() : BB(nullptr), II(nullptr), Caller(nullptr) {}
 
 public:
-
-  llvm::Instruction *nextInstruction() {
-    return *II++;
-  }
-
+  llvm::Instruction *nextInstruction() { return *II++; }
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMSTATE_H

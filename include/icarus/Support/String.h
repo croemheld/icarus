@@ -5,8 +5,8 @@
 #ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
 #define ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
 
-#include <llvm/IR/Value.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Value.h>
 
 #include <array>
 #include <string_view>
@@ -22,12 +22,12 @@ using std::to_string;
  * in our threaded logger. Needs to be declared before adl_string::as_string, so that the lookup might
  * succeed in the first place.
  */
-std::string to_string(const llvm::Value& V);
+std::string to_string(const llvm::Value &V);
 
 /**
  * Helper function for converting a llvm::Type instance to a string representation that can be logged.
  */
-std::string to_string(const llvm::Type& V);
+std::string to_string(const llvm::Type &V);
 
 /**
  * Core function for all adl_string::to_string functions for different argument types in order to make
@@ -37,12 +37,11 @@ std::string to_string(const llvm::Type& V);
  * @param t The instance that is going to be converted into a string.
  * @return A string representation based on the custom implementation provided by to_string.
  */
-template <typename T>
-std::string as_string(const T& t) {
+template <typename T> std::string as_string(const T &t) {
   return to_string(t);
 }
 
-}
+} // namespace adl_string
 
 /**
  * Core function in icarus namespace for to_string. All calls to to_string go through here, before the
@@ -51,8 +50,7 @@ std::string as_string(const T& t) {
  * @param t The instance that is going to be converted into a string.
  * @return A string representation based on the custom implementation provided by to_string.
  */
-template <typename T>
-std::string to_string(const T& t) {
+template <typename T> std::string to_string(const T &t) {
   return adl_string::as_string(t);
 }
 
@@ -64,7 +62,7 @@ std::string to_string(const T& t) {
  * @param V The value to write to the stream in a string representation.
  * @return The provided stream to allow operator chaining.
  */
-std::ostream& operator<<(std::ostream& Out, const llvm::Value& V);
+std::ostream &operator<<(std::ostream &Out, const llvm::Value &V);
 
 /**
  * Defining operator<< for llvm::Value objects and derivatives.
@@ -72,7 +70,7 @@ std::ostream& operator<<(std::ostream& Out, const llvm::Value& V);
  * @param T The type to write to the stream in a string representation.
  * @return The provided stream to allow operator chaining.
  */
-std::ostream& operator<<(std::ostream& Out, const llvm::Type& T);
+std::ostream &operator<<(std::ostream &Out, const llvm::Type &T);
 
 /**
  * Helper method for generating formatted strings in printf style.
@@ -81,8 +79,7 @@ std::ostream& operator<<(std::ostream& Out, const llvm::Type& T);
  * @param args The arbitrarily typed arguments to include in this format string.
  * @return A newly formatted string with the provided arguments.
  */
-template <typename ... Args>
-std::string format(const char *Format, Args&&... args) {
+template <typename... Args> std::string format(const char *Format, Args &&...args) {
   int Size = std::snprintf(nullptr, 0, Format, args...);
   if (Size <= 0)
     throw std::runtime_error("Error during formatting");
@@ -96,8 +93,7 @@ std::string format(const char *Format, Args&&... args) {
  * string generation in case components are scattered throughout the project.
  * @tparam Strings The strings to concatenate.
  */
-template <std::string_view const &... Strings>
-struct ConcatStrings {
+template <std::string_view const &...Strings> struct ConcatStrings {
   static constexpr auto impl() noexcept {
     constexpr std::size_t Length = (Strings.size() + ... + 0);
     std::array<char, Length + 1> Array{};
@@ -111,15 +107,14 @@ struct ConcatStrings {
   }
 
   static constexpr auto Concatenated = impl();
-  static constexpr std::string_view Value {Concatenated.data(), Concatenated.size() - 1};
+  static constexpr std::string_view Value{Concatenated.data(), Concatenated.size() - 1};
 };
 
 /**
  * Helper template for concatenating strings at compile-time.
  * @tparam Strings The strings to concatenate.
  */
-template <std::string_view const&... Strings>
-static constexpr auto Concat = ConcatStrings<Strings...>::Value;
+template <std::string_view const &...Strings> static constexpr auto Concat = ConcatStrings<Strings...>::Value;
 
 /**
  * Workaround for using strings in switch tables. This was taken directly from StackOverflow
@@ -153,6 +148,6 @@ bool startsWith(std::string_view Str, std::string_view Pre);
  */
 bool endsWith(std::string_view Str, std::string_view Suf);
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H

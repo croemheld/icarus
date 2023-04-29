@@ -52,4 +52,4 @@ int ICCPass::runAnalysisPass(PassArguments &IPA) {
   return 0;
 }
 
-}
+} // namespace icarus

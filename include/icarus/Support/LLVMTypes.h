@@ -23,6 +23,6 @@ llvm::Type *getElementTypeAt(llvm::Type *T, unsigned long N);
 
 unsigned long getAsInteger(llvm::StringRef Str, unsigned int Radix = 10);
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMTYPES_H

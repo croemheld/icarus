@@ -51,20 +51,18 @@ class IcarusModule {
   std::unique_ptr<llvm::Module> IRModule;
 
 public:
-
   explicit IcarusModule(std::string &FilePath);
 
   std::string getFilePath() const;
   std::string getFileName() const;
   llvm::Module *getModule() const;
-  llvm::SMDiagnostic& getDiagnostics();
+  llvm::SMDiagnostic &getDiagnostics();
 
-  llvm::Type *parseType(const nlohmann::json& JSON);
+  llvm::Type *parseType(const nlohmann::json &JSON);
   llvm::Constant *parseConstant(std::string Asm);
-  llvm::Constant *parseConstant(const nlohmann::json& JSON, llvm::Type *T);
-  llvm::Constant *parseConstant(const nlohmann::json& JSON);
-  llvm::Function *parseFunction(const nlohmann::json& JSON);
-
+  llvm::Constant *parseConstant(const nlohmann::json &JSON, llvm::Type *T);
+  llvm::Constant *parseConstant(const nlohmann::json &JSON);
+  llvm::Function *parseFunction(const nlohmann::json &JSON);
 };
 
 /**
@@ -86,14 +84,13 @@ class PassArguments {
   void insertModule(std::string &FilePath);
 
 public:
-
   PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads);
 
   std::string getFile() const;
   std::string getJSON() const;
   unsigned getNumThreads() const;
   unsigned int getNumFiles() const;
-  nlohmann::json& getJSONObject();
+  nlohmann::json &getJSONObject();
 
   /**
    * Get the IcarusModule instance for the provided file name. This method does only look
@@ -117,9 +114,8 @@ public:
 
   iterator begin();
   iterator end();
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_PASSES_PASSARGUMENTS_H

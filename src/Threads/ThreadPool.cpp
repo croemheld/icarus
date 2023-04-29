@@ -46,9 +46,7 @@ unsigned ThreadPool::doGetThreadNum() const {
 
 void ThreadPool::doAwaitCompletion() {
   std::unique_lock<std::shared_mutex> Lock(Mutex);
-  Condition.wait(Lock, [&]() {
-    return TotalTasks == 0;
-  });
+  Condition.wait(Lock, [&]() { return TotalTasks == 0; });
 }
 
 void ThreadPool::doShutdown() {
@@ -84,4 +82,4 @@ void ThreadPool::shutdown() {
   get().doShutdown();
 }
 
-}
+} // namespace icarus

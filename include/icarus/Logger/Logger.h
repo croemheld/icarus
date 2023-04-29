@@ -8,36 +8,30 @@
 #include <llvm/ADT/APInt.h>
 
 #include <llvm/Support/Debug.h>
-#include <llvm/Support/Process.h>
 #include <llvm/Support/FormattedStream.h>
+#include <llvm/Support/Process.h>
 #include <llvm/Support/raw_os_ostream.h>
 
+#include <icarus/Support/Clang.h>
 #include <icarus/Support/Math.h>
 #include <icarus/Support/String.h>
-#include <icarus/Support/Clang.h>
 
 #include <icarus/Threads/ThreadPool.h>
 
-#include <iostream>
-#include <iomanip>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 
 namespace icarus {
 
-enum LogTypeEnum {
-  LOGTYPEFAIL,
-  LOGTYPEWARN,
-  LOGTYPECONF,
-  LOGTYPEINFO,
-  LOGTYPETERM
-};
+enum LogTypeEnum { LOGTYPEFAIL, LOGTYPEWARN, LOGTYPECONF, LOGTYPEINFO, LOGTYPETERM };
 
 /**
  * Preprocessor macro to get the string for a specific color and font weight. The code is taken from
  * the LLVM method llvm::raw_ostream::changeColor.
  */
-#define COLOR_CODE(COLOR, BOLD) \
-    llvm::sys::Process::OutputColor(static_cast<char>(llvm::raw_ostream::Colors::COLOR), BOLD, false)
+#define COLOR_CODE(COLOR, BOLD)                                                                                        \
+  llvm::sys::Process::OutputColor(static_cast<char>(llvm::raw_ostream::Colors::COLOR), BOLD, false)
 
 /**
  * The structure represents an entry in the LogMessageQueue consisting of the LogTypeEnum and string
@@ -66,17 +60,13 @@ class LoggerImpl {
   llvm::formatted_raw_ostream FOStream;
 
 protected:
-
   /**
    * Initialize a new LoggerImpl instance. The base class cannot be instantiated directly and needs to
    * be derived by a subclass for different devices to log to.
    * @param Stream The output stream to write the messages to.
    * @param hasColors True, if the logger supports colors.
    */
-  LoggerImpl(std::ostream &Stream, bool hasColors)
-      : MessageQueue(nullptr)
-      , ROStream(Stream)
-      , FOStream(ROStream) {
+  LoggerImpl(std::ostream &Stream, bool hasColors) : MessageQueue(nullptr), ROStream(Stream), FOStream(ROStream) {
 #if ICARUS_CLANG_VERSION > 9
     FOStream.enable_colors(hasColors);
 #endif
@@ -84,7 +74,6 @@ protected:
   }
 
 public:
-
   /**
    * The logger thread method that runs indefinitely long. In the case a LogTypeEnum::LOGTYPETERM (terminate)
    * message is sent via the message queue, the logger thread terminates.
@@ -116,7 +105,6 @@ public:
    * @param Message The message string to log.
    */
   void logs(LogTypeEnum LogType, std::string &Message);
-
 };
 
 /**
@@ -128,16 +116,12 @@ class FileLogger : public LoggerImpl {
   std::ofstream FileStream;
 
 public:
-
   /**
    * Creates a new file logger instance. The class does not need to override the virtual methods as it
    * does not support colors: The default implementation of the base LoggerImpl class suffices.
    * @param File The path to the output file, which will be created if it does not exist yet.
    */
-  explicit FileLogger(llvm::StringRef File)
-      : FileStream(File.str())
-      , LoggerImpl(FileStream, false) {}
-
+  explicit FileLogger(llvm::StringRef File) : FileStream(File.str()), LoggerImpl(FileStream, false) {}
 };
 
 /**
@@ -167,16 +151,13 @@ class LogThread {
   std::thread LoggerThread;
 
 public:
-
   /**
    * Create a new logger thread instance together with a dynamically allocated message queue. They are
    * destroyed by the Logger singleton instance via LogThread::waitFinished and do not need a destructor.
    * @param Logger The logger instance to launch in a new thread.
    */
   explicit LogThread(LoggerImpl *Logger)
-      : Logger(Logger)
-      , MessageQueue(new LogMessageQueue())
-      , LoggerThread(&LoggerImpl::worker, Logger, MessageQueue) {}
+      : Logger(Logger), MessageQueue(new LogMessageQueue()), LoggerThread(&LoggerImpl::worker, Logger, MessageQueue) {}
 
   /**
    * Stores the log type and the associated message in the message queue. The queue is thread safe and
@@ -191,7 +172,6 @@ public:
    * message queue is being deleted by the Logger class.
    */
   void shutdown();
-
 };
 
 /**
@@ -225,8 +205,7 @@ class Logger {
    * @param args The different arguments of the message string.
    * @return A formatted string of the log message including timestamp and normalized thread ID.
    */
-  template <typename ... Args>
-  static std::string formatMessage(unsigned ThreadID, Args &&... args) {
+  template <typename... Args> static std::string formatMessage(unsigned ThreadID, Args &&...args) {
     std::stringstream Buffer;
     auto Clock = std::chrono::system_clock::now();
     auto Time = std::chrono::system_clock::to_time_t(Clock);
@@ -248,8 +227,7 @@ class Logger {
    * @param LogType The type of the message to log.
    * @param args The different arguments of the message string.
    */
-  template <typename ... Args>
-  void doLogs(enum LogTypeEnum LogType, Args &&... args) {
+  template <typename... Args> void doLogs(enum LogTypeEnum LogType, Args &&...args) {
     unsigned ThreadID = ThreadPool::getThreadID();
     std::string Message = formatMessage(ThreadID, std::forward<Args>(args)...);
     for (LogThread *L : Loggers) {
@@ -277,15 +255,13 @@ class Logger {
   void doWaitFinished();
 
 public:
-
   /**
    * Static method with call to singleton Logger::doLogs method.
    * @tparam Args The variadic types of the message arguments.
    * @param LogType The type of the message to log.
    * @param args The different arguments of the message string.
    */
-  template <typename ... Args>
-  static void logs(enum LogTypeEnum LogType, Args &&... args) {
+  template <typename... Args> static void logs(enum LogTypeEnum LogType, Args &&...args) {
     get().doLogs(LogType, std::forward<Args>(args)...);
   }
 
@@ -295,8 +271,7 @@ public:
    * @param LogType The type of the message to log.
    * @param args The different arguments of the message string.
    */
-  template <typename ... Args>
-  static void earlyLogs(enum LogTypeEnum LogType, Args &&... args) {
+  template <typename... Args> static void earlyLogs(enum LogTypeEnum LogType, Args &&...args) {
     std::string Message = formatMessage(UINT32_MAX, std::forward<Args>(args)...);
     getEarlyMessages().push_back({LogType, Message});
   }
@@ -316,7 +291,6 @@ public:
    * Static method with call to singleton Logger::doWaitFinished method.
    */
   static void waitFinished();
-
 };
 
 #define LOGS(Enum, ...) Logger::logs(Enum, __VA_ARGS__)
@@ -333,15 +307,47 @@ public:
 #define EARLY_WARN(...) EARLY_LOGS(LOGTYPEWARN, __VA_ARGS__)
 #define EARLY_FAIL(...) EARLY_LOGS(LOGTYPEFAIL, __VA_ARGS__)
 
-#define INFO_COND(Cond, ...) do { if (Cond) INFO(__VA_ARGS__); } while (0)
-#define CONF_COND(Cond, ...) do { if (Cond) CONF(__VA_ARGS__); } while (0)
-#define WARN_COND(Cond, ...) do { if (Cond) WARN(__VA_ARGS__); } while (0)
-#define FAIL_COND(Cond, ...) do { if (Cond) FAIL(__VA_ARGS__); } while (0)
+#define INFO_COND(Cond, ...)                                                                                           \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      INFO(__VA_ARGS__);                                                                                               \
+  } while (0)
+#define CONF_COND(Cond, ...)                                                                                           \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      CONF(__VA_ARGS__);                                                                                               \
+  } while (0)
+#define WARN_COND(Cond, ...)                                                                                           \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      WARN(__VA_ARGS__);                                                                                               \
+  } while (0)
+#define FAIL_COND(Cond, ...)                                                                                           \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      FAIL(__VA_ARGS__);                                                                                               \
+  } while (0)
 
-#define EARLY_INFO_COND(Cond, ...) do { if (Cond) EARLY_INFO(__VA_ARGS__); } while (0)
-#define EARLY_CONF_COND(Cond, ...) do { if (Cond) EARLY_CONF(__VA_ARGS__); } while (0)
-#define EARLY_WARN_COND(Cond, ...) do { if (Cond) EARLY_WARN(__VA_ARGS__); } while (0)
-#define EARLY_FAIL_COND(Cond, ...) do { if (Cond) EARLY_FAIL(__VA_ARGS__); } while (0)
+#define EARLY_INFO_COND(Cond, ...)                                                                                     \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      EARLY_INFO(__VA_ARGS__);                                                                                         \
+  } while (0)
+#define EARLY_CONF_COND(Cond, ...)                                                                                     \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      EARLY_CONF(__VA_ARGS__);                                                                                         \
+  } while (0)
+#define EARLY_WARN_COND(Cond, ...)                                                                                     \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      EARLY_WARN(__VA_ARGS__);                                                                                         \
+  } while (0)
+#define EARLY_FAIL_COND(Cond, ...)                                                                                     \
+  do {                                                                                                                 \
+    if (Cond)                                                                                                          \
+      EARLY_FAIL(__VA_ARGS__);                                                                                         \
+  } while (0)
 
 #ifndef NDEBUG
 
@@ -361,10 +367,18 @@ bool isDebugType(llvm::StringRef DebugType);
 
 #define isDebugType(Type) (false)
 
-#define INFO_WITH(Type, ...) do {} while (0)
-#define CONF_WITH(Type, ...) do {} while (0)
-#define WARN_WITH(Type, ...) do {} while (0)
-#define FAIL_WITH(Type, ...) do {} while (0)
+#define INFO_WITH(Type, ...)                                                                                           \
+  do {                                                                                                                 \
+  } while (0)
+#define CONF_WITH(Type, ...)                                                                                           \
+  do {                                                                                                                 \
+  } while (0)
+#define WARN_WITH(Type, ...)                                                                                           \
+  do {                                                                                                                 \
+  } while (0)
+#define FAIL_WITH(Type, ...)                                                                                           \
+  do {                                                                                                                 \
+  } while (0)
 
 #endif /* !NDEBUG */
 
@@ -375,6 +389,6 @@ bool isDebugType(llvm::StringRef DebugType);
  */
 void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile);
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_LOGGER_LOGGER_H

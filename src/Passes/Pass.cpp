@@ -107,4 +107,4 @@ int IcarusPassParser::ValCompare(const IcarusPassParser::OptionInfo *VT1, const 
   return VT1->Name.compare(VT2->Name);
 }
 
-}
+} // namespace icarus

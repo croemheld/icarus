@@ -14,16 +14,14 @@ class ICCPass : public Pass {
   std::map<std::string, unsigned long> IndirectCalls;
 
 public:
-
   static constexpr std::string_view OPTION = "ICC";
   static constexpr std::string_view NAME = "Indirect Call Counter";
 
   bool checkPassArguments(PassArguments &IPA) override;
 
   int runAnalysisPass(PassArguments &IPA) override;
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H

@@ -3,18 +3,18 @@
 //
 
 #include <llvm/AsmParser/Parser.h>
-#include <llvm/IRReader/IRReader.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
 
 #include "icarus/Passes/PassArguments.h"
 
+#include "icarus/Support/Clang.h"
+#include "icarus/Support/JSON.h"
 #include "icarus/Support/LLVMTypes.h"
 #include "icarus/Support/LLVMValue.h"
-#include "icarus/Support/JSON.h"
 #include "icarus/Support/String.h"
-#include "icarus/Support/Clang.h"
 
 #include "nlohmann/json.hpp"
 
@@ -59,7 +59,7 @@ void from_json(const nlohmann::json &JSON, InputArguments &IA, IcarusModule *IM)
     JSON.at("simulated").get_to(IA.Simulated);
 }
 
-}
+} // namespace adl_json
 
 /*
  * IcarusModule methods
@@ -160,9 +160,7 @@ llvm::Function *IcarusModule::parseFunction(const nlohmann::json &JSON) {
  */
 
 PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads)
-    : FileArg(FileArg)
-    , JSONArg(JSONArg)
-    , NumThreads(NumThreads) {
+    : FileArg(FileArg), JSONArg(JSONArg), NumThreads(NumThreads) {
   /*
    * First, check if the input files exists and parse all potential LLVM modules
    * in the object instance. If no input files were found, icarus will exit here.
@@ -252,4 +250,4 @@ PassArguments::iterator PassArguments::end() {
   return deref_iterator(Modules.end());
 }
 
-}
+} // namespace icarus

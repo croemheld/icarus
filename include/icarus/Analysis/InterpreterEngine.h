@@ -21,10 +21,8 @@ namespace icarus {
  * makes it impossible to use the class or extend it. Thus, we have to essentially rewrite the classes
  * to match our purpose, which also means that most of the code is copied 1:1 with minor changes.
  */
-class InterpreterEngine : public ExecutionEngine {
+class InterpreterEngine : public ExecutionEngine {};
 
-};
-
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_INTERPRETERENGINE_H

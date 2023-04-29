@@ -34,7 +34,7 @@ std::string to_string(const llvm::Type &T) {
   return String;
 }
 
-}
+} // namespace adl_string
 
 std::ostream &operator<<(std::ostream &Out, const llvm::Value &V) {
   return Out << to_string(V);
@@ -52,4 +52,4 @@ bool endsWith(std::string_view Str, std::string_view Suf) {
   return Str.size() >= Suf.size() && 0 == Str.compare(Str.size() - Suf.size(), Suf.size(), Suf);
 }
 
-}
+} // namespace icarus

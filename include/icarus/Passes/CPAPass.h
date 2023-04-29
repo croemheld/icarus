@@ -19,27 +19,18 @@ using IAAContextRetTy = void;
  * AnalysisContext specialization for constant propagation-based analyses. The AnalysisContext is part
  * of the template parameter for the CPAPass class below.
  */
-struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, IAAContextRetTy> {
-
-};
+struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, IAAContextRetTy> {};
 
 /**
  * Base class for constant propagation-based analysis with the underlying abstract interpretation pass
  * for performing a flow- and context-sensitive analysis on a program.
  */
-template <bool Threaded>
-class ThreadedCPAPass : public ThreadedAIAPass<CPAContext, Threaded, DefaultAnalysisIterator> {
+template <bool Threaded> class ThreadedCPAPass : public ThreadedAIAPass<CPAContext, Threaded, DefaultAnalysisIterator> {
 
 public:
+  bool checkPassArguments(PassArguments &IPA) override { return true; }
 
-  bool checkPassArguments(PassArguments &IPA) override {
-    return true;
-  }
-
-  int runAnalysisPass(PassArguments &IPA) override {
-    return 0;
-  }
-
+  int runAnalysisPass(PassArguments &IPA) override { return 0; }
 };
 
 /**
@@ -58,6 +49,6 @@ struct CPTPass : public ThreadedCPAPass<true> {
   static constexpr std::string_view NAME = "Constant Propagation Analysis (Threaded)";
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H

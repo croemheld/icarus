@@ -10,8 +10,8 @@
 #include <icarus/Threads/ThreadSafeQueue.h>
 
 #include <atomic>
-#include <future>
 #include <functional>
+#include <future>
 
 namespace icarus {
 
@@ -40,9 +40,9 @@ struct Task {
  * instance that is moved to the task queue of the thread pool.
  * @tparam Func The function signature of the task to schedule.
  */
-template <typename Func>
-class ThreadTask : public Task {
+template <typename Func> class ThreadTask : public Task {
   Func ThreadFunction;
+
 public:
   explicit ThreadTask(Func &&Function) : ThreadFunction(std::move(Function)) {}
 
@@ -117,8 +117,7 @@ class ThreadPool {
    * @param args The arguments to pass to the function.
    * @return A std::future that allows us to wait for the scheduled function to return.
    */
-  template <typename Func, typename ... Args>
-  auto doSubmit(Func &&Function, Args &&... args) {
+  template <typename Func, typename... Args> auto doSubmit(Func &&Function, Args &&...args) {
     auto Task = std::bind(std::forward<Func>(Function), std::forward<Args>(args)...);
 
     using RetTy = std::result_of_t<decltype(Task)()>;
@@ -145,7 +144,6 @@ class ThreadPool {
   void doShutdown();
 
 public:
-
   /**
    * Static method with call to singleton method ThreadPool::doInitialize.
    * @param Threads The number of threads - 1 to initialize in the tread pool.
@@ -171,8 +169,7 @@ public:
    * @param args The arguments to pass to the function.
    * @return A std::future that allows us to wait for the scheduled function to return.
    */
-  template <typename Func, typename ... Args>
-  static auto submit(Func &&Function, Args &&... args) {
+  template <typename Func, typename... Args> static auto submit(Func &&Function, Args &&...args) {
     return get().doSubmit(std::forward<Func>(Function), std::forward<Args>(args)...);
   }
 
@@ -185,9 +182,8 @@ public:
    * Static method with call to singleton method ThreadLogger::doShutdown.
    */
   static void shutdown();
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_THREADS_THREADPOOL_H

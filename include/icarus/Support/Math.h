@@ -14,8 +14,7 @@ namespace icarus {
  * @param Base The base for which the number of digits should be determined.
  * @return The number of digits, including minus sign, if the number is negative.
  */
-template <typename T>
-unsigned numDigits(T Num, unsigned Base = 10) {
+template <typename T> unsigned numDigits(T Num, unsigned Base = 10) {
   unsigned Digits = 0;
   if (Num < 0)
     ++Digits;
@@ -26,6 +25,6 @@ unsigned numDigits(T Num, unsigned Base = 10) {
   return Digits;
 }
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_SUPPORT_MATH_H

@@ -5,9 +5,9 @@
 #ifndef ICARUS_INCLUDE_ICARUS_ANALYSIS_EXECUTIONENGINE_H
 #define ICARUS_INCLUDE_ICARUS_ANALYSIS_EXECUTIONENGINE_H
 
-#include <llvm/IR/Module.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/IR/Module.h>
 #include <llvm/Support/ErrorHandling.h>
 
 #include <icarus/Analysis/EngineValue.h>
@@ -19,7 +19,6 @@ class ExecutionEngine {
   const llvm::DataLayout DL;
 
 protected:
-
   // List of modules we are going to analyze. This differs from the original implementation in that we
   // do not transfer ownership to this class whenever we want to analyze a module.
   llvm::SmallVector<llvm::Module *, 1> Modules;
@@ -32,7 +31,6 @@ protected:
   ExecutionEngine(const llvm::DataLayout &DL) : DL(DL) {}
 
 public:
-
   const llvm::DataLayout &getDataLayout() const;
 
   /**
@@ -96,16 +94,11 @@ public:
    * Helper inline methods for executing global constructors and destructors.
    */
 
-  inline void executeCtors(llvm::Module *M) {
-    executeFunctionsInSection(M, "llvm.global_ctors");
-  }
+  inline void executeCtors(llvm::Module *M) { executeFunctionsInSection(M, "llvm.global_ctors"); }
 
-  inline void executeDtors(llvm::Module *M) {
-    executeFunctionsInSection(M, "llvm.global_dtors");
-  }
-
+  inline void executeDtors(llvm::Module *M) { executeFunctionsInSection(M, "llvm.global_dtors"); }
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_EXECUTIONENGINE_H

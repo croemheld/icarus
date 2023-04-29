@@ -15,15 +15,14 @@ struct lambda {
    * Variadic template arguments (experimental)
    */
 
-  template <typename Ret, typename Sig, typename... Ts>
-  static Ret exc(Ts... args) {
-    return (Ret) (*(Sig*)fun())(std::forward<Ts>(args)...);
+  template <typename Ret, typename Sig, typename... Ts> static Ret exc(Ts... args) {
+    return (Ret)(*(Sig *)fun())(std::forward<Ts>(args)...);
   }
 
-  template <typename Ret = void, typename... Ts, typename RetPtr = Ret(*)(Ts...), typename Sig>
-  static RetPtr ptr(Sig& sig) {
+  template <typename Ret = void, typename... Ts, typename RetPtr = Ret (*)(Ts...), typename Sig>
+  static RetPtr ptr(Sig &sig) {
     fun(&sig);
-    return (RetPtr) exc<Ret, Sig, Ts...>;
+    return (RetPtr)exc<Ret, Sig, Ts...>;
   }
 
   static void *fun(void *Callback = nullptr) {
@@ -32,11 +31,8 @@ struct lambda {
       InternalCallback = Callback;
     return InternalCallback;
   }
-
 };
 
-
-
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_SUPPORT_LAMBDA_H

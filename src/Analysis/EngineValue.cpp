@@ -44,4 +44,4 @@ void EngineValue::setDelegate(uint64_t Offset, ValueDelegate &Delegate) {
   Values[Offset] = Delegate;
 }
 
-}
+} // namespace icarus

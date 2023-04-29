@@ -7,8 +7,8 @@
 
 #include <llvm/Support/RWMutex.h>
 
-#include <type_traits>
 #include <map>
+#include <type_traits>
 
 namespace icarus {
 
@@ -22,8 +22,7 @@ Ret *createObj() {
  * @tparam T The type of the element to invoke a callback on.
  * @tparam Registry The ObjectRegistry for this listener class.
  */
-template <typename T, typename Registry>
-struct RegistryListener {
+template <typename T, typename Registry> struct RegistryListener {
   RegistryListener() = default;
   virtual ~RegistryListener() = default;
 
@@ -35,9 +34,7 @@ struct RegistryListener {
   /**
    * Apply the callback instance on every object stored in the registry.
    */
-  void enumerateObjects() {
-    Registry::getObjectRegistry()->enumerateWith(this);
-  }
+  void enumerateObjects() { Registry::getObjectRegistry()->enumerateWith(this); }
 
   /**
    * Apply the callback instance on the selected object from the registry.
@@ -45,18 +42,15 @@ struct RegistryListener {
   virtual void apply(T) {}
 };
 
-template <typename K, typename V, class Derived>
-class ObjectRegistry {
+template <typename K, typename V, class Derived> class ObjectRegistry {
 
   mutable llvm::sys::SmartRWMutex<true> Lock;
 
 protected:
-
   std::vector<RegistryListener<V *, Derived> *> Listeners;
   std::map<K, V *> ObjectMap;
 
 public:
-
   /**
    * @return A pointer to the single instance of this registry.
    */
@@ -100,9 +94,8 @@ public:
     llvm::sys::SmartScopedWriter<true> Guard(Lock);
     Listeners.push_back(L);
   }
-
 };
 
-}
+} // namespace icarus
 
 #endif // ICARUS_INCLUDE_ICARUS_SUPPORT_OBJECTREGISTRY_H
