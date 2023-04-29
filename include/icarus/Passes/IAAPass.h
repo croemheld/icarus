@@ -33,10 +33,11 @@ struct IAAContext : EEAContext<DefaultAnalysisIterator, IAAContext, IAAContextRe
 };
 
 /**
- * Similar to CPAPassImpl, we implement the virtual methods from the Pass class here to avoid code du-
- * plication and implementing the methods in header files. Is inherited from by ThreadedIAAPass.
+ * Base class for input-aware analyses with the underlying abstract interpretation-based pass. It uses
+ * user-provided input to generate initial program states in order to "interpret" the program.
  */
-class IAAPassImpl : public Pass {
+template <bool Threaded>
+class ThreadedIAAPass : public ThreadedEEAPass<IAAContext, Threaded, IAAContext::Iter> {
 
   InputArguments IA;
 
@@ -45,31 +46,59 @@ class IAAPassImpl : public Pass {
    * identifiers are described in the appropriate JSON functions from_json.
    * @param IPA The reference to the class with the CLI options.
    */
-  void parseJSONArguments(PassArguments &IPA);
+  void parseJSONArguments(PassArguments &IPA) {
+    IcarusModule *IM = IPA.getModuleAt(0);
+    nlohmann::json &JSON = IPA.getJSONObject();
+    from_json(JSON, IA, IM);
+  }
 
 public:
 
-  virtual bool checkPassArguments(PassArguments &IPA) override;
-
-  int runAnalysisPass(PassArguments &IPA) override;
+  int runAnalysisPass(PassArguments &IPA) override {
+    parseJSONArguments(IPA);
+    return 0;
+  }
 
 };
 
-/**
- * Base class for input-aware analyses with the underlying abstract interpretation-based pass. It uses
- * user-provided input to generate initial program states in order to "interpret" the program.
- */
+struct IAAPass : public ThreadedIAAPass<false> {
 
-struct IAAPass : public IAAPassImpl, public EEAPass<IAAContext, IAAContext::Iter> {
   static constexpr std::string_view OPTION = "IAA";
   static constexpr std::string_view NAME = "Input-Aware Analysis";
+
+  bool checkPassArguments(PassArguments &IPA) override {
+    std::string JSON = IPA.getJSON();
+
+    if (JSON.empty())
+      return false;
+
+    return true;
+  }
+
 };
 
-struct IATPass : public IAAPassImpl, public EETPass<IAAContext, IAAContext::Iter> {
+struct IATPass : public ThreadedIAAPass<true> {
+
   static constexpr std::string_view OPTION = "IAT";
   static constexpr std::string_view NAME = "Input-Aware Analysis (Threaded)";
 
-  bool checkPassArguments(PassArguments &IPA);
+protected:
+
+  using ThreadedEEAPass<IAAContext, true, IAAContext::Iter>::initializeThreadPool;
+
+public:
+
+  bool checkPassArguments(PassArguments &IPA) override {
+    std::string JSON = IPA.getJSON();
+
+    if (JSON.empty())
+      return false;
+
+    initializeThreadPool(IPA.getNumThreads());
+
+    return true;
+  }
+
 };
 
 }

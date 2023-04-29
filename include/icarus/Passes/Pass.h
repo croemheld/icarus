@@ -46,7 +46,7 @@ public:
    * check if the provided CLI arguments are all valid for this specific pass.
    * @return True, if all required CLI arguments are valid.
    */
-  virtual bool checkPassArguments(PassArguments &IPA) { return true; }
+  virtual bool checkPassArguments(PassArguments &IPA) = 0;
 
   /**
    * Each pass has different purposes and components to execute. These should all be

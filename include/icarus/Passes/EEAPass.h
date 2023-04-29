@@ -9,6 +9,7 @@
 #include <icarus/Analysis/ExecutionEngine.h>
 
 #include <icarus/Passes/AIAPass.h>
+#include <icarus/Passes/Pass.h>
 
 #include <icarus/Support/Traits.h>
 
@@ -20,7 +21,7 @@ namespace icarus {
  * @tparam SubClass The context that implements the llvm::InstVisitor methods.
  * @tparam RetTy The return type of the individual llvm::InstVisitor methods.
  */
-template<typename AnalysisIterator, typename SubClass, typename RetTy = void>
+template <typename AnalysisIterator, typename SubClass, typename RetTy = void>
 class EEAContext : public ExecutionEngine, public AnalysisContext<SubClass, RetTy> {
 
   ProgramContext<AnalysisIterator> PC;
@@ -61,7 +62,7 @@ public:
  * Alias to determine whether or not a class inherits from the EEAContext above. This is necessary for
  * ensuring the ThreadedEEAPass below receives a correct template argument at compile-time.
  */
-template<typename EEAContextImpl>
+template <typename EEAContextImpl>
 using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EEAContextImpl>::value, bool>;
 
 /**
@@ -70,14 +71,14 @@ using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EE
  * @tparam EEAContextImpl The EEAContext implementation that uses llvm::ExecutionEngine methods.
  */
 
-template<typename EEAContextImpl, typename AnalysisIterator>
-struct EEAPass : ThreadedAIAPass<EEAContextImpl, false, AnalysisIterator, enable_if_eeacontext<EEAContextImpl>> {
+template <typename EEAContextImpl, bool Threaded, typename Iterator, typename = void>
+struct ThreadedEEAPass : ThreadedAIAPass<EEAContextImpl, Threaded, Iterator> {
 
 };
 
-template<typename EEAContextImpl, typename AnalysisIterator>
-struct EETPass : ThreadedAIAPass<EEAContextImpl, true, AnalysisIterator, enable_if_eeacontext<EEAContextImpl>> {
-
+template <typename EEAContextImpl, typename Iterator>
+struct ThreadedEEAPass<EEAContextImpl, true, Iterator> : public ThreadedAIAPass<EEAContextImpl, true, Iterator> {
+  using ThreadedAIAPass<EEAContextImpl, true, Iterator>::initializeThreadPool;
 };
 
 }

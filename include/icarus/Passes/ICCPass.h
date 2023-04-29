@@ -18,6 +18,8 @@ public:
   static constexpr std::string_view OPTION = "ICC";
   static constexpr std::string_view NAME = "Indirect Call Counter";
 
+  bool checkPassArguments(PassArguments &IPA) override;
+
   int runAnalysisPass(PassArguments &IPA) override;
 
 };

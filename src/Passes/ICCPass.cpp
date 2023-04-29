@@ -22,6 +22,10 @@ static RegisterPass<ICCPass> ICCPass(nullptr);
  * ICCPass methods
  */
 
+bool ICCPass::checkPassArguments(PassArguments &IPA) {
+  return true;
+}
+
 int ICCPass::runAnalysisPass(PassArguments &IPA) {
   forEachModule(IPA, [&](IcarusModule &IM) {
     llvm::Module *M = IM.getModule();

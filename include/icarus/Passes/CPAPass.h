@@ -24,25 +24,23 @@ struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, 
 };
 
 /**
- * CPAPassImpl implements the virtual methods from the Pass class. We do this here because otherwise I
- * would need to implement them in a template class (e.g. ThreadedCPAPass below) which means that they
- * would have to be implemented in the header file. It also prevents code duplications, as there would
- * only be a total of one method instead of one method per full-specialization of the template class.
- */
-struct CPAPassImpl : public Pass {
-
-  bool checkPassArguments(PassArguments& IPA) override;
-
-  int runAnalysisPass(PassArguments& IPA) override;
-
-};
-
-/**
  * Base class for constant propagation-based analysis with the underlying abstract interpretation pass
  * for performing a flow- and context-sensitive analysis on a program.
  */
 template <bool Threaded>
-class ThreadedCPAPass : public CPAPassImpl, public ThreadedAIAPass<CPAContext, Threaded, DefaultAnalysisIterator> {};
+class ThreadedCPAPass : public ThreadedAIAPass<CPAContext, Threaded, DefaultAnalysisIterator> {
+
+public:
+
+  bool checkPassArguments(PassArguments &IPA) override {
+    return true;
+  }
+
+  int runAnalysisPass(PassArguments &IPA) override {
+    return 0;
+  }
+
+};
 
 /**
  * ThreadedCPAPass class with multithreading support disabled.

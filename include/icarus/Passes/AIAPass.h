@@ -75,12 +75,12 @@ public:
  * @tparam SubClass The subclass that specializes this template.
  * @tparam RetTy The return type of each instruction handler. By default it is a void return type.
  */
-template <typename AnalysisIterator, typename SubClass, typename RetTy = void>
+template <typename Iterator, typename SubClass, typename RetTy = void>
 struct AnalysisContext : public llvm::InstVisitor<SubClass, RetTy> {
 
 protected:
 
-  ProgramContext<AnalysisIterator> PC;
+  ProgramContext<Iterator> PC;
 
   /**
    * Creates a new AnalysisContext instance that inherits all methods from the llvm::InstVisitor class
@@ -108,8 +108,8 @@ using enable_if_aiacontext = std::enable_if_t<is_template_base_of<AnalysisContex
  * class, one has to inherit from both Pass and ThreadedAIAPass.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, bool Threaded, typename AnalysisIterator, typename = void>
-class ThreadedAIAPass {
+template <typename AIAContextImpl, bool Threaded, typename Iterator>
+class ThreadedAIAPass : public Pass {
 
 protected:
 
@@ -117,7 +117,7 @@ protected:
 
   }
 
-  void ProgramContextWorker(ProgramContext<AnalysisIterator> &PC) {
+  void ProgramContextWorker(ProgramContext<Iterator> &PC) {
     while (!PC.isStackEmpty()) {
       auto &FC = PC.getCurrentFunctionStack();
       llvm::Instruction &I = FC->nextInstruction();
@@ -141,8 +141,8 @@ public:
  * threads during the analysis (logger threads not counted).
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, typename BasicBlockIterator>
-class ThreadedAIAPass<AIAContextImpl, false, BasicBlockIterator, enable_if_aiacontext<AIAContextImpl>> {
+template <typename AIAContextImpl, typename Iterator>
+class ThreadedAIAPass<AIAContextImpl, false, Iterator> : public Pass {
 
   std::queue<std::unique_ptr<Task>> TaskQueue;
 
@@ -176,8 +176,8 @@ public:
  * Partial specialization for all abstract interpretation-based analyses, that support multithreading.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, typename BasicBlockIterator>
-class ThreadedAIAPass<AIAContextImpl, true, BasicBlockIterator, enable_if_aiacontext<AIAContextImpl>> {
+template <typename AIAContextImpl, typename Iterator>
+class ThreadedAIAPass<AIAContextImpl, true, Iterator> : public Pass {
 
   ThreadPool TP;
 
