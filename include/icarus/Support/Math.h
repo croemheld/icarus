@@ -2,8 +2,8 @@
 // Created by croemheld on 12.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_MATH_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_MATH_H
+#ifndef ICARUS_SUPPORT_MATH_H
+#define ICARUS_SUPPORT_MATH_H
 
 namespace icarus {
 
@@ -27,4 +27,4 @@ template <typename T> unsigned numDigits(T Num, unsigned Base = 10) {
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_MATH_H
+#endif // ICARUS_SUPPORT_MATH_H

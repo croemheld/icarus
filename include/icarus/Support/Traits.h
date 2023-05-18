@@ -2,8 +2,8 @@
 // Created by croemheld on 19.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_TRAITS_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_TRAITS_H
+#ifndef ICARUS_SUPPORT_TRAITS_H
+#define ICARUS_SUPPORT_TRAITS_H
 
 #include <type_traits>
 
@@ -30,4 +30,4 @@ using is_template_base_of = typename is_template_base_of_impl<Base, Derived>::ty
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_TRAITS_H
+#endif // ICARUS_SUPPORT_TRAITS_H

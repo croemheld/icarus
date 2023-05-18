@@ -2,8 +2,8 @@
 // Created by croemheld on 27.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMTYPES_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMTYPES_H
+#ifndef ICARUS_SUPPORT_LLVMTYPES_H
+#define ICARUS_SUPPORT_LLVMTYPES_H
 
 #include <llvm/IR/Type.h>
 
@@ -25,4 +25,4 @@ unsigned long getAsInteger(llvm::StringRef Str, unsigned int Radix = 10);
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMTYPES_H
+#endif // ICARUS_SUPPORT_LLVMTYPES_H

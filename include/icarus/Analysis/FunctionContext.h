@@ -2,8 +2,8 @@
 // Created by croemheld on 20.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMSTATE_H
-#define ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMSTATE_H
+#ifndef ICARUS_ANALYSIS_FUNCTIONCONTEXT_H
+#define ICARUS_ANALYSIS_FUNCTIONCONTEXT_H
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Instructions.h>
@@ -44,4 +44,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMSTATE_H
+#endif // ICARUS_ANALYSIS_FUNCTIONCONTEXT_H

@@ -2,8 +2,8 @@
 // Created by croemheld on 28.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMVALUE_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMVALUE_H
+#ifndef ICARUS_SUPPORT_LLVMVALUE_H
+#define ICARUS_SUPPORT_LLVMVALUE_H
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
@@ -66,4 +66,4 @@ llvm::Constant *getConstant(llvm::Type *T, llvm::ArrayRef<llvm::Constant *> Elem
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_LLVMVALUE_H
+#endif // ICARUS_SUPPORT_LLVMVALUE_H

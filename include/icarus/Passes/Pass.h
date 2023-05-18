@@ -2,8 +2,8 @@
 // Created by croemheld on 25.12.2022.
 //
 
-#ifndef ICARUS_INCLUDE_PASSES_PASS_H
-#define ICARUS_INCLUDE_PASSES_PASS_H
+#ifndef ICARUS_PASSES_PASS_H
+#define ICARUS_PASSES_PASS_H
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
@@ -190,4 +190,4 @@ template <typename PassClass> static constexpr std::string_view Category = Optio
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_PASSES_PASS_H
+#endif // ICARUS_PASSES_PASS_H

@@ -2,8 +2,8 @@
 // Created by croemheld on 26.12.2022.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
+#ifndef ICARUS_PASSES_ICCPASS_H
+#define ICARUS_PASSES_ICCPASS_H
 
 #include <icarus/Passes/Pass.h>
 
@@ -24,4 +24,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_ICCPASS_H
+#endif // ICARUS_PASSES_ICCPASS_H

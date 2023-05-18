@@ -2,8 +2,8 @@
 // Created by croemheld on 28.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_PASSARGUMENTS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_PASSARGUMENTS_H
+#ifndef ICARUS_PASSES_PASSARGUMENTS_H
+#define ICARUS_PASSES_PASSARGUMENTS_H
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -118,4 +118,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_PASSARGUMENTS_H
+#endif // ICARUS_PASSES_PASSARGUMENTS_H

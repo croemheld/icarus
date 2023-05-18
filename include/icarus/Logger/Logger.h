@@ -2,8 +2,8 @@
 // Created by croemheld on 05.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_LOGGER_LOGGER_H
-#define ICARUS_INCLUDE_LOGGER_LOGGER_H
+#ifndef ICARUS_LOGGER_LOGGER_H
+#define ICARUS_LOGGER_LOGGER_H
 
 #include <llvm/ADT/APInt.h>
 
@@ -391,4 +391,4 @@ void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile);
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_LOGGER_LOGGER_H
+#endif // ICARUS_LOGGER_LOGGER_H

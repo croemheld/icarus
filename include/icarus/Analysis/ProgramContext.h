@@ -2,8 +2,8 @@
 // Created by croemheld on 20.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H
-#define ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H
+#ifndef ICARUS_ANALYSIS_PROGRAMCONTEXT_H
+#define ICARUS_ANALYSIS_PROGRAMCONTEXT_H
 
 #include <icarus/Analysis/EngineValue.h>
 #include <icarus/Analysis/FunctionContext.h>
@@ -40,4 +40,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_PROGRAMCONTEXT_H
+#endif // ICARUS_ANALYSIS_PROGRAMCONTEXT_H

@@ -2,8 +2,8 @@
 // Created by croemheld on 10.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_THREADS_THREADPOOL_H
-#define ICARUS_INCLUDE_ICARUS_THREADS_THREADPOOL_H
+#ifndef ICARUS_THREADS_THREADPOOL_H
+#define ICARUS_THREADS_THREADPOOL_H
 
 #include <icarus/ADT/Container.h>
 
@@ -186,4 +186,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_THREADS_THREADPOOL_H
+#endif // ICARUS_THREADS_THREADPOOL_H

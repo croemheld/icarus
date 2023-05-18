@@ -2,8 +2,8 @@
 // Created by croemheld on 24.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_JSON_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_JSON_H
+#ifndef ICARUS_SUPPORT_JSON_H
+#define ICARUS_SUPPORT_JSON_H
 
 #include <llvm/ADT/ArrayRef.h>
 
@@ -94,10 +94,7 @@ template <typename T, typename... Args> struct from_json_function {
    * @param t The reference to the object to populate.
    * @param args The additional arguments.
    */
-  void operator()(const nlohmann::json &JSON, T &t, Args &&...args) {
-    INFO(JSON);
-    from_json(JSON, t, std::forward<Args>(args)...);
-  }
+  void operator()(const nlohmann::json &JSON, T &t, Args &&...args) { from_json(JSON, t, std::forward<Args>(args)...); }
 };
 
 /**
@@ -163,4 +160,4 @@ template <typename T, typename... Args> void from_json(const nlohmann::json &JSO
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_JSON_H
+#endif // ICARUS_SUPPORT_JSON_H

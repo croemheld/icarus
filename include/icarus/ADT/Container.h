@@ -2,8 +2,8 @@
 // Created by croemheld on 30.12.2022.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_ADT_CONTAINER_H
-#define ICARUS_INCLUDE_ICARUS_ADT_CONTAINER_H
+#ifndef ICARUS_ADT_CONTAINER_H
+#define ICARUS_ADT_CONTAINER_H
 
 #include <algorithm>
 #include <map>
@@ -118,4 +118,4 @@ template <typename BaseIterator> DereferenceIterator<BaseIterator> deref_iterato
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_ADT_CONTAINER_H
+#endif // ICARUS_ADT_CONTAINER_H

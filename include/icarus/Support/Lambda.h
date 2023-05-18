@@ -2,8 +2,8 @@
 // Created by croemheld on 31.12.2022.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_LAMBDA_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_LAMBDA_H
+#ifndef ICARUS_SUPPORT_LAMBDA_H
+#define ICARUS_SUPPORT_LAMBDA_H
 
 #include <utility>
 
@@ -35,4 +35,4 @@ struct lambda {
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_LAMBDA_H
+#endif // ICARUS_SUPPORT_LAMBDA_H

@@ -2,8 +2,8 @@
 // Created by croemheld on 01.02.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_ANALYSIS_INTERPRETERENGINE_H
-#define ICARUS_INCLUDE_ICARUS_ANALYSIS_INTERPRETERENGINE_H
+#ifndef ICARUS_ANALYSIS_INTERPRETERENGINE_H
+#define ICARUS_ANALYSIS_INTERPRETERENGINE_H
 
 #include <icarus/Analysis/ExecutionEngine.h>
 
@@ -25,4 +25,4 @@ class InterpreterEngine : public ExecutionEngine {};
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_INTERPRETERENGINE_H
+#endif // ICARUS_ANALYSIS_INTERPRETERENGINE_H

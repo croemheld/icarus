@@ -2,8 +2,8 @@
 // Created by croemheld on 18.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_IAAPASS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_IAAPASS_H
+#ifndef ICARUS_PASSES_IAAPASS_H
+#define ICARUS_PASSES_IAAPASS_H
 
 #include <icarus/Analysis/FunctionContext.h>
 #include <icarus/Analysis/ProgramContext.h>
@@ -87,4 +87,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_IAAPASS_H
+#endif // ICARUS_PASSES_IAAPASS_H

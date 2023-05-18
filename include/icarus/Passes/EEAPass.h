@@ -2,8 +2,8 @@
 // Created by croemheld on 19.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_EEAPASS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_EEAPASS_H
+#ifndef ICARUS_PASSES_EEAPASS_H
+#define ICARUS_PASSES_EEAPASS_H
 
 #include <icarus/Analysis/EngineValue.h>
 #include <icarus/Analysis/ExecutionEngine.h>
@@ -75,4 +75,4 @@ struct ThreadedEEAPass<EEAContextImpl, true, Iterator> : public ThreadedAIAPass<
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_EEAPASS_H
+#endif // ICARUS_PASSES_EEAPASS_H

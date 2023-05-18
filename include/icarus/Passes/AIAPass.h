@@ -2,8 +2,8 @@
 // Created by croemheld on 04.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H
+#ifndef ICARUS_PASSES_AIAPASS_H
+#define ICARUS_PASSES_AIAPASS_H
 
 #include <llvm/IR/InstVisitor.h>
 
@@ -176,4 +176,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_AIAPASS_H
+#endif // ICARUS_PASSES_AIAPASS_H

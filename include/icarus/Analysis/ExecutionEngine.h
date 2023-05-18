@@ -2,8 +2,8 @@
 // Created by croemheld on 01.02.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_ANALYSIS_EXECUTIONENGINE_H
-#define ICARUS_INCLUDE_ICARUS_ANALYSIS_EXECUTIONENGINE_H
+#ifndef ICARUS_ANALYSIS_EXECUTIONENGINE_H
+#define ICARUS_ANALYSIS_EXECUTIONENGINE_H
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
@@ -101,4 +101,4 @@ public:
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_ANALYSIS_EXECUTIONENGINE_H
+#endif // ICARUS_ANALYSIS_EXECUTIONENGINE_H

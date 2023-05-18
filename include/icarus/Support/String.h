@@ -2,8 +2,8 @@
 // Created by croemheld on 27.12.2022.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
+#ifndef ICARUS_SUPPORT_STRING_H
+#define ICARUS_SUPPORT_STRING_H
 
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
@@ -150,4 +150,4 @@ bool endsWith(std::string_view Str, std::string_view Suf);
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_STRING_H
+#endif // ICARUS_SUPPORT_STRING_H

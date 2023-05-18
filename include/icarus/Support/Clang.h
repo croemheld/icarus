@@ -2,8 +2,8 @@
 // Created by croemheld on 28.03.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_SUPPORT_CLANG_H
-#define ICARUS_INCLUDE_ICARUS_SUPPORT_CLANG_H
+#ifndef ICARUS_SUPPORT_CLANG_H
+#define ICARUS_SUPPORT_CLANG_H
 
 #if defined(__clang__) && !defined(ICARUS_CLANG_VERSION)
 
@@ -39,4 +39,4 @@
 
 #endif /* defined(__clang__) && !defined(ICARUS_CLANG_VERSION) */
 
-#endif // ICARUS_INCLUDE_ICARUS_SUPPORT_CLANG_H
+#endif // ICARUS_SUPPORT_CLANG_H

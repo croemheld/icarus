@@ -2,8 +2,8 @@
 // Created by croemheld on 17.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
-#define ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
+#ifndef ICARUS_PASSES_CPAPASS_H
+#define ICARUS_PASSES_CPAPASS_H
 
 #include <icarus/Passes/AIAPass.h>
 
@@ -51,4 +51,4 @@ struct CPTPass : public ThreadedCPAPass<true> {
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_PASSES_CPAPASS_H
+#endif // ICARUS_PASSES_CPAPASS_H

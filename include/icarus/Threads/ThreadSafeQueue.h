@@ -2,8 +2,8 @@
 // Created by croemheld on 10.01.2023.
 //
 
-#ifndef ICARUS_INCLUDE_ICARUS_THREADS_THREADSAFEQUEUE_H
-#define ICARUS_INCLUDE_ICARUS_THREADS_THREADSAFEQUEUE_H
+#ifndef ICARUS_THREADS_THREADSAFEQUEUE_H
+#define ICARUS_THREADS_THREADSAFEQUEUE_H
 
 #include <icarus/ADT/Container.h>
 
@@ -60,4 +60,4 @@ struct ThreadSafeQueue : public ThreadSafeContainer<ThreadSafeQueue<SubClass, T>
 
 } // namespace icarus
 
-#endif // ICARUS_INCLUDE_ICARUS_THREADS_THREADSAFEQUEUE_H
+#endif // ICARUS_THREADS_THREADSAFEQUEUE_H
