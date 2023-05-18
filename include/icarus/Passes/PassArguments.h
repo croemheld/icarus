@@ -59,7 +59,7 @@ public:
   llvm::SMDiagnostic &getDiagnostics();
 
   llvm::Type *parseType(const nlohmann::json &JSON);
-  llvm::Constant *parseConstant(std::string Asm);
+  llvm::Constant *parseConstant(std::string const &Asm);
   llvm::Constant *parseConstant(const nlohmann::json &JSON, llvm::Type *T);
   llvm::Constant *parseConstant(const nlohmann::json &JSON);
   llvm::Function *parseFunction(const nlohmann::json &JSON);

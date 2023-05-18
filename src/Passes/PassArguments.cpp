@@ -104,7 +104,7 @@ llvm::Type *IcarusModule::parseType(const nlohmann::json &JSON) {
   return T;
 }
 
-llvm::Constant *IcarusModule::parseConstant(std::string Asm) {
+llvm::Constant *IcarusModule::parseConstant(std::string const &Asm) {
   return llvm::parseConstantValue(Asm, Err, *IRModule);
 }
 
