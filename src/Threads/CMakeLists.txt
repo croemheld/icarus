@@ -1,1 +1,5 @@
-target_sources(${PROJECT_EXECUTABLE} PRIVATE ThreadPool.cpp)
+set(SOURCES
+        ThreadPool.cpp
+)
+
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})

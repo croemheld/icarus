@@ -1,1 +1,6 @@
-target_sources(${PROJECT_EXECUTABLE} PRIVATE EngineValue.cpp ExecutionEngine.cpp)
+set(SOURCES
+        EngineValue.cpp
+        ExecutionEngine.cpp
+)
+
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
