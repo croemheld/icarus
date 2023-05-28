@@ -12,10 +12,27 @@
 
 namespace icarus {
 
-template <typename T, typename Ret, std::enable_if_t<std::is_default_constructible<T>{}, bool> = true>
-Ret *createObj() {
-  return new T();
+template <typename T, typename Base = T, std::enable_if_t<std::is_default_constructible_v<T>, bool> = true>
+Base *constructObject() {
+  return (Base *)new T();
 }
+
+template <typename T> class ObjectConstructor {
+  std::function<T *()> Constructor;
+
+public:
+  ObjectConstructor() = delete;
+
+  explicit ObjectConstructor(std::function<T *()> &Constructor) : Constructor(Constructor) {}
+
+  explicit ObjectConstructor(std::function<T *()> &&Constructor) : Constructor(std::move(Constructor)) {}
+
+  ObjectConstructor(ObjectConstructor &Other) : Constructor(Other.getConstructor()) {}
+
+  std::function<T *()> &getConstructor() { return Constructor; }
+
+  T *operator()() { return Constructor(); }
+};
 
 /**
  * Template version of PassRegistrationListener which can be applied on multiple types.
@@ -34,7 +51,7 @@ template <typename T, typename Registry> struct RegistryListener {
   /**
    * Apply the callback instance on every object stored in the registry.
    */
-  void enumerateObjects() { Registry::getObjectRegistry()->enumerateWith(this); }
+  void enumerateObjects() { Registry::enumerateWith(this); }
 
   /**
    * Apply the callback instance on the selected object from the registry.
@@ -46,41 +63,53 @@ template <typename K, typename V, class Derived> class ObjectRegistry {
 
   mutable llvm::sys::SmartRWMutex<true> Lock;
 
-protected:
   std::vector<RegistryListener<V *, Derived> *> Listeners;
   std::map<K, V *> ObjectMap;
 
-public:
-  /**
-   * @return A pointer to the single instance of this registry.
-   */
-  static Derived *getObjectRegistry() {
-    static Derived ObjectRegistryObj;
-    return &ObjectRegistryObj;
-  }
+  using ValueT = typename std::map<K, V *>::value_type::second_type;
 
   /**
-   * Mandatory method to be implemented by deriving classes.
-   * @param Obj The object to store in the map structure.
+   * Identity function for fetching an object from the registry.
    */
-  virtual void registerObject(const V &Obj) = 0;
+  static inline std::function<V *(V *)> ValueIdentity = [](V *Value) { return Value; };
 
   /**
-   * Get the associated entry for the provided key in the object registry.
-   * @param k The key to lookup.
-   * @return A pointer to the associated object or nullptr, if the key does not exist.
+   * Get the associated object for the provided key with the specifiec value extractor function.
+   * @tparam ValueExtractor The type of the value extractor function.
+   * @tparam T The type of the object to extract.
+   * @param k The key to look up.
+   * @param Extractor The value extractor function.
+   * @return The object associated with the key and the extractor function.
    */
-  V *getObjectOrNull(const K &k) const {
+  template <typename ValueExtractor, typename T = std::invoke_result_t<ValueExtractor, ValueT>>
+  T doGetObject(const K &k, ValueExtractor &&Extractor) {
     if (!ObjectMap.count(k))
       return nullptr;
-    return ObjectMap.at(k);
+    return Extractor(ObjectMap.at(k));
+  }
+
+  template <typename ValueExtractor, typename T = std::invoke_result_t<ValueExtractor, ValueT>>
+  std::vector<T> doGetObjects(ValueExtractor &&Extractor) {
+    std::vector<T> Objects;
+    for (auto [_, Obj] : ObjectMap)
+      Objects.push_back(Extractor(Obj));
+    return Objects;
+  }
+
+  void doRegisterObject(const K &k, const V &Obj) {
+    if (!ObjectMap.count(k)) {
+      ObjectMap.insert(std::make_pair(k, &Obj));
+
+      for (auto *L : Listeners)
+        L->onRegistration(&Obj);
+    }
   }
 
   /**
    * Apply the listener callback on every element in the object map structure.
    * @param L The callback listener to apply on every object in the map.
    */
-  void enumerateWith(RegistryListener<V *, Derived> *L) {
+  void doEnumerateWith(RegistryListener<V *, Derived> *L) {
     llvm::sys::SmartScopedReader<true> Guard(Lock);
     for (auto &[_, Val] : ObjectMap)
       L->apply(Val);
@@ -90,9 +119,45 @@ public:
    * Add a listener callback for every future object registration.
    * @param L The listener callback to add to the registry.
    */
-  void addRegistrationListener(RegistryListener<V *, Derived> *L) {
+  void doAddRegistrationListener(RegistryListener<V *, Derived> *L) {
     llvm::sys::SmartScopedWriter<true> Guard(Lock);
     Listeners.push_back(L);
+  }
+
+protected:
+  /**
+   * @return A pointer to the single instance of this registry.
+   */
+  static Derived *getObjectRegistry() {
+    static Derived ObjectRegistryObj;
+    return &ObjectRegistryObj;
+  }
+
+public:
+  static void registerObject(const K &k, const V &Obj) { getObjectRegistry()->doRegisterObject(k, Obj); }
+
+  template <typename ValueExtractor, typename T = std::invoke_result_t<ValueExtractor, ValueT>>
+  static T getObject(const K &k, ValueExtractor &&Extractor = ValueIdentity) {
+    return getObjectRegistry()->doGetObject(k, std::forward<ValueExtractor>(Extractor));
+  }
+
+  template <typename ValueExtractor, typename T = std::invoke_result_t<ValueExtractor, ValueT>>
+  static std::vector<T> getObjects(ValueExtractor &&Extractor = ValueIdentity) {
+    return getObjectRegistry()->doGetObjects(std::forward<ValueExtractor>(Extractor));
+  }
+
+  /**
+   * Apply the listener callback on every element in the object map structure.
+   * @param L The callback listener to apply on every object in the map.
+   */
+  static void enumerateWith(RegistryListener<V *, Derived> *L) { getObjectRegistry()->doEnumerateWith(L); }
+
+  /**
+   * Add a listener callback for every future object registration.
+   * @param L The listener callback to add to the registry.
+   */
+  static void addRegistrationListener(RegistryListener<V *, Derived> *L) {
+    getObjectRegistry()->doAddRegistrationListener(L);
   }
 };
 
