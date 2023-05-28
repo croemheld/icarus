@@ -9,6 +9,7 @@
 #include <llvm/IR/Value.h>
 
 #include <array>
+#include <initializer_list>
 #include <string_view>
 
 namespace icarus {
@@ -89,17 +90,17 @@ template <typename... Args> std::string format(const char *Format, Args &&...arg
 }
 
 /**
- * Concatenate two or more strings at compile-time. This is useful for the
- * string generation in case components are scattered throughout the project.
+ * Concatenate two or more std::string_views at compile-time. This is useful for
+ * the string generation in case components are scattered throughout the project.
  * @tparam Strings The strings to concatenate.
  */
-template <std::string_view const &...Strings> struct ConcatStrings {
+template <std::string_view const &...Strings> struct ConcatStringViews {
   static constexpr auto impl() noexcept {
     constexpr std::size_t Length = (Strings.size() + ... + 0);
     std::array<char, Length + 1> Array{};
-    auto append = [i = 0, &Array](auto const &S) mutable {
+    auto append = [I = 0, &Array](auto const &S) mutable {
       for (auto C : S)
-        Array[i++] = C;
+        Array[I++] = C;
     };
     (append(Strings), ...);
     Array[Length] = 0;
@@ -114,7 +115,7 @@ template <std::string_view const &...Strings> struct ConcatStrings {
  * Helper template for concatenating strings at compile-time.
  * @tparam Strings The strings to concatenate.
  */
-template <std::string_view const &...Strings> static constexpr auto Concat = ConcatStrings<Strings...>::Value;
+template <std::string_view const &...Strings> static constexpr auto ConcatViews = ConcatStringViews<Strings...>::Value;
 
 /**
  * Workaround for using strings in switch tables. This was taken directly from StackOverflow
