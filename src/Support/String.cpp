@@ -5,7 +5,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 
-#include "icarus/Support/String.h"
+#include <icarus/Support/String.h>
 
 #include <string>
 
