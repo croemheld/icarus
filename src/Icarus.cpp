@@ -1,8 +1,8 @@
 #include <llvm/Support/CommandLine.h>
 
-#include "icarus/Passes/Pass.h"
+#include <icarus/Passes/Pass.h>
 
-#include "icarus/Logger/Logger.h"
+#include <icarus/Logger/Logger.h>
 
 /*
  * Sole exception uf "using namespace" here in the entire project. Use the scoped namespace
@@ -10,23 +10,23 @@
  */
 using namespace icarus;
 
+namespace icarus {
+
 cl::OptionCategory IcarusCategory("General options for icarus");
 
 cl::opt<std::string> PassOpt("pass", cl::desc("Pass option to run"), cl::cat(IcarusCategory), cl::Required);
-cl::alias PassAlias("p", cl::desc("Alias for --pass"), cl::aliasopt(PassOpt));
 
-cl::list<const PassInfo *, bool, IcarusPassParser> PassesList(cl::desc("Choices for --pass= (without leading --)"),
-                                                              cl::cat(IcarusCategory));
+namespace passes {
 
-cl::opt<std::string> File("file", cl::desc("Bitcode or IR (.bc, .ll), or path file (.txt)"), cl::cat(IcarusCategory),
-                          cl::Required);
-cl::alias FileAlias("f", cl::desc("Alias for --file"), cl::aliasopt(File));
+cl::list<const PassInfo *, bool, PassParser> Passes(cl::desc("Choices for --pass"), cl::cat(IcarusCategory));
+
+} // namespace passes
+
+cl::opt<std::string> File("file", cl::desc("Bitcode (.bc, .ll), text (.txt)"), cl::cat(IcarusCategory), cl::Required);
 
 cl::opt<std::string> JSON("json", cl::desc("Path to JSON file for pass-specific arguments"), cl::cat(IcarusCategory));
-cl::alias JSONAlias("j", cl::desc("Alias for --json"), cl::aliasopt(JSON));
 
 cl::opt<unsigned> Threads("threads", cl::desc("Number of threads to run in thread pool"), cl::cat(IcarusCategory));
-cl::alias ThreadsAlias("t", cl::desc("Alias for --threads"), cl::aliasopt(Threads));
 
 /*
  * Usually, we would be using the internal structs from LLVM for managing the -debug and -debug-only
@@ -39,25 +39,21 @@ cl::alias ThreadsAlias("t", cl::desc("Alias for --threads"), cl::aliasopt(Thread
  */
 
 cl::OptionCategory DebugCategory("Debug options for icarus");
-
-cl::opt<bool, true> Debug("debug", cl::desc("Enable all debug output"), cl::cat(DebugCategory),
-                          cl::location(llvm::DebugFlag));
-
+cl::opt<bool, true> Debug("debug", cl::desc("Enable debug log"), cl::cat(DebugCategory), cl::location(llvm::DebugFlag));
 cl::opt<std::string> DebugOnly("debug-only", cl::desc("Only print selective debug messages"), cl::cat(DebugCategory));
-
 cl::opt<std::string> DebugFile("debug-file", cl::desc("File in which to save logger output"), cl::cat(DebugCategory));
 
-int main(int argc, char *argv[]) {
-  PassRegistry *PR = PassRegistry::getObjectRegistry();
+} // namespace icarus
 
+int main(int argc, char *argv[]) {
   std::vector<cl::OptionCategory *> OptionCategories{&IcarusCategory, &DebugCategory};
-  PR->populateOptionCategories(OptionCategories);
+  PassRegistry::populateOptionCategories(OptionCategories);
   cl::HideUnrelatedOptions(OptionCategories);
 
   if (!cl::ParseCommandLineOptions(argc, argv) || File.empty())
     return EINVAL;
 
-  Pass *IP = PR->getPassOrNull(PassOpt.getValue());
+  passes::Pass *IP = PassRegistry::getPass(PassOpt.getValue());
   if (!IP)
     return EINVAL;
 
@@ -68,7 +64,7 @@ int main(int argc, char *argv[]) {
   if (!IP->checkPassArguments(IPA))
     return EINVAL;
 
-  initLoggerOptions(DebugOnly, DebugFile);
+  logger::initLoggerOptions(DebugOnly, DebugFile);
 
   INFO_WITH("init", "Start icarus...");
 
@@ -82,7 +78,7 @@ int main(int argc, char *argv[]) {
 
   int Ret = IP->runAnalysisPass(IPA);
 
-  Logger::waitFinished();
+  logger::waitFinished();
   ThreadPool::shutdown();
 
   return Ret;

@@ -2,9 +2,9 @@
 // Created by croemheld on 06.01.2023.
 //
 
-#include "icarus/Logger/Logger.h"
+#include <icarus/Logger/Logger.h>
 
-namespace icarus {
+namespace icarus::logger {
 
 /*
  * Logger implementations
@@ -71,50 +71,35 @@ void LogThread::shutdown() {
  * Logger methods
  */
 
-Logger &Logger::get() {
-  static Logger Logger;
-  return Logger;
-}
+std::vector<LogThread *> Loggers;
+std::vector<LogMessage> EarlyMessages;
 
-std::vector<LogMessage> &Logger::getEarlyMessages() {
-  static std::vector<LogMessage> EarlyMessages;
-  return EarlyMessages;
-}
-
-void Logger::doPrintEarlyLogs() {
-  for (LogMessage &Message : getEarlyMessages()) {
-    for (LogThread *L : Loggers) {
-      L->logs(Message.LogType, Message.Message);
-    }
+void logMessage(LogMessage &&Message) {
+  for (LogThread *L : Loggers) {
+    L->logs(Message.LogType, Message.Message);
   }
-  getEarlyMessages().clear();
 }
 
-void Logger::doAddLogger(LoggerImpl *Logger) {
+void addEarlyLoggerMessage(LogMessage &&Message) {
+  EarlyMessages.emplace_back(std::move(Message));
+}
+
+void logEarlyMessages() {
+  for (LogMessage &Message : EarlyMessages) {
+    logMessage(std::move(Message));
+  }
+  EarlyMessages.clear();
+}
+
+void addLogger(LoggerImpl *Logger) {
   Loggers.push_back(new LogThread(Logger));
 }
 
-void Logger::doWaitFinished() {
+void waitFinished() {
   for (LogThread *L : Loggers) {
-    doLogs(LogTypeEnum::LOGTYPETERM, "");
+    logMessage({LogTypeEnum::LOGTYPETERM, ""});
     L->shutdown();
   }
-}
-
-/*
- * Static Logger methods
- */
-
-void Logger::printEarlyLogs() {
-  get().doPrintEarlyLogs();
-}
-
-void Logger::addLogger(LoggerImpl *Logger) {
-  get().doAddLogger(Logger);
-}
-
-void Logger::waitFinished() {
-  get().doWaitFinished();
 }
 
 static std::set<std::string> DebugTypes;
@@ -150,11 +135,11 @@ bool isDebugType(llvm::StringRef DebugType) {
 #endif
 
 void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile) {
-  Logger::addLogger(new TermLogger());
+  addLogger(new TermLogger());
   if (!DebugFile.empty())
-    Logger::addLogger(new FileLogger(DebugFile));
-  Logger::printEarlyLogs();
+    addLogger(new FileLogger(DebugFile));
+  logEarlyMessages();
   setDebugTypes(DebugOnly);
 }
 
-} // namespace icarus
+} // namespace icarus::logger

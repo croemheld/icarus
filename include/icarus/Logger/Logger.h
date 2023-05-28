@@ -23,6 +23,7 @@
 #include <iostream>
 
 namespace icarus {
+namespace logger {
 
 enum LogTypeEnum { LOGTYPEFAIL, LOGTYPEWARN, LOGTYPECONF, LOGTYPEINFO, LOGTYPETERM };
 
@@ -175,137 +176,111 @@ public:
 };
 
 /**
- * The logger frontend class and its methods to call when printing various information in icarus. Only
- * its static methods are publicly accessible from the outside to ensure this class stays a singleton.
+ * Formats the log message and adds more information such as the timestamp (default: H:m:s), and the
+ * normalized thread ID from which the log message originates from.
+ * @tparam Args The variadic types of the message arguments.
+ * @param ThreadID The normalized thread ID from which the message originates from.
+ * @param args The different arguments of the message string.
+ * @return A formatted string of the log message including timestamp and normalized thread ID.
  */
-class Logger {
-
-  std::vector<LogThread *> Loggers;
-
-  Logger() = default;
-
-  /**
-   * @return Return a reference to the single static instance of the logger.
-   */
-  static Logger &get();
-
-  /**
-   * Stores any early messages in a single static vector. This method is only used for printing before
-   * the actual logger threads have been setup. The messages stored here are only shown as soon as the
-   * logger has initialized at least one logger thread.
-   * @return A reference to the list of early messages to print later.
-   */
-  static std::vector<LogMessage> &getEarlyMessages();
-
-  /**
-   * Formats the log message and adds more information such as the timestamp (default: H:m:s), and the
-   * normalized thread ID from which the log message originates from.
-   * @tparam Args The variadic types of the message arguments.
-   * @param ThreadID The normalized thread ID from which the message originates from.
-   * @param args The different arguments of the message string.
-   * @return A formatted string of the log message including timestamp and normalized thread ID.
-   */
-  template <typename... Args> static std::string formatMessage(unsigned ThreadID, Args &&...args) {
-    std::stringstream Buffer;
-    auto Clock = std::chrono::system_clock::now();
-    auto Time = std::chrono::system_clock::to_time_t(Clock);
-    ((Buffer << "[" << std::put_time(std::localtime(&Time), "%T") << "]"));
-    if (ThreadPool::getThreadNum()) {
-      unsigned Num = numDigits(ThreadPool::getThreadNum() + 1);
-      ((Buffer << format("[%0*d]", Num, ThreadID)));
-    } else if (ThreadID == UINT32_MAX) {
-      ((Buffer << "[" << COLOR_CODE(MAGENTA, false) << "INIT" << COLOR_CODE(WHITE, false) << "]"));
-    }
-    ((Buffer << " "));
-    ((Buffer << std::forward<Args>(args)), ...);
-    return Buffer.str();
+template <typename... Args> static std::string formatMessage(unsigned ThreadID, Args &&...args) {
+  std::stringstream Buffer;
+  auto Clock = std::chrono::system_clock::now();
+  auto Time = std::chrono::system_clock::to_time_t(Clock);
+  ((Buffer << "[" << std::put_time(std::localtime(&Time), "%T") << "]"));
+  if (ThreadPool::getThreadNum()) {
+    unsigned Num = numDigits(ThreadPool::getThreadNum() + 1);
+    ((Buffer << format("[%0*d]", Num, ThreadID)));
+  } else if (ThreadID == UINT32_MAX) {
+    ((Buffer << "[" << COLOR_CODE(MAGENTA, false) << "INIT" << COLOR_CODE(WHITE, false) << "]"));
   }
+  ((Buffer << " "));
+  ((Buffer << std::forward<Args>(args)), ...);
+  return Buffer.str();
+}
 
-  /**
-   * Formats and propagates a log message to all loggers.
-   * @tparam Args The variadic types of the message arguments.
-   * @param LogType The type of the message to log.
-   * @param args The different arguments of the message string.
-   */
-  template <typename... Args> void doLogs(enum LogTypeEnum LogType, Args &&...args) {
-    unsigned ThreadID = ThreadPool::getThreadID();
-    std::string Message = formatMessage(ThreadID, std::forward<Args>(args)...);
-    for (LogThread *L : Loggers) {
-      L->logs(LogType, Message);
-    }
-  }
+void logMessage(LogMessage &&Message);
 
-  /**
-   * Prints all early stored messages that were saved before the logger was initialized. After that we
-   * clear the list of early messages. Never called again after that one time.
-   */
-  void doPrintEarlyLogs();
+/**
+ * Formats and propagates a log message to all loggers.
+ * @tparam Args The variadic types of the message arguments.
+ * @param LogType The type of the message to log.
+ * @param args The different arguments of the message string.
+ */
+template <typename... Args> void logs(enum LogTypeEnum LogType, Args &&...args) {
+  unsigned ThreadID = ThreadPool::getThreadID();
+  std::string Message = formatMessage(ThreadID, std::forward<Args>(args)...);
+  logMessage({LogType, Message});
+}
 
-  /**
-   * Add a logger interface, that is a subclass of LoggerImpl, to the logger frontend. The logger will
-   * be deleted automatically in Logger::doWaitFinished before icarus ends.
-   * @param Logger The LoggerImpl subclass to add to the logger frontend.
-   */
-  void doAddLogger(LoggerImpl *Logger);
+void addEarlyLoggerMessage(LogMessage &&Message);
 
-  /**
-   * Send a LogTypeEnum::LOGTYPETERM message to each registered logger thread and wait until the thread joins
-   * before we delete logger threads, the shared message queue and the LoggerImpl subclass instances.
-   */
-  void doWaitFinished();
+/**
+ * Static method which stores early log messages in the early message list.
+ * @tparam Args The variadic types of the message arguments.
+ * @param LogType The type of the message to log.
+ * @param args The different arguments of the message string.
+ */
+template <typename... Args> static void earlyLogs(enum LogTypeEnum LogType, Args &&...args) {
+  std::string Message = formatMessage(UINT32_MAX, std::forward<Args>(args)...);
+  addEarlyLoggerMessage({LogType, Message});
+}
 
-public:
-  /**
-   * Static method with call to singleton Logger::doLogs method.
-   * @tparam Args The variadic types of the message arguments.
-   * @param LogType The type of the message to log.
-   * @param args The different arguments of the message string.
-   */
-  template <typename... Args> static void logs(enum LogTypeEnum LogType, Args &&...args) {
-    get().doLogs(LogType, std::forward<Args>(args)...);
-  }
+/**
+ * Prints all early stored messages that were saved before the logger was initialized. After that we
+ * clear the list of early messages. Never called again after that one time.
+ */
+void logEarlyMessages();
 
-  /**
-   * Static method which stores early log messages in the early message list.
-   * @tparam Args The variadic types of the message arguments.
-   * @param LogType The type of the message to log.
-   * @param args The different arguments of the message string.
-   */
-  template <typename... Args> static void earlyLogs(enum LogTypeEnum LogType, Args &&...args) {
-    std::string Message = formatMessage(UINT32_MAX, std::forward<Args>(args)...);
-    getEarlyMessages().push_back({LogType, Message});
-  }
+/**
+ * Add a logger interface, that is a subclass of LoggerImpl, to the logger frontend. The logger will
+ * be deleted automatically in Logger::doWaitFinished before icarus ends.
+ * @param Logger The LoggerImpl subclass to add to the logger frontend.
+ */
+void addLogger(LoggerImpl *Logger);
 
-  /**
-   * Static method with call to singleton Logger::doPrintEarlyLogs method.
-   */
-  static void printEarlyLogs();
+/**
+ * Send a LogTypeEnum::LOGTYPETERM message to each registered logger thread and wait until the thread joins
+ * before we delete logger threads, the shared message queue and the LoggerImpl subclass instances.
+ */
+void waitFinished();
 
-  /**
-   * Static method with call to singleton Logger::doAddLogger method.
-   * @param Logger The LoggerImpl subclass to add to the logger frontend.
-   */
-  static void addLogger(LoggerImpl *Logger);
+#ifndef NDEBUG
 
-  /**
-   * Static method with call to singleton Logger::doWaitFinished method.
-   */
-  static void waitFinished();
-};
+/**
+ * Check if the specified type is registered in the set of debug types.
+ * @param DebugType The debug type to check.
+ * @return True, if the debug type is registered in the set.
+ */
+bool isDebugType(llvm::StringRef DebugType);
 
-#define LOGS(Enum, ...) Logger::logs(Enum, __VA_ARGS__)
+#else
 
-#define EARLY_LOGS(Enum, ...) Logger::earlyLogs(Enum, __VA_ARGS__)
+#define isDebugType(Type) (false)
 
-#define INFO(...) LOGS(LOGTYPEINFO, __VA_ARGS__)
-#define CONF(...) LOGS(LOGTYPECONF, __VA_ARGS__)
-#define WARN(...) LOGS(LOGTYPEWARN, __VA_ARGS__)
-#define FAIL(...) LOGS(LOGTYPEFAIL, __VA_ARGS__)
+#endif /* !NDEBUG */
 
-#define EARLY_INFO(...) EARLY_LOGS(LOGTYPEINFO, __VA_ARGS__)
-#define EARLY_CONF(...) EARLY_LOGS(LOGTYPECONF, __VA_ARGS__)
-#define EARLY_WARN(...) EARLY_LOGS(LOGTYPEWARN, __VA_ARGS__)
-#define EARLY_FAIL(...) EARLY_LOGS(LOGTYPEFAIL, __VA_ARGS__)
+/**
+ * Initialize logger component with options passed via the CLI.
+ * @param DebugOnly The comma separated string of debug types to add to the set.
+ * @param DebugFile Absolute path to the logger file where to store the output.
+ */
+void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile);
+
+} // namespace logger
+
+#define LOGS(Enum, ...)       logger::logs(Enum, __VA_ARGS__)
+#define EARLY_LOGS(Enum, ...) logger::earlyLogs(Enum, __VA_ARGS__)
+
+#define INFO(...) LOGS(logger::LOGTYPEINFO, __VA_ARGS__)
+#define CONF(...) LOGS(logger::LOGTYPECONF, __VA_ARGS__)
+#define WARN(...) LOGS(logger::LOGTYPEWARN, __VA_ARGS__)
+#define FAIL(...) LOGS(logger::LOGTYPEFAIL, __VA_ARGS__)
+
+#define EARLY_INFO(...) EARLY_LOGS(logger::LOGTYPEINFO, __VA_ARGS__)
+#define EARLY_CONF(...) EARLY_LOGS(logger::LOGTYPECONF, __VA_ARGS__)
+#define EARLY_WARN(...) EARLY_LOGS(logger::LOGTYPEWARN, __VA_ARGS__)
+#define EARLY_FAIL(...) EARLY_LOGS(logger::LOGTYPEFAIL, __VA_ARGS__)
 
 #define INFO_COND(Cond, ...)                                                                                           \
   do {                                                                                                                 \
@@ -351,21 +326,12 @@ public:
 
 #ifndef NDEBUG
 
-/**
- * Check if the specified type is registered in the set of debug types.
- * @param DebugType The debug type to check.
- * @return True, if the debug type is registered in the set.
- */
-bool isDebugType(llvm::StringRef DebugType);
-
-#define INFO_WITH(Type, ...) INFO_COND(llvm::DebugFlag || isDebugType(Type), __VA_ARGS__)
-#define CONF_WITH(Type, ...) CONF_COND(llvm::DebugFlag || isDebugType(Type), __VA_ARGS__)
-#define WARN_WITH(Type, ...) WARN_COND(llvm::DebugFlag || isDebugType(Type), __VA_ARGS__)
-#define FAIL_WITH(Type, ...) FAIL_COND(llvm::DebugFlag || isDebugType(Type), __VA_ARGS__)
+#define INFO_WITH(Type, ...) INFO_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define CONF_WITH(Type, ...) CONF_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define WARN_WITH(Type, ...) WARN_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define FAIL_WITH(Type, ...) FAIL_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
 
 #else
-
-#define isDebugType(Type) (false)
 
 #define INFO_WITH(Type, ...)                                                                                           \
   do {                                                                                                                 \
@@ -381,13 +347,6 @@ bool isDebugType(llvm::StringRef DebugType);
   } while (0)
 
 #endif /* !NDEBUG */
-
-/**
- * Initialize logger component with options passed via the CLI.
- * @param DebugOnly The comma separated string of debug types to add to the set.
- * @param DebugFile Absolute path to the logger file where to store the output.
- */
-void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile);
 
 } // namespace icarus
 
