@@ -4,12 +4,12 @@
 
 #include <llvm/AsmParser/Parser.h>
 
-#include "icarus/Passes/IAAPass.h"
+#include <icarus/Passes/IAAPass.h>
 
-#include "icarus/Support/JSON.h"
-#include "icarus/Support/LLVMTypes.h"
+#include <icarus/Support/JSON.h>
+#include <icarus/Support/LLVMTypes.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 /*
  * Register pass in icarus
@@ -22,4 +22,4 @@ static RegisterPass<IATPass> IATPass(nullptr);
  * IATPass methods
  */
 
-} // namespace icarus
+} // namespace icarus::passes

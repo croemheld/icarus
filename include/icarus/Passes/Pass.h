@@ -18,6 +18,8 @@
 
 namespace icarus {
 
+namespace passes {
+
 /*
  * Passes for the icarus tool
  */
@@ -56,18 +58,16 @@ public:
   virtual int runAnalysisPass(PassArguments &IPA) = 0;
 };
 
+} // namespace passes
+
 /**
- * Helper function to call a function for every registered LLVM module.
- * @param Arguments The provided arguments in the CLI.
- * @param Callback The callback function to apply for every LLVM module.
+ * The PassConstructor class allows is to completely separate the registry from the pass namespace so
+ * that any of the classes in the pass namespace are completely decoupled from the registry and their
+ * PassInfo objects.
  */
-void forEachModule(PassArguments &Arguments, const std::function<void(IcarusModule &)> &Callback);
-
-/*
- *
- */
-
-using PassConstructor = Pass *(*)();
+struct PassConstructor : public ObjectConstructor<passes::Pass> {
+  using ObjectConstructor<passes::Pass>::ObjectConstructor;
+};
 
 /**
  * Contains information about a pass instance.
@@ -76,7 +76,7 @@ class PassInfo {
 
   std::string_view PassOption;
   std::string_view PassName;
-  PassConstructor Ctor;
+  PassConstructor Constructor;
   cl::OptionCategory *Category;
 
 public:
@@ -84,44 +84,36 @@ public:
    * Create a new PassInfo object for a onRegistration pass.
    * @param PassOption The CLI option to use to select this pass.
    * @param PassName The full name of this specific pass.
-   * @param Ctor A pointer to the pass-generating function.
+   * @param Constructor A pointer to the pass-generating function.
    * @param Category A pointer to the pass option category.
    */
-  PassInfo(std::string_view PassOption, std::string_view PassName, PassConstructor Ctor, cl::OptionCategory *Category)
-      : PassOption(PassOption)
-      , PassName(PassName)
-      , Ctor(Ctor)
-      , Category(Category) {}
+  PassInfo(std::string_view PassOption, std::string_view PassName, PassConstructor &&Constructor,
+           cl::OptionCategory *Category)
+      : PassOption(PassOption), PassName(PassName), Constructor(Constructor), Category(Category) {}
 
   bool isGeneralCategory() const;
   std::string_view getPassOption() const;
   std::string_view getPassName() const;
-  Pass *getPassInstance() const;
   cl::OptionCategory *getCategory() const;
+  PassConstructor &getConstructor() const;
 };
 
 /**
  * Specializing ObjectRegistry for icarus pass instances.
  */
 struct PassRegistry : public ObjectRegistry<std::string_view, const PassInfo, PassRegistry> {
-
   /**
-   * PassRegistry-specific implementation overriding the virtual method.
+   * Return the pass for the specified pass option.
+   * @param PassOption The CLI option for the pass.
+   * @return The associated pass or nullptr, if it does not exist.
    */
-  void registerObject(const PassInfo &PI) override;
-
-  /**
-   * Helper method to directly return the requested pass instance.
-   * @param PassOption The name of the pass as used in the CLI of icarus.
-   * @return A new instance of the selected Pass.
-   */
-  Pass *getPassOrNull(const std::string &PassOption);
+  static passes::Pass *getPass(std::string_view PassOption);
 
   /**
    * Get a list of all onRegistration OptionCategory instances for icarus.
    * @param OptionCategories The vector to populate with onRegistration OptionCategory instances.
    */
-  void populateOptionCategories(std::vector<cl::OptionCategory *> &OptionCategories);
+  static void populateOptionCategories(std::vector<cl::OptionCategory *> &OptionCategories);
 };
 
 /**
@@ -130,31 +122,30 @@ struct PassRegistry : public ObjectRegistry<std::string_view, const PassInfo, Pa
  * as illustrated in the example below.
  *
  * ~~~{.cpp}
- * static cl::OptionCategory XCategory(Category<PassClass>);
+ * static cl::OptionCategory XCategory(Category<PassTy>);
  * // Populate XCategory with pass-specific options ...
- * static RegisterPass<PassClass> X(&XCategory);
+ * static RegisterPass<PassTy> X(&XCategory);
  * ~~~
  *
  * This is essentially a simple knockoff of the llvm::RegisterPass template.
  */
-template <typename PassClass> struct RegisterPass : public PassInfo {
+template <typename PassTy, typename std::enable_if_t<std::is_base_of_v<passes::Pass, PassTy>, bool> = true>
+struct RegisterPass : public PassInfo {
   /**
    * Public constructor for pass registration.
    * @param Category The option category of the new pass to register.
    */
   explicit RegisterPass(cl::OptionCategory *Category)
-      : PassInfo(PassClass::OPTION, PassClass::NAME, createObj<PassClass, Pass>, Category) {
-    PassRegistry::getObjectRegistry()->registerObject(*this);
+      : PassInfo(PassTy::OPTION, PassTy::NAME, PassConstructor(constructObject<PassTy, passes::Pass>), Category) {
+    PassRegistry::registerObject(PassTy::OPTION, *this);
   }
 };
 
 /**
  * Custom parser for onRegistration passes with the PassInfo object.
  */
-struct IcarusPassParser : public RegistryListener<const PassInfo *, PassRegistry>, public cl::parser<const PassInfo *> {
-  explicit IcarusPassParser(cl::Option &O) : cl::parser<const PassInfo *>(O) {
-    PassRegistry::getObjectRegistry()->addRegistrationListener(this);
-  }
+struct PassParser : public RegistryListener<const PassInfo *, PassRegistry>, public cl::parser<const PassInfo *> {
+  explicit PassParser(cl::Option &O) : cl::parser<const PassInfo *>(O) { PassRegistry::addRegistrationListener(this); }
 
   /**
    * Called from cl::list::done after initialization is finished. Iterate over all
@@ -167,7 +158,7 @@ struct IcarusPassParser : public RegistryListener<const PassInfo *, PassRegistry
   void printOptionInfo(const cl::Option &O, size_t GlobalWidth) const override;
 
 private:
-  static int ValCompare(const IcarusPassParser::OptionInfo *VT1, const IcarusPassParser::OptionInfo *VT2);
+  static int OptionCompare(const PassParser::OptionInfo *VT1, const PassParser::OptionInfo *VT2);
 };
 
 /**
@@ -175,11 +166,10 @@ private:
  * @tparam PassClass The Pass subclass for which the string should be generated.
  */
 template <typename PassClass> struct OptionCategory {
-  static constexpr std::string_view TBEG = "'";
-  static constexpr std::string_view TEND = "' (";
-  static constexpr std::string_view QEND = ")";
-  static constexpr std::string_view PREFIX = "General options for pass ";
-  static constexpr auto Value = Concat<PREFIX, TBEG, PassClass::NAME, TEND, PassClass::OPTION, QEND>;
+  static constexpr std::string_view PREFIX = "Additional options for pass '";
+  static constexpr std::string_view OPTBEG = "' (";
+  static constexpr std::string_view OPTEND = ")";
+  static constexpr auto Value = ConcatViews<PREFIX, PassClass::NAME, OPTBEG, PassClass::OPTION, OPTEND>;
 };
 
 /**

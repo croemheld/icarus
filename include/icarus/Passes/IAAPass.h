@@ -12,7 +12,7 @@
 
 #include <icarus/Passes/EEAPass.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 /*
  * Constant Propagation Analysis (CPA) Pass
@@ -85,6 +85,6 @@ public:
   }
 };
 
-} // namespace icarus
+} // namespace icarus::passes
 
 #endif // ICARUS_PASSES_IAAPASS_H

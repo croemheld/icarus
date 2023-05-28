@@ -7,7 +7,7 @@
 
 #include <icarus/Passes/AIAPass.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 /*
  * Constant Propagation Analysis (CPA) Pass
@@ -19,13 +19,16 @@ using IAAContextRetTy = void;
  * AnalysisContext specialization for constant propagation-based analyses. The AnalysisContext is part
  * of the template parameter for the CPAPass class below.
  */
-struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, IAAContextRetTy> {};
+struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, IAAContextRetTy> {
+
+  using Iter = DefaultAnalysisIterator;
+};
 
 /**
  * Base class for constant propagation-based analysis with the underlying abstract interpretation pass
  * for performing a flow- and context-sensitive analysis on a program.
  */
-template <bool Threaded> class ThreadedCPAPass : public ThreadedAIAPass<CPAContext, Threaded, DefaultAnalysisIterator> {
+template <bool Threaded> class ThreadedCPAPass : public ThreadedAIAPass<CPAContext, Threaded, CPAContext::Iter> {
 
 public:
   bool checkPassArguments(PassArguments &IPA) override { return true; }
@@ -49,6 +52,6 @@ struct CPTPass : public ThreadedCPAPass<true> {
   static constexpr std::string_view NAME = "Constant Propagation Analysis (Threaded)";
 };
 
-} // namespace icarus
+} // namespace icarus::passes
 
 #endif // ICARUS_PASSES_CPAPASS_H

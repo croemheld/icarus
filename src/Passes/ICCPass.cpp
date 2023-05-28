@@ -2,15 +2,15 @@
 // Created by croemheld on 26.12.2022.
 //
 
-#include "icarus/Support/Clang.h"
+#include <icarus/Support/Clang.h>
 
 #if ICARUS_CLANG_VERSION >= 8
 #include <llvm/Analysis/IndirectCallVisitor.h>
 #endif
 
-#include "icarus/Passes/ICCPass.h"
+#include <icarus/Passes/ICCPass.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 /*
  * Register pass in icarus
@@ -27,7 +27,7 @@ bool ICCPass::checkPassArguments(PassArguments &IPA) {
 }
 
 int ICCPass::runAnalysisPass(PassArguments &IPA) {
-  forEachModule(IPA, [&](IcarusModule &IM) {
+  std::for_each(IPA.begin(), IPA.end(), [&](IcarusModule &IM) {
     llvm::Module *M = IM.getModule();
     for (llvm::Function &F : *M) {
 #if ICARUS_CLANG_VERSION >= 8
@@ -52,4 +52,4 @@ int ICCPass::runAnalysisPass(PassArguments &IPA) {
   return 0;
 }
 
-} // namespace icarus
+} // namespace icarus::passes

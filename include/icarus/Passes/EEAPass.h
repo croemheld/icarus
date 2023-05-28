@@ -13,7 +13,7 @@
 
 #include <icarus/Support/Traits.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 /**
  * AnalysisContext implementation that uses the custom ExecutionEngine class with the new ProgramValue
@@ -29,9 +29,7 @@ class EEAContext : public ExecutionEngine, public AnalysisContext<SubClass, RetT
 
 public:
   EEAContext(ProgramContext<AnalysisIterator> &PC, const llvm::DataLayout &DL)
-      : ExecutionEngine(DL)
-      , AnalysisContext<SubClass, RetTy>()
-      , PC(PC) {}
+      : ExecutionEngine(DL), AnalysisContext<SubClass, RetTy>(), PC(PC) {}
 
   /*
    * Virtual methods from ExecutionEngine
@@ -68,11 +66,6 @@ using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EE
 template <typename EEAContextImpl, bool Threaded, typename Iterator>
 struct ThreadedEEAPass : ThreadedAIAPass<EEAContextImpl, Threaded, Iterator> {};
 
-template <typename EEAContextImpl, typename Iterator>
-struct ThreadedEEAPass<EEAContextImpl, true, Iterator> : public ThreadedAIAPass<EEAContextImpl, true, Iterator> {
-  using ThreadedAIAPass<EEAContextImpl, true, Iterator>::initializeThreadPool;
-};
-
-} // namespace icarus
+} // namespace icarus::passes
 
 #endif // ICARUS_PASSES_EEAPASS_H

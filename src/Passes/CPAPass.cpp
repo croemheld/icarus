@@ -2,9 +2,9 @@
 // Created by croemheld on 04.01.2023.
 //
 
-#include "icarus/Passes/CPAPass.h"
+#include <icarus/Passes/CPAPass.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 /*
  * Register pass in icarus
@@ -13,4 +13,4 @@ namespace icarus {
 static RegisterPass<CPAPass> CPAPass(nullptr);
 static RegisterPass<CPTPass> CPTPass(nullptr);
 
-} // namespace icarus
+} // namespace icarus::passes

@@ -15,21 +15,15 @@
 
 #include <queue>
 
-namespace icarus {
+namespace icarus::passes {
 
 /**
- * Depending on the pass, the AnalysisContext instance may be applied in the default instruction order
- * or, if it is a backward analysis (e.g. Live-Variable Analysis), in reverse order. We assume that an
- * arbitrary pass usually performs forward analyses, so we use DefaultAnalysisIterator as a default param.
- *
  *
  */
+struct DefaultAnalysisIterator {
 
-class DefaultAnalysisIterator {
+  DefaultAnalysisIterator() = delete;
 
-  DefaultAnalysisIterator() = default;
-
-public:
   using Iter = llvm::BasicBlock::iterator;
 
   static llvm::BasicBlock *getEntryBlock(llvm::Function &F) { return F.isDeclaration() ? nullptr : &F.getEntryBlock(); }
@@ -39,11 +33,10 @@ public:
   static Iter exit(llvm::BasicBlock *BB) { return BB->end(); }
 };
 
-class ReverseAnalysisIterator {
+struct ReverseAnalysisIterator {
 
-  ReverseAnalysisIterator() = default;
+  ReverseAnalysisIterator() = delete;
 
-public:
   using Iter = llvm::BasicBlock::reverse_iterator;
 
   static llvm::BasicBlock *getEntryBlock(llvm::Function &F) { return F.isDeclaration() ? nullptr : getExitBlock(F); }
@@ -93,6 +86,12 @@ using enable_if_aiacontext = std::enable_if_t<is_template_base_of<AnalysisContex
 template <typename AIAContextImpl, bool Threaded, typename Iterator> class ThreadedAIAPass : public Pass {
 
 protected:
+  /**
+   * Helper function for scheduling an analysis context in the current pass. Depending on the template
+   * arguments and partial specialization, the context is then wrapped in a callable and placed either
+   * in a thread pool or a simple queue.
+   * @param AIAContext The analysis context to schedule for procession.
+   */
   void scheduleAnalysisContext(AIAContextImpl &AIAContext) {}
 
   void ProgramContextWorker(ProgramContext<Iterator> &PC) {
@@ -174,6 +173,6 @@ public:
   }
 };
 
-} // namespace icarus
+} // namespace icarus::passes
 
 #endif // ICARUS_PASSES_AIAPASS_H

@@ -7,7 +7,7 @@
 
 #include <icarus/Passes/Pass.h>
 
-namespace icarus {
+namespace icarus::passes {
 
 class ICCPass : public Pass {
 
@@ -22,6 +22,6 @@ public:
   int runAnalysisPass(PassArguments &IPA) override;
 };
 
-} // namespace icarus
+} // namespace icarus::passes
 
 #endif // ICARUS_PASSES_ICCPASS_H
