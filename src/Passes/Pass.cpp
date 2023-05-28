@@ -19,11 +19,11 @@ bool PassInfo::isGeneralCategory() const {
   return PassName.empty();
 }
 
-std::string_view PassInfo::getPassOption() const {
+std::string const &PassInfo::getPassOption() const {
   return PassOption;
 }
 
-std::string_view PassInfo::getPassName() const {
+std::string const &PassInfo::getPassName() const {
   return PassName;
 }
 

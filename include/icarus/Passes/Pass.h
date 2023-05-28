@@ -74,8 +74,8 @@ struct PassConstructor : public ObjectConstructor<passes::Pass> {
  */
 class PassInfo {
 
-  std::string_view PassOption;
-  std::string_view PassName;
+  std::string const PassOption;
+  std::string const PassName;
   PassConstructor Constructor;
   cl::OptionCategory *Category;
 
@@ -92,8 +92,8 @@ public:
       : PassOption(PassOption), PassName(PassName), Constructor(Constructor), Category(Category) {}
 
   bool isGeneralCategory() const;
-  std::string_view getPassOption() const;
-  std::string_view getPassName() const;
+  std::string const &getPassOption() const;
+  std::string const &getPassName() const;
   cl::OptionCategory *getCategory() const;
   PassConstructor &getConstructor() const;
 };
