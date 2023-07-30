@@ -11,6 +11,10 @@ set(LLVM_LIBRARIES
 )
 
 # Further libraries to link against for LLVM versions >= 9.
+# The LLVM_PACKAGE_VERSION variable is usually set after the LLVM package was located
+# via the find_package command. However, if the CMake file is executed in script mode
+# the aforementioned command does not work. To circumvent this issue, we are required
+# to set the variable manually via -DLLVM_PACKAGE_VERSION.
 if (LLVM_PACKAGE_VERSION GREATER_EQUAL 9)
     list(APPEND LLVM_LIBRARIES
             LLVMBitstreamReader

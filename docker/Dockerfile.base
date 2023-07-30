@@ -1,0 +1,26 @@
+ARG UBUNTU_RELEASE=bionic
+
+#######################################
+# Stage 1: Only clone LLVM repository #
+#######################################
+
+FROM ubuntu:$UBUNTU_RELEASE
+
+#######################################
+# Clone LLVM repository, set up build #
+#######################################
+
+ARG CMAKE_VERSION
+
+WORKDIR /root
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y ca-certificates git wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    wget https://github.com/Kitware/CMake/releases/download/v"$CMAKE_VERSION"/cmake-"$CMAKE_VERSION"-Linux-x86_64.sh \
+        -q -O cmake-install.sh && \
+    chmod +x cmake-install.sh && \
+    mkdir /usr/bin/cmake && \
+    ./cmake-install.sh --skip-license --prefix=/usr/bin/cmake && \
+    rm -f cmake-install.sh && \
+    git clone https://github.com/llvm/llvm-project.git

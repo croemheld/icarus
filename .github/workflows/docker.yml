@@ -1,0 +1,42 @@
+name: Clang
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [
+          { llvm: "5" },
+          { llvm: "6" },
+          { llvm: "7" },
+          { llvm: "8" },
+          { llvm: "9" },
+          { llvm: "10" },
+          { llvm: "11" },
+          { llvm: "12" },
+          { llvm: "13" },
+          { llvm: "14" },
+          { llvm: "15" },
+        ]
+    container: croemheld/icarus-ci:clang-${{ matrix.compiler.clang }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Get minimum CMake version for build
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.13.0
+      - name: Set environment variables
+        run: echo "CC=clang CXX=clang++" >> "$GITHUB_ENV"
+      - name: Run CMake and build ICARUS
+        run: |
+          mkdir -p build && cd build && cmake -GNinja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++ ../src \
+          && ninja icarus
