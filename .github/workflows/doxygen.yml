@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  doxygen:
+  doxygen-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -23,8 +23,27 @@ jobs:
           make doxygen
       - name: Create .nojekyll file
         run: touch build/docs/doxygen/html/.nojekyll
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Archive doxygen artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: github-pages
+          path: build/docs/doxygen/html
+
+  doxygen-deploy:
+    needs: doxygen
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download doxygen artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: github-pages
+      - name: Deploy doxygen artifacts to GitHub Pages
+        uses: actions/deploy-pages@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          folder: build/docs/doxygen/html
