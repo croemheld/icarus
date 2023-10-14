@@ -23,8 +23,13 @@ jobs:
           make doxygen
       - name: Create .nojekyll file
         run: touch build/docs/doxygen/html/.nojekyll
-      - name: Archive doxygen artifacts
-        uses: actions/upload-artifact@v3
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX build/docs/doxygen/html | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
         with:
           name: github-pages
           path: build/docs/doxygen/html
@@ -39,11 +44,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download doxygen artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: github-pages
       - name: Deploy doxygen artifacts to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
