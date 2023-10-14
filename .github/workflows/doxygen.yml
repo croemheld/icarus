@@ -30,7 +30,7 @@ jobs:
           path: build/docs/doxygen/html
 
   doxygen-deploy:
-    needs: doxygen
+    needs: doxygen-build
     permissions:
       pages: write
       id-token: write
