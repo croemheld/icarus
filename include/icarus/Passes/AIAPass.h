@@ -83,7 +83,8 @@ using enable_if_aiacontext = std::enable_if_t<is_template_base_of<AnalysisContex
  * class, one has to inherit from both Pass and ThreadedAIAPass.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
  */
-template <typename AIAContextImpl, bool Threaded, typename Iterator> class ThreadedAIAPass : public Pass {
+template <typename AIAContextImpl, typename Iterator, typename = enable_if_aiacontext<AIAContextImpl>>
+class AIAPassBase : public Pass {
 
 protected:
   /**
@@ -108,16 +109,25 @@ public:
    * Creates a new abstract interpretation-based analysis pass with the provided AnalysisContext. With
    * the AnalysisContext template argument, we implement the basic techniques for the pass.
    */
-  ThreadedAIAPass() = default;
+  AIAPassBase() = default;
 };
+
+/**
+ * General class template for both ThreadedAIAPass class template specializations.
+ * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
+ * @tparam Threaded Boolean indicating if the analysis pass can be threaded.
+ * @tparam Iterator The instruction iterator to use.
+ */
+template <typename AIAContextImpl, bool Threaded, typename Iterator> class ThreadedAIAPass {};
 
 /**
  * Partial specialization for all abstract interpretation-based analyses, that do NOT support multiple
  * threads during the analysis (logger threads not counted).
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
+ * @tparam Iterator The instruction iterator to use.
  */
 template <typename AIAContextImpl, typename Iterator>
-class ThreadedAIAPass<AIAContextImpl, false, Iterator> : public Pass {
+class ThreadedAIAPass<AIAContextImpl, false, Iterator> : public AIAPassBase<AIAContextImpl, Iterator> {
 
   std::queue<std::unique_ptr<Task>> TaskQueue;
 
@@ -147,9 +157,10 @@ public:
 /**
  * Partial specialization for all abstract interpretation-based analyses, that support multithreading.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
+* @tparam Iterator The instruction iterator to use.
  */
 template <typename AIAContextImpl, typename Iterator>
-class ThreadedAIAPass<AIAContextImpl, true, Iterator> : public Pass {
+class ThreadedAIAPass<AIAContextImpl, true, Iterator> : public AIAPassBase<AIAContextImpl, Iterator> {
 
   ThreadPool TP;
 

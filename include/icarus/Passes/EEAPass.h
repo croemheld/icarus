@@ -63,7 +63,7 @@ using enable_if_eeacontext = std::enable_if_t<is_template_base_of<EEAContext, EE
  * @tparam EEAContextImpl The EEAContext implementation that uses llvm::ExecutionEngine methods.
  */
 
-template <typename EEAContextImpl, bool Threaded, typename Iterator>
+template <typename EEAContextImpl, bool Threaded, typename Iterator, typename = enable_if_eeacontext<EEAContextImpl>>
 struct ThreadedEEAPass : ThreadedAIAPass<EEAContextImpl, Threaded, Iterator> {};
 
 } // namespace icarus::passes

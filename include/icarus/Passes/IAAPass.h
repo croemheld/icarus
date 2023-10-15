@@ -66,6 +66,7 @@ struct IAAPass : public ThreadedIAAPass<false> {
   static constexpr std::string_view NAME = "Input-Aware Analysis";
 
   bool checkPassArguments(PassArguments &IPA) override { return ThreadedIAAPass<false>::checkJSON(IPA); }
+
 };
 
 struct IATPass : public ThreadedIAAPass<true> {
