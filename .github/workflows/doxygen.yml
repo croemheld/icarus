@@ -13,7 +13,11 @@ jobs:
       - name: Install base packages
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz
+          sudo apt-get install --no-install-recommends -y \
+            build-essential git python3 cmake flex bison graphviz
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh <version number> all
       - name: Clone and build latest doxygen repository
         run: |
           git clone https://github.com/doxygen/doxygen.git && mkdir -p doxygen/build
