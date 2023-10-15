@@ -29,9 +29,13 @@ public:
 
   ObjectConstructor(ObjectConstructor &Other) : Constructor(Other.getConstructor()) {}
 
-  std::function<T *()> &getConstructor() { return Constructor; }
+  std::function<T *()> &getConstructor() {
+    return Constructor;
+  }
 
-  T *operator()() { return Constructor(); }
+  T *operator()() {
+    return Constructor();
+  }
 };
 
 /**
@@ -51,7 +55,9 @@ template <typename T, typename Registry> struct RegistryListener {
   /**
    * Apply the callback instance on every object stored in the registry.
    */
-  void enumerateObjects() { Registry::enumerateWith(this); }
+  void enumerateObjects() {
+    Registry::enumerateWith(this);
+  }
 
   /**
    * Apply the callback instance on the selected object from the registry.
@@ -134,7 +140,9 @@ protected:
   }
 
 public:
-  static void registerObject(const K &k, const V &Obj) { getObjectRegistry()->doRegisterObject(k, Obj); }
+  static void registerObject(const K &k, const V &Obj) {
+    getObjectRegistry()->doRegisterObject(k, Obj);
+  }
 
   template <typename ValueExtractor, typename T = std::invoke_result_t<ValueExtractor, ValueT>>
   static T getObject(const K &k, ValueExtractor &&Extractor = ValueIdentity) {
@@ -150,7 +158,9 @@ public:
    * Apply the listener callback on every element in the object map structure.
    * @param L The callback listener to apply on every object in the map.
    */
-  static void enumerateWith(RegistryListener<V *, Derived> *L) { getObjectRegistry()->doEnumerateWith(L); }
+  static void enumerateWith(RegistryListener<V *, Derived> *L) {
+    getObjectRegistry()->doEnumerateWith(L);
+  }
 
   /**
    * Add a listener callback for every future object registration.

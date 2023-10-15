@@ -94,9 +94,13 @@ public:
    * Helper inline methods for executing global constructors and destructors.
    */
 
-  inline void executeCtors(llvm::Module *M) { executeFunctionsInSection(M, "llvm.global_ctors"); }
+  inline void executeCtors(llvm::Module *M) {
+    executeFunctionsInSection(M, "llvm.global_ctors");
+  }
 
-  inline void executeDtors(llvm::Module *M) { executeFunctionsInSection(M, "llvm.global_dtors"); }
+  inline void executeDtors(llvm::Module *M) {
+    executeFunctionsInSection(M, "llvm.global_dtors");
+  }
 };
 
 } // namespace icarus

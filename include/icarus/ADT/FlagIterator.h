@@ -25,7 +25,9 @@ struct FlagIterator {
   /**
    * @return The original bitmask the iterator was initialized with.
    */
-  std::uint64_t getMask() const { return Mask; }
+  std::uint64_t getMask() const {
+    return Mask;
+  }
 
   /**
    * @return The currently active flag of the bitmask.

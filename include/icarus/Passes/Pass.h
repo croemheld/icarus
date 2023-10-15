@@ -145,7 +145,9 @@ struct RegisterPass : public PassInfo {
  * Custom parser for onRegistration passes with the PassInfo object.
  */
 struct PassParser : public RegistryListener<const PassInfo *, PassRegistry>, public cl::parser<const PassInfo *> {
-  explicit PassParser(cl::Option &O) : cl::parser<const PassInfo *>(O) { PassRegistry::addRegistrationListener(this); }
+  explicit PassParser(cl::Option &O) : cl::parser<const PassInfo *>(O) {
+    PassRegistry::addRegistrationListener(this);
+  }
 
   /**
    * Called from cl::list::done after initialization is finished. Iterate over all

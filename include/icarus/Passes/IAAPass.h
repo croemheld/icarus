@@ -51,7 +51,9 @@ template <bool Threaded> class ThreadedIAAPass : public ThreadedEEAPass<IAAConte
   }
 
 protected:
-  bool checkJSON(PassArguments &IPA) { return !IPA.getJSON().empty(); }
+  bool checkJSON(PassArguments &IPA) {
+    return !IPA.getJSON().empty();
+  }
 
 public:
   int runAnalysisPass(PassArguments &IPA) override {
@@ -65,8 +67,9 @@ struct IAAPass : public ThreadedIAAPass<false> {
   static constexpr std::string_view OPTION = "IAA";
   static constexpr std::string_view NAME = "Input-Aware Analysis";
 
-  bool checkPassArguments(PassArguments &IPA) override { return ThreadedIAAPass<false>::checkJSON(IPA); }
-
+  bool checkPassArguments(PassArguments &IPA) override {
+    return ThreadedIAAPass<false>::checkJSON(IPA);
+  }
 };
 
 struct IATPass : public ThreadedIAAPass<true> {

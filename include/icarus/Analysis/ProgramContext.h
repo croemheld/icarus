@@ -33,9 +33,13 @@ template <typename AnalysisIterator> class ProgramContext {
 public:
   ProgramContext() = default;
 
-  bool isStackEmpty() const { return FCStack.empty(); }
+  bool isStackEmpty() const {
+    return FCStack.empty();
+  }
 
-  FunctionContext<AnalysisIterator> &getCurrentFunctionStack() { return FCStack.front().get(); }
+  FunctionContext<AnalysisIterator> &getCurrentFunctionStack() {
+    return FCStack.front().get();
+  }
 };
 
 } // namespace icarus

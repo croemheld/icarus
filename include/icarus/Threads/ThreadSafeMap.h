@@ -21,7 +21,9 @@ struct ThreadSafeMap : public ThreadSafeContainer<ThreadSafeMap<SubClass, K, V>,
     return this->Container[k];
   }
 
-  V &operator[](const K &k) { return static_cast<SubClass *>(this)->at(k); }
+  V &operator[](const K &k) {
+    return static_cast<SubClass *>(this)->at(k);
+  }
 };
 
 } // namespace icarus

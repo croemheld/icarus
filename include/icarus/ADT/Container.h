@@ -99,11 +99,17 @@ template <class BaseIterator> struct DereferenceIterator : public BaseIterator {
 
   explicit DereferenceIterator(const BaseIterator &Other) : BaseIterator(Other) {}
 
-  value_type &operator*() const { return *(BaseIterator::operator*()); }
+  value_type &operator*() const {
+    return *(BaseIterator::operator*());
+  }
 
-  value_type *operator->() const { return BaseIterator::operator*().get(); }
+  value_type *operator->() const {
+    return BaseIterator::operator*().get();
+  }
 
-  value_type &operator[](size_t N) const { return *(BaseIterator::operator[](N)); }
+  value_type &operator[](size_t N) const {
+    return *(BaseIterator::operator[](N));
+  }
 };
 
 /**

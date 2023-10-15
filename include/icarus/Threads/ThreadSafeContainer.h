@@ -44,7 +44,9 @@ public:
    * Upon destroying this object we need to notify all threads that are potentially waiting in line to
    * access the elements in this container.
    */
-  ~ThreadSafeContainer() { invalidate(); };
+  ~ThreadSafeContainer() {
+    invalidate();
+  };
 
   /**
    * Returns the size of this container while holding a shared (a reader-only) lock on this structure.

@@ -52,7 +52,9 @@ public:
   ThreadTask &operator=(const ThreadTask &Other) = delete;
   ThreadTask &operator=(ThreadTask &&Other) noexcept = default;
 
-  void execute() override { ThreadFunction(); }
+  void execute() override {
+    ThreadFunction();
+  }
 };
 
 /**

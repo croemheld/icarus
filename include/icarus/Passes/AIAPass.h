@@ -26,11 +26,17 @@ struct DefaultAnalysisIterator {
 
   using Iter = llvm::BasicBlock::iterator;
 
-  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) { return F.isDeclaration() ? nullptr : &F.getEntryBlock(); }
+  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) {
+    return F.isDeclaration() ? nullptr : &F.getEntryBlock();
+  }
 
-  static Iter init(llvm::BasicBlock *BB) { return BB->begin(); }
+  static Iter init(llvm::BasicBlock *BB) {
+    return BB->begin();
+  }
 
-  static Iter exit(llvm::BasicBlock *BB) { return BB->end(); }
+  static Iter exit(llvm::BasicBlock *BB) {
+    return BB->end();
+  }
 };
 
 struct ReverseAnalysisIterator {
@@ -39,11 +45,17 @@ struct ReverseAnalysisIterator {
 
   using Iter = llvm::BasicBlock::reverse_iterator;
 
-  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) { return F.isDeclaration() ? nullptr : getExitBlock(F); }
+  static llvm::BasicBlock *getEntryBlock(llvm::Function &F) {
+    return F.isDeclaration() ? nullptr : getExitBlock(F);
+  }
 
-  static Iter init(llvm::BasicBlock *BB) { return BB->rbegin(); }
+  static Iter init(llvm::BasicBlock *BB) {
+    return BB->rbegin();
+  }
 
-  static Iter exit(llvm::BasicBlock *BB) { return BB->rend(); }
+  static Iter exit(llvm::BasicBlock *BB) {
+    return BB->rend();
+  }
 };
 
 /**
@@ -157,7 +169,7 @@ public:
 /**
  * Partial specialization for all abstract interpretation-based analyses, that support multithreading.
  * @tparam AIAContextImpl The AnalysisContext subclass which implements the core algorithm.
-* @tparam Iterator The instruction iterator to use.
+ * @tparam Iterator The instruction iterator to use.
  */
 template <typename AIAContextImpl, typename Iterator>
 class ThreadedAIAPass<AIAContextImpl, true, Iterator> : public AIAPassBase<AIAContextImpl, Iterator> {
@@ -169,7 +181,9 @@ protected:
    * Initialize the pass thread pool with the specified number of threads.
    * @param NumThreads The number of worker threads to initialize.
    */
-  void initializeThreadPool(unsigned NumThreads) { TP.initialize(NumThreads); }
+  void initializeThreadPool(unsigned NumThreads) {
+    TP.initialize(NumThreads);
+  }
 
 public:
   /**

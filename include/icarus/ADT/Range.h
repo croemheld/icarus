@@ -32,11 +32,17 @@ public:
   Range(Iterator begin_iterator, Iterator end_iterator)
       : begin_iterator(std::move(begin_iterator)), end_iterator(std::move(end_iterator)) {}
 
-  Iterator begin() const { return begin_iterator; }
+  Iterator begin() const {
+    return begin_iterator;
+  }
 
-  Iterator end() const { return end_iterator; }
+  Iterator end() const {
+    return end_iterator;
+  }
 
-  bool empty() const { return begin_iterator == end_iterator; }
+  bool empty() const {
+    return begin_iterator == end_iterator;
+  }
 };
 
 template <class T> Range<T> make_range(T x, T y) {

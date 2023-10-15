@@ -39,7 +39,9 @@ public:
     return ValueDelegate();
   }
 
-  virtual void *getPointerToNamedFunction(llvm::StringRef Name, bool AbortOnFailure = true) override { return nullptr; }
+  virtual void *getPointerToNamedFunction(llvm::StringRef Name, bool AbortOnFailure = true) override {
+    return nullptr;
+  }
 
   /**
    * Prepare the current program context for a call to the specified function with the given arguments

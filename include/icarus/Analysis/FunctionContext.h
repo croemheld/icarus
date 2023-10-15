@@ -39,7 +39,9 @@ protected:
   FunctionContext() : BB(nullptr), II(nullptr), Caller(nullptr) {}
 
 public:
-  llvm::Instruction *nextInstruction() { return *II++; }
+  llvm::Instruction *nextInstruction() {
+    return *II++;
+  }
 };
 
 } // namespace icarus

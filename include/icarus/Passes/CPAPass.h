@@ -31,9 +31,13 @@ struct CPAContext : public AnalysisContext<DefaultAnalysisIterator, CPAContext, 
 template <bool Threaded> class ThreadedCPAPass : public ThreadedAIAPass<CPAContext, Threaded, CPAContext::Iter> {
 
 public:
-  bool checkPassArguments(PassArguments &IPA) override { return true; }
+  bool checkPassArguments(PassArguments &IPA) override {
+    return true;
+  }
 
-  int runAnalysisPass(PassArguments &IPA) override { return 0; }
+  int runAnalysisPass(PassArguments &IPA) override {
+    return 0;
+  }
 };
 
 /**

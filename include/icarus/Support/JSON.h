@@ -94,7 +94,9 @@ template <typename T, typename... Args> struct from_json_function {
    * @param t The reference to the object to populate.
    * @param args The additional arguments.
    */
-  void operator()(const nlohmann::json &JSON, T &t, Args &&...args) { from_json(JSON, t, std::forward<Args>(args)...); }
+  void operator()(const nlohmann::json &JSON, T &t, Args &&...args) {
+    from_json(JSON, t, std::forward<Args>(args)...);
+  }
 };
 
 /**
