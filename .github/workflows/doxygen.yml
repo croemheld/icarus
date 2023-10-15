@@ -10,16 +10,10 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - name: Install base packages
+      - name: Install base packages and Doxygen
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y \
-            build-essential git python3 cmake flex bison graphviz
-          mkdir llvm && cd llvm && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 13 all
-      - name: Clone and build latest doxygen repository
-        run: |
-          git clone https://github.com/doxygen/doxygen.git && mkdir -p doxygen/build
-          cd doxygen/build && cmake -G "Unix Makefiles" -Duse_libclang=ON .. && make -j2 && sudo make install
+          sudo apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz doxygen
       - name: Create doxygen documentation
         run: |
           mkdir build && cd build
