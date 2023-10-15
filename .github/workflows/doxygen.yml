@@ -13,7 +13,7 @@ jobs:
       - name: Install base packages
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz libclang-13-dev
+          sudo apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz
       - name: Clone and build latest doxygen repository
         run: |
           git clone https://github.com/doxygen/doxygen.git && mkdir -p doxygen/build
