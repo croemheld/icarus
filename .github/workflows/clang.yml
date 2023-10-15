@@ -28,9 +28,8 @@ jobs:
           { clang: "13" },
           { clang: "14" },
           { clang: "15" },
-          { clang: "16" },
-          { clang: "17" },
         ]
+    container: croemheld/icarus-ci:clang-${{ matrix.compiler.clang }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -40,12 +39,6 @@ jobs:
           cmakeVersion: 3.13.0
       - name: Set environment variables
         run: echo "CC=clang CXX=clang++" >> "$GITHUB_ENV"
-      - name: Install base packages and LLVM
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison
-          mkdir llvm && cd llvm
-          wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh ${{ matrix.compiler.clang }} all
       - name: Run CMake and build ICARUS
         run: |
           mkdir -p build && cd build && cmake -GNinja \
