@@ -4,6 +4,7 @@ set(LLVM_LIBRARIES
         LLVMAsmParser
         LLVMBitReader
         LLVMCore
+        LLVMBinaryFormat
         LLVMSupport
         LLVMDemangle
         CACHE INTERNAL ""
