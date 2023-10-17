@@ -22,13 +22,12 @@ fi
 wget https://raw.githubusercontent.com/croemheld/icarus/main/cmake/LLVMLibraries.cmake
 BUILD_TARGETS=$(cmake -DLLVM_PACKAGE_VERSION="${LLVM_MAJORVER}" -P LLVMLibraries.cmake 2>&1 | xargs -d ';')
 CMAKE_TARGETS="${CMAKE_TARGETS} $(echo "${BUILD_TARGETS}" | sed 's/[^ ]* */install-&/g')"
-CMAKE_TARGETS_ARRAY=($CMAKE_TARGETS)
 
 #######################################
 # Build projects with CMake arguments #
 #######################################
 
-cd build && echo "Install targets: ${CMAKE_TARGETS}" && ninja "${CMAKE_TARGETS_ARRAY[@]}"
+cd build && echo "Install targets: ${CMAKE_TARGETS}" && ninja $CMAKE_TARGETS
 
 #######################################
 # Comment include of LLVMExports file #
