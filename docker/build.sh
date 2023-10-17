@@ -111,7 +111,7 @@ docker build \
 	-f "$DOCKER_SRC/Dockerfile" \
 	--build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
 	--build-arg "UBUNTU_RELEASE=bionic" \
-	--build-arg "CMAKE_VERSION=3.13.4" \
+	--build-arg "CMAKE_VERSION=3.27.7" \
 	--build-arg "PARALLEL_JOBS=$PARALLEL_JOBS" \
 	--build-arg "LLVM_CHECKOUT=$LLVM_CHECKOUT" \
 	--build-arg "CMAKE_INSTALL=$CMAKE_INSTALL" \

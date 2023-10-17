@@ -69,6 +69,7 @@ ENV PATH="/usr/bin/cmake/bin:${PATH}"
 
 ADD install-llvm.sh /root/llvm-project/install-llvm.sh
 
+ARG CMAKE_VERSION
 ARG CMAKE_INSTALL
 
 RUN apt-get update && \
@@ -91,5 +92,9 @@ COPY --from=installer /usr/local/include /usr/local/include
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        libc6-dev libstdc++-7-dev binutils ninja-build zlib1g-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*\
+    wget https://github.com/Kitware/CMake/releases/download/v"$CMAKE_VERSION"/cmake-"$CMAKE_VERSION"-Linux-x86_64.sh \
+        -q -O cmake-install.sh && \
+    chmod +x cmake-install.sh && ./cmake-install.sh --prefix=/usr --exclude-subdir --skip-license && \
+    rm -f cmake-install.sh
