@@ -12,7 +12,8 @@
 
 set -e
 
-DOCKER_SRC=""
+ICARUS_SRC=""
+
 DOCKER_REP=""
 DOCKER_TAG=""
 
@@ -79,8 +80,8 @@ if [ "$DOCKER_TAG" == "" ]; then
 	exit 1
 fi
 
-if [ "$DOCKER_SRC" == "" ]; then
-	DOCKER_SRC=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+if [ "$ICARUS_SRC" == "" ]; then
+	ICARUS_SRC=$(dirname -- "$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")")
 fi
 
 if [ "$LLVM_CHECKOUT" == "" ]; then
@@ -99,20 +100,20 @@ fi
 if [ "$(docker images -q ${DOCKER_REP}:base 2> /dev/null)" == "" ]; then
 	docker build \
 		-t "${DOCKER_REP}:base" \
-		-f "$DOCKER_SRC/Dockerfile.base" \
+		-f "$ICARUS_SRC/docker/Dockerfile.base" \
 		--build-arg "UBUNTU_RELEASE=bionic" \
 		--build-arg "CMAKE_VERSION=3.13.4" \
-		"$DOCKER_SRC"
+		"$ICARUS_SRC"
 fi
 
 echo "Building ${DOCKER_REP}:${DOCKER_TAG}"
 docker build \
 	-t "${DOCKER_REP}:${DOCKER_TAG}" \
-	-f "$DOCKER_SRC/Dockerfile" \
+	-f "$ICARUS_SRC/docker/Dockerfile" \
 	--build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
 	--build-arg "UBUNTU_RELEASE=bionic" \
 	--build-arg "CMAKE_VERSION=3.27.7" \
 	--build-arg "PARALLEL_JOBS=$PARALLEL_JOBS" \
 	--build-arg "LLVM_CHECKOUT=$LLVM_CHECKOUT" \
 	--build-arg "CMAKE_INSTALL=$CMAKE_INSTALL" \
-	"$DOCKER_SRC"
+	"$ICARUS_SRC"

@@ -19,8 +19,7 @@ fi
 # Only install minimum LLVM libraries #
 #######################################
 
-wget https://raw.githubusercontent.com/croemheld/icarus/main/cmake/LLVMLibraries.cmake
-BUILD_TARGETS=$(cmake -DLLVM_PACKAGE_VERSION="${LLVM_MAJORVER}" -P LLVMLibraries.cmake 2>&1 | xargs -d ';')
+BUILD_TARGETS=$(cmake -DLLVM_PACKAGE_VERSION="${LLVM_MAJORVER}" -P ../LLVMLibraries.cmake 2>&1 | xargs -d ';')
 CMAKE_TARGETS="${CMAKE_TARGETS} $(echo "${BUILD_TARGETS}" | sed 's/[^ ]* */install-&/g')"
 
 #######################################
@@ -33,4 +32,6 @@ cd build && echo "Install targets: ${CMAKE_TARGETS}" && ninja $CMAKE_TARGETS
 # Comment include of LLVMExports file #
 #######################################
 
-sed -i "s/include(\"${LLVM_CMAKE_DIR}\/LLVMExports.cmake\")/# &/" /usr/local/lib/cmake/llvm/LLVMConfig.cmake
+# Do not use sed -i as this is not always supported or handled correctly
+sed 's/include(\"${LLVM_CMAKE_DIR}\/LLVMExports.cmake\")/# &/' /usr/local/lib/cmake/llvm/LLVMConfig.cmake > out.cmake
+mv out.cmake /usr/local/lib/cmake/llvm/LLVMConfig.cmake

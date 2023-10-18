@@ -26,8 +26,8 @@ COPY --from=base /root/llvm-project /root/llvm-project
 # Add scripts for building LLVM/Clang #
 #######################################
 
-ADD install-cmake.sh /root/install-cmake.sh
-ADD build-llvm.sh /root/llvm-project/build-llvm.sh
+ADD docker/install-cmake.sh /root/install-cmake.sh
+ADD docker/build-llvm.sh /root/llvm-project/build-llvm.sh
 
 #######################################
 # Start building LLVM project & Clang #
@@ -63,8 +63,9 @@ COPY --from=builder /root/llvm-project /root/llvm-project
 # Add script to install LLVM projects #
 #######################################
 
-ADD install-cmake.sh /root/install-cmake.sh
-ADD install-llvm.sh /root/llvm-project/install-llvm.sh
+ADD cmake/LLVMLibraries.cmake /root/LLVMLibraries.cmake
+ADD docker/install-cmake.sh /root/install-cmake.sh
+ADD docker/install-llvm.sh /root/llvm-project/install-llvm.sh
 
 ARG CMAKE_VERSION
 ARG CMAKE_INSTALL
@@ -88,7 +89,7 @@ COPY --from=installer /usr/local/bin /usr/local/bin
 COPY --from=installer /usr/local/lib /usr/local/lib
 COPY --from=installer /usr/local/include /usr/local/include
 
-ADD install-cmake.sh /root/install-cmake.sh
+ADD docker/install-cmake.sh /root/install-cmake.sh
 
 ARG CMAKE_VERSION
 
