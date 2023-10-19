@@ -1,14 +1,14 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 set -e
 
 # Read the version string and assign it to each variable
-IFS=. read -r CMAKE_MAJOR CMAKE_MINOR CMAKE_PATCH <<EOF
+IFS=. read -r CMAKE_MAJOR CMAKE_MINOR _ <<EOF
 $1
 EOF
 
 # Starting from 3.20.X, the name of the script was slightly changed
-if [ $CMAKE_MAJOR -eq 3 -a $CMAKE_MINOR -ge 20 ]; then
+if [ "${CMAKE_MAJOR}" = "3" ] && [ "${CMAKE_MINOR}" = "20" ]; then
   LINUX="linux"
 else
   LINUX="Linux"

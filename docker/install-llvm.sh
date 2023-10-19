@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 set -e
 
 CMAKE_ADDRESS="$(pwd)/llvm/CMakeLists.txt"
 LLVM_MAJORVER="$(grep 'LLVM_VERSION_MAJOR ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
-CMAKE_TARGETS="${@}"
+CMAKE_TARGETS="${*}"
 
 #######################################
 # Version > 8 does not include stddef #
@@ -26,7 +26,7 @@ CMAKE_TARGETS="${CMAKE_TARGETS} $(echo "${BUILD_TARGETS}" | sed 's/[^ ]* */insta
 # Build projects with CMake arguments #
 #######################################
 
-cd build && echo "Install targets: ${CMAKE_TARGETS}" && ninja $CMAKE_TARGETS
+cd build && echo "Install targets: ${CMAKE_TARGETS}" && ninja ${CMAKE_TARGETS}
 
 #######################################
 # Comment include of LLVMExports file #
