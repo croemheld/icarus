@@ -28,6 +28,8 @@ jobs:
           { clang: "13" },
           { clang: "14" },
           { clang: "15" },
+          { clang: "16" },
+          { clang: "17" },
         ]
     container: croemheld/icarus-ci:clang-${{ matrix.compiler.clang }}
     steps:
