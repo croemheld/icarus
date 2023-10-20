@@ -96,7 +96,7 @@ fi
 
 if [ "${CMAKE_INSTALL}" == "" ]; then
 	CMAKE_TARGETS="clang clang-headers llvm-headers cmake-exports"
-	CMAKE_INSTALL="${CMAKE_TARGETS//[^ ]* */install-&}"
+  CMAKE_INSTALL=$(echo "$CMAKE_TARGETS" | sed 's/[^ ]* */install-&/g')
 fi
 
 if [ "${PRINT_DRY_RUN}" == "" ]; then
@@ -110,7 +110,6 @@ if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
 		-t "${DOCKER_REP}:base" \
 		-f "${ICARUS_SRC}/docker/Dockerfile.base" \
 		--build-arg "UBUNTU_RELEASE=bionic" \
-		--build-arg "CMAKE_VERSION=3.13.4" \
 		"${ICARUS_SRC}"
 fi
 
