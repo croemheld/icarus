@@ -13,8 +13,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Install base packages and Doxygen
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz doxygen
+          apt-get update
+          apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz doxygen
       - name: Create doxygen documentation
         run: |
           mkdir build && cd build
