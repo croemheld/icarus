@@ -7,6 +7,7 @@ on:
 jobs:
   doxygen-build:
     runs-on: ubuntu-latest
+    container: croemheld/icarus-ci:clang-17
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
