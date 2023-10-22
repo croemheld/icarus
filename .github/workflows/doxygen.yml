@@ -11,14 +11,16 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
+      - name: Set environment variables
+        run: echo "CC=clang CXX=clang++" >> "$GITHUB_ENV"
       - name: Install base packages and Doxygen
         run: |
           apt-get update
-          apt-get install --no-install-recommends -y python3 flex bison graphviz doxygen
+          apt-get install --no-install-recommends -y ninja-build python3 flex bison graphviz doxygen
       - name: Create doxygen documentation
         run: |
           mkdir build && cd build
-          cmake -DOPTION_BUILD_DOCS=On ..
+          cmake -GNinja -DOPTION_BUILD_DOCS=On ..
           make doxygen
       - name: Create .nojekyll file
         run: touch build/docs/doxygen/html/.nojekyll
