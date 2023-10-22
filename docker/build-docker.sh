@@ -25,8 +25,20 @@ PRINT_DRY_RUN=""
 
 function show_usage() {
 	cat << EOF
-
+Usage: ./docker/build-docker.sh [-h | --help] [-s | --source <source>] [-r | --repository <repository>]
+                                [-t | --tag <tag>] [-c | --commit <commit or branch>] [-i | --install-target <target>]
+                                [-j | --jobs <jobs>] [-d | --dry-run]
 EOF
+}
+
+function docker_build() {
+  if [ "${PRINT_DRY_RUN}" == "" ]; then
+    printf '%s\n' "Building ${DOCKER_REP}:${DOCKER_TAG}:"
+    "${@}"
+  else
+    printf '%s\n' "Build command for ${DOCKER_REP}:${DOCKER_TAG}:"
+    printf '%s %s\n' "${@}" | sed '2,$s/^/  /g'
+  fi
 }
 
 while [[ "${#}" -gt "0" ]]; do
@@ -54,7 +66,7 @@ while [[ "${#}" -gt "0" ]]; do
 			shift
 			CMAKE_INSTALL="$CMAKE_INSTALL ${1}"
 			shift;;
-		-j|--compile-jobs)
+		-j|--jobs)
 			shift
 			PARALLEL_JOBS="${1}"
 			shift;;
@@ -62,23 +74,23 @@ while [[ "${#}" -gt "0" ]]; do
 	    PRINT_DRY_RUN="1"
 	    shift;;
 		*)
-			echo "Unknown argument '${1}'"
+			printf '%s\n' "Unknown argument '${1}'"
 			exit 1;;
 	esac
 done
 
 command -v docker > /dev/null || {
-	echo "Docker binary not found. Please install Docker to use this script."
+	printf '%s\n' "Docker binary not found. Please install Docker to use this script."
 	exit 1
 }
 
 if [ "${DOCKER_REP}" == "" ]; then
-	echo "Missing argument '-r|--repository'."
+	printf '%s\n' "Missing argument '-r|--repository'."
 	exit 1
 fi
 
 if [ "${DOCKER_TAG}" == "" ]; then
-	echo "Missing argument '-t|--tag'."
+	printf '%s\n' "Missing argument '-t|--tag'."
 	exit 1
 fi
 
@@ -95,26 +107,20 @@ if [ "${PARALLEL_JOBS}" == "" ]; then
 fi
 
 if [ "${CMAKE_INSTALL}" == "" ]; then
+  # Ignore SC2001 warning because Shell Parameter Expansion is not POSIX
 	CMAKE_TARGETS="clang clang-headers llvm-headers cmake-exports"
-  CMAKE_INSTALL=$(echo "$CMAKE_TARGETS" | sed 's/[^ ]* */install-&/g')
-fi
-
-if [ "${PRINT_DRY_RUN}" == "" ]; then
-  ECHO_CMD=""
-else
-  ECHO_CMD=echo
+  CMAKE_INSTALL=$(printf '%s' "${CMAKE_TARGETS}" | sed 's/[^ ]* */install-&/g')
 fi
 
 if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
-	${ECHO_CMD} docker build \
+	docker_build docker build \
 		-t "${DOCKER_REP}:base" \
 		-f "${ICARUS_SRC}/docker/Dockerfile.base" \
 		--build-arg "UBUNTU_RELEASE=bionic" \
 		"${ICARUS_SRC}"
 fi
 
-echo "Building ${DOCKER_REP}:${DOCKER_TAG}"
-${ECHO_CMD} docker build \
+docker_build docker build \
 	-t "${DOCKER_REP}:${DOCKER_TAG}" \
 	-f "${ICARUS_SRC}/docker/Dockerfile" \
 	--build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
