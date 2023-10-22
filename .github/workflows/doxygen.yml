@@ -14,7 +14,7 @@ jobs:
       - name: Install base packages and Doxygen
         run: |
           apt-get update
-          apt-get install --no-install-recommends -y build-essential git python3 cmake flex bison graphviz doxygen
+          apt-get install --no-install-recommends -y build-essential git python3 flex bison graphviz doxygen
       - name: Create doxygen documentation
         run: |
           mkdir build && cd build
