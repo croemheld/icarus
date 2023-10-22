@@ -7,12 +7,12 @@
 
 **icarus** (**I**ndirect **C**allsite **A**nalysis and **R**esolution **U**tilitie**S**) is a static analysis tool
 operating on top of the [LLVM IR](https://llvm.org/docs/LangRef.html) of a program. Originally designed to perform
-different types of function pointer analyses, it has been redesigned into a general purpose analysis tool that is
+different types of function pointer analyzes, it has been redesigned into a general purpose analysis tool that is
 easy to extend for future research projects and experiments to learn more about static analysis in general.
 
 **icarus** is similar to LLVM's in-house [opt](https://llvm.org/docs/CommandGuide/opt.html) tool, except that `opt`
 applies code optimization and transformation passes on a per-module basis. This makes it unsuitable to perform
-different types of analyses where multiple LLVM IR files need to be analyzed in one single pass. This especially
+different types of analyzes where multiple LLVM IR files need to be analyzed in one single pass. This especially
 includes the analysis of the Linux kernel and its modules that were the original target of the **icarus** tool.
 
 ## Getting started
@@ -57,8 +57,7 @@ The project contains modified classes from the [LLVM Compiler Infrastructure](ht
 under the [Apache 2.0 License](https://opensource.org/licenses/Apache-2.0).
 
 The project uses the [run-clang-format.py](https://github.com/Sarcasm/run-clang-format) python script licensed under the
-[MIT license](https://opensource.org/licenses/MIT) for both pre-commit code formatting checks as well as for the CI
-pipeline.
+[MIT license](https://opensource.org/licenses/MIT) for both pre-commit code formatting checks and for the CI pipeline.
 
 ## Contributions
 
