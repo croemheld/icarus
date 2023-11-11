@@ -8,7 +8,7 @@ $1
 EOF
 
 # Starting from 3.20.X, the name of the script was slightly changed
-if [ "${CMAKE_MAJOR}" = "3" ] && [ "${CMAKE_MINOR}" = "20" ]; then
+if [ "${CMAKE_MAJOR}" -ge "3" ] && [ "${CMAKE_MINOR}" -ge "20" ]; then
   LINUX="linux"
 else
   LINUX="Linux"
