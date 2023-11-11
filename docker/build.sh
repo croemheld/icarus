@@ -18,10 +18,8 @@ function docker_build() {
     printf '%s\n' "Building docker image:"
     "${@}"
   else
-    printf '%s\n' "Build command for building docker image:"
-    SCRIPT="${1}"; shift
-    printf '%s\n' "${SCRIPT}"
-    printf '%s %s\n' "${@}" | sed 's/^/  /g'
+    printf '%s\n' "Build command for building docker image(s):"
+    "${@}" --dry-run
   fi
 }
 
