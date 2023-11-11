@@ -4,7 +4,7 @@ ARG UBUNTU_RELEASE=bionic
 # Stage 1: Only clone LLVM repository #
 #######################################
 
-FROM ubuntu:$UBUNTU_RELEASE
+FROM ubuntu:${UBUNTU_RELEASE}
 
 WORKDIR /root
 
