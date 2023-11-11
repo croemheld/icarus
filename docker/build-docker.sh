@@ -18,7 +18,7 @@ DOCKER_REP=""
 DOCKER_TAG=""
 
 LLVM_CHECKOUT=""
-CMAKE_INSTALL=""
+CMAKE_TARGETS=""
 
 PARALLEL_JOBS=""
 PRINT_DRY_RUN=""
@@ -64,7 +64,7 @@ while [[ "${#}" -gt "0" ]]; do
 			shift;;
 		-i|--install-target)
 			shift
-			CMAKE_INSTALL="$CMAKE_INSTALL ${1}"
+			CMAKE_TARGETS="${CMAKE_TARGETS} ${1}"
 			shift;;
 		-j|--jobs)
 			shift
@@ -106,12 +106,6 @@ if [ "${PARALLEL_JOBS}" == "" ]; then
 	PARALLEL_JOBS="1"
 fi
 
-if [ "${CMAKE_INSTALL}" == "" ]; then
-  # Ignore SC2001 warning because Shell Parameter Expansion is not POSIX
-	CMAKE_TARGETS="clang clang-headers llvm-headers cmake-exports"
-  CMAKE_INSTALL=$(printf '%s' "${CMAKE_TARGETS}" | sed 's/[^ ]* */install-&/g')
-fi
-
 if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
 	docker_build docker build \
 		-t "${DOCKER_REP}:base" \
@@ -121,6 +115,7 @@ if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
 fi
 
 docker_build docker build \
+  --progress plain \
 	-t "${DOCKER_REP}:${DOCKER_TAG}" \
 	-f "${ICARUS_SRC}/docker/Dockerfile" \
 	--build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
@@ -128,5 +123,5 @@ docker_build docker build \
 	--build-arg "CMAKE_VERSION=3.27.7" \
 	--build-arg "PARALLEL_JOBS=${PARALLEL_JOBS}" \
 	--build-arg "LLVM_CHECKOUT=${LLVM_CHECKOUT}" \
-	--build-arg "CMAKE_INSTALL=${CMAKE_INSTALL}" \
+	--build-arg "CMAKE_TARGETS=${CMAKE_TARGETS}" \
 	"${ICARUS_SRC}"
