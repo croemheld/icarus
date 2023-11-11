@@ -2,14 +2,19 @@
 
 set -e
 
+DOCKER_TAG="clang"
+
 LLVM_VERSIONS=()
 
 PARALLEL_JOBS=""
 PRINT_DRY_RUN=""
 
+INSTALL_TARGETS=()
+
 function show_usage() {
 	cat << EOF
-Usage: ./docker/build-docker.sh [-h | --help] [-d | --dry-run] [-j | --jobs <jobs>] [--llvm-version <llvm version>]
+Usage: ./docker/build-docker.sh [-h | --help] [-d | --dry-run] [-j | --jobs <jobs>] [-t | --tag <tag>]
+                                [--llvm-version <llvm version>] [-i | --install-target <target>]
 EOF
 }
 
@@ -35,6 +40,14 @@ while [[ "${#}" -gt "0" ]]; do
 			shift
 			PARALLEL_JOBS="${1}"
 			shift;;
+    -t|--tag)
+      shift
+      DOCKER_TAG="${1}"
+      shift;;
+		-i|--install-target)
+			shift
+			INSTALL_TARGETS+=("-i ${1}")
+			shift;;
 	  --llvm-version)
 	    shift
       LLVM_VERSIONS+=("${1}")
@@ -59,7 +72,8 @@ for LLVM_VERSION in "${LLVM_VERSIONS[@]}"; do
   fi
   docker_build "${ICARUS_SRC}/docker/build-docker.sh" -s "${ICARUS_SRC}" \
     -r croemheld/icarus-ci \
-    -t "clang-${DOCKER_LLVM_VERSION}" \
+    -t "${DOCKER_TAG}-${DOCKER_LLVM_VERSION}" \
     -c "release/${LLVM_MAJORVER}.x" \
-    -j "${PARALLEL_JOBS}"
+    -j "${PARALLEL_JOBS}" \
+    ${INSTALL_TARGETS[*]}
 done
