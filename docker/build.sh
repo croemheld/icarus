@@ -15,7 +15,7 @@ EOF
 
 function docker_build() {
   if [ "${PRINT_DRY_RUN}" == "" ]; then
-    printf '%s\n' "Building docker image:"
+    printf '%s\n' "Building docker image(s):"
     "${@}"
   else
     printf '%s\n' "Build command for building docker image(s):"
