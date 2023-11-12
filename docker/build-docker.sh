@@ -115,7 +115,6 @@ if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
 fi
 
 docker_build docker build \
-  --progress plain \
 	-t "${DOCKER_REP}:${DOCKER_TAG}" \
 	-f "${ICARUS_SRC}/docker/Dockerfile" \
 	--build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
