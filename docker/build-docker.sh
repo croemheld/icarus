@@ -103,7 +103,7 @@ if [ "${LLVM_CHECKOUT}" == "" ]; then
 fi
 
 if [ "${PARALLEL_JOBS}" == "" ]; then
-	PARALLEL_JOBS="1"
+	PARALLEL_JOBS="$(nproc)"
 fi
 
 if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
