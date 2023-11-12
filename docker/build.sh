@@ -2,6 +2,7 @@
 
 set -e
 
+DOCKER_REP="croemheld/icarus-ci"
 DOCKER_TAG="clang"
 
 LLVM_VERSIONS=()
@@ -13,8 +14,8 @@ INSTALL_TARGETS=()
 
 function show_usage() {
 	cat << EOF
-Usage: ./docker/build-docker.sh [-h | --help] [-d | --dry-run] [-j | --jobs <jobs>] [-t | --tag <tag>]
-                                [--llvm-version <llvm version>] [-i | --install-target <target>]
+Usage: ./docker/build-docker.sh [-h | --help] [-d | --dry-run] [-j | --jobs <jobs>] [-r | --repository <repository>]
+                                [-t | --tag <tag>] [--llvm-version <llvm version>] [-i | --install-target <target>]
 EOF
 }
 
@@ -40,6 +41,10 @@ while [[ "${#}" -gt "0" ]]; do
 			shift
 			PARALLEL_JOBS="${1}"
 			shift;;
+	  -r|--repository)
+	    shift
+	    DOCKER_REP="${1}"
+	    shift;;
     -t|--tag)
       shift
       DOCKER_TAG="${1}"
@@ -71,7 +76,7 @@ for LLVM_VERSION in "${LLVM_VERSIONS[@]}"; do
     DOCKER_LLVM_VERSION="${DOCKER_LLVM_VERSION}.0"
   fi
   docker_build "${ICARUS_SRC}/docker/build-docker.sh" -s "${ICARUS_SRC}" \
-    -r croemheld/icarus-ci \
+    -r "${DOCKER_REP}" \
     -t "${DOCKER_TAG}-${DOCKER_LLVM_VERSION}" \
     -c "release/${LLVM_MAJORVER}.x" \
     -j "${PARALLEL_JOBS}" \
