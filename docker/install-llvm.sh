@@ -19,10 +19,14 @@ CMAKE_TARGETS="${*}"
 # or any builtin headers, add target! #
 #######################################
 
-CMAKE_TARGETS="${CMAKE_TARGETS} clang clang-headers llvm-headers cmake-exports"
+NINJA_TARGETS="clang clang-headers llvm-headers cmake-exports"
+
+if [ "${#CMAKE_TARGETS[@]}" -gt "0" ]; then
+  NINJA_TARGETS="${CMAKE_TARGETS} ${NINJA_TARGETS}"
+fi
 
 if [ "${LLVM_MAJORVER}" -gt "8" ]; then
-	CMAKE_TARGETS="${CMAKE_TARGETS} libclang libclang-headers clang-resource-headers clang-cmake-exports clangTooling"
+	NINJA_TARGETS="${NINJA_TARGETS} libclang libclang-headers clang-resource-headers clang-cmake-exports clangTooling"
 fi
 
 #######################################
@@ -30,13 +34,13 @@ fi
 #######################################
 
 LIBRARY_NAMES=$(cmake -DLLVM_PACKAGE_VERSION="${LLVM_MAJORVER}" -P ../LLVMLibraries.cmake 2>&1 | xargs -d ';')
-CMAKE_INSTALL="$(printf '%s' "${CMAKE_TARGETS} ${LIBRARY_NAMES}" | sed 's/[^ ]* */install-&/g')"
+NINJA_INSTALL="$(printf '%s %s' "${NINJA_TARGETS}" "${LIBRARY_NAMES}" | sed 's/[^ ]* */install-&/g')"
 
 #######################################
 # Build projects with CMake arguments #
 #######################################
 
-cd build && echo "Install targets: ${CMAKE_INSTALL}" && ninja ${CMAKE_INSTALL}
+cd build && echo "Install targets: ${NINJA_INSTALL}" && ninja ${NINJA_INSTALL}
 
 #######################################
 # Comment include of LLVMExports file #
