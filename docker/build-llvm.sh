@@ -9,7 +9,7 @@ CMAKE_ADDRESS="$(pwd)/llvm/CMakeLists.txt"
 
 PARALLEL_JOBS="${2}"
 
-git checkout "${LLVM_CHECKOUT}"
+git pull && git checkout "${LLVM_CHECKOUT}"
 
 LLVM_MAJORVER="$(grep 'LLVM_VERSION_MAJOR ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
 

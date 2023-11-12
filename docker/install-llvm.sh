@@ -26,7 +26,7 @@ if [ "${#CMAKE_TARGETS[@]}" -gt "0" ]; then
 fi
 
 if [ "${LLVM_MAJORVER}" -gt "8" ]; then
-	NINJA_TARGETS="${NINJA_TARGETS} libclang libclang-headers clang-resource-headers clang-cmake-exports clangTooling"
+	NINJA_TARGETS="${NINJA_TARGETS} clang-resource-headers clang-cmake-exports"
 fi
 
 #######################################
