@@ -13,7 +13,7 @@ jobs:
     outputs:
       changed-llvm-libraries: ${{ steps.changed-llvm-libraries.outputs.count }}
     steps:
-      - name: Get list of changed files in this feature branch
+      - name: Check if LLVM libraries were changed
         id: changed-llvm-libraries
         uses: croemheld/git-diff-action@v1
         with:
