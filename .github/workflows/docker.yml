@@ -13,11 +13,15 @@ jobs:
     outputs:
       changed-llvm-libraries: ${{ steps.changed-llvm-libraries.outputs.count }}
     steps:
-      - name: Check if LLVM libraries were changed
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check LLVM libraries file
         id: changed-llvm-libraries
         uses: croemheld/git-diff-action@v1
         with:
-          base: 'main'
+          base: origin/main
           comp: ${{ github.ref_name }}
           glob: 'cmake/LLVMLibraries.cmake'
           type: 'M'
