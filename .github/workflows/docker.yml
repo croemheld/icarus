@@ -9,7 +9,6 @@ concurrency:
 jobs:
   ci_change:
     runs-on: ubuntu-latest
-    if: ${{ github.ref_name != 'main' }}
     outputs:
       changed-llvm-libraries: ${{ steps.changed-llvm-libraries.outputs.count }}
     steps:
