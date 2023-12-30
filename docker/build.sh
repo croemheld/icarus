@@ -13,7 +13,7 @@ PRINT_DRY_RUN=""
 INSTALL_TARGETS=()
 
 function show_usage() {
-	cat << EOF
+  cat << EOF
 Usage: ./docker/build-docker.sh [-h | --help] [-d | --dry-run] [-j | --jobs <jobs>] [-r | --repository <repository>]
                                 [-t | --tag <tag>] [--llvm-version <llvm version>] [-i | --install-target <target>]
 EOF
@@ -30,43 +30,43 @@ function docker_build() {
 }
 
 while [[ "${#}" -gt "0" ]]; do
-	case "${1}" in
-		-h|--help)
-			show_usage
-			exit 0;;
-	  -d|--dry-run)
-	    PRINT_DRY_RUN="1"
-	    shift;;
-		-j|--jobs)
-			shift
-			PARALLEL_JOBS="${1}"
-			shift;;
-	  -r|--repository)
-	    shift
-	    DOCKER_REP="${1}"
-	    shift;;
+  case "${1}" in
+    -h|--help)
+      show_usage
+      exit 0;;
+    -d|--dry-run)
+      PRINT_DRY_RUN="1"
+      shift;;
+    -j|--jobs)
+      shift
+      PARALLEL_JOBS="${1}"
+      shift;;
+    -r|--repository)
+      shift
+      DOCKER_REP="${1}"
+      shift;;
     -t|--tag)
       shift
       DOCKER_TAG="${1}"
       shift;;
-		-i|--install-target)
-			shift
-			INSTALL_TARGETS+=("-i ${1}")
-			shift;;
-	  --llvm-version)
-	    shift
+    -i|--install-target)
+      shift
+      INSTALL_TARGETS+=("-i ${1}")
+      shift;;
+    --llvm-version)
+      shift
       LLVM_VERSIONS+=("${1}")
       shift;;
-		*)
-			printf '%s\n' "Unknown argument '${1}'"
-			exit 1;;
-	esac
+    *)
+      printf '%s\n' "Unknown argument '${1}'"
+      exit 1;;
+  esac
 done
 
 ICARUS_SRC=$(dirname -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE:-$0}")")")
 
 if [ "${PARALLEL_JOBS}" == "" ]; then
-	PARALLEL_JOBS="1"
+  PARALLEL_JOBS="1"
 fi
 
 for LLVM_VERSION in "${LLVM_VERSIONS[@]}"; do
