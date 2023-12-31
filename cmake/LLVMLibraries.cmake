@@ -5,7 +5,6 @@ set(LLVM_LIBRARIES
     LLVMBitReader
     LLVMCore
     LLVMBinaryFormat
-    CACHE INTERNAL ""
 )
 
 # Further libraries to link against for LLVM versions >= 9.

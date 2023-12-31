@@ -1,17 +1,34 @@
 name: Docker
 
-on:
-  push:
-    paths:
-      - 'cmake/LLVMLibraries.cmake'
+on: [ "push" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  ci_change:
+    runs-on: ubuntu-latest
+    outputs:
+      changed-llvm-libraries: ${{ steps.changed-llvm-libraries.outputs.count }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check LLVM libraries file
+        id: changed-llvm-libraries
+        uses: croemheld/git-diff-action@v1
+        with:
+          base: origin/main
+          comp: ${{ github.ref_name }}
+          glob: 'cmake/LLVMLibraries.cmake'
+          type: 'M'
+
   ci_docker:
     runs-on: ubuntu-latest
+    needs: ci_change
+    if: ${{ needs.ci_change.outputs.changed-llvm-libraries }}
     strategy:
       fail-fast: false
       matrix:
