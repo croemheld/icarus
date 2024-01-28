@@ -1,8 +1,10 @@
 name: Doxygen
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["Clang"]
+    types:
+      - completed
 
 jobs:
   doxygen-build:
