@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # ===- run-clang-tidy.py - Parallel clang-tidy runner --------*- python -*--===#
 #
@@ -38,6 +38,7 @@ from __future__ import print_function
 
 import argparse
 import glob
+import fnmatch
 import json
 import multiprocessing
 import os
@@ -132,7 +133,19 @@ def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
     return start
 
 
-def merge_replacement_files(tmpdir, mergefile):
+def contains_excluded_file(directory, excludes):
+    message = directory.get("DiagnosticMessage", [])
+    if message == []:
+        return True
+
+    # If file is part of the excludes, ignore it
+    if any(fnmatch.fnmatch(message["FilePath"], pattern) for pattern in excludes):
+        return True
+
+    return False
+
+
+def merge_replacement_files(tmpdir, mergefile, excludes):
     """Merge all replacement files in a directory into a single file"""
     # The fixes suggested by clang-tidy >= 4.0.0 are given under
     # the top level key 'Diagnostics' in the output yaml files
@@ -142,7 +155,10 @@ def merge_replacement_files(tmpdir, mergefile):
         content = yaml.safe_load(open(replacefile, 'r'))
         if not content:
             continue  # Skip empty files.
-        merged.extend(content.get(mergekey, []))
+
+        # Only include diagnostics for files that are not excluded
+        dirs = [directory for directory in content[mergekey] if not contains_excluded_file(directory, excludes)]
+        merged.extend(dirs)
 
     if merged:
         # MainSourceFile: The key is required by the definition inside
@@ -280,6 +296,13 @@ def main():
                         action='append', default=[],
                         help='Additional argument to prepend to the compiler '
                              'command line.')
+    parser.add_argument('-exclude',
+                        metavar='PATTERN',
+                        action='append', default=[],
+                        help='Exclude paths matching the given glob-like pattern(s).')
+    parser.add_argument('-isystem',
+                        action='append', default=[],
+                        help='Specify system include dirs to exclude from analysis.')
     parser.add_argument('-quiet', action='store_true',
                         help='Run clang-tidy in quiet mode')
     parser.add_argument('-load', dest='plugins',
@@ -299,7 +322,7 @@ def main():
                                     build_path)
 
     tmpdir = None
-    if args.export_fixes:
+    if hasattr(args, 'export_fixes'):
         tmpdir = tempfile.mkdtemp()
     if args.fix:
         clang_apply_replacements_binary = find_binary(
@@ -318,8 +341,7 @@ def main():
         invocation.append('-')
         if args.quiet:
             # Even with -quiet we still want to check if we can call clang-tidy.
-            with open(os.devnull, 'w') as dev_null:
-                subprocess.check_call(invocation, stdout=dev_null)
+            subprocess.check_call(invocation, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             subprocess.check_call(invocation)
     except:
@@ -370,10 +392,10 @@ def main():
             shutil.rmtree(tmpdir)
         os.kill(0, 9)
 
-    if yaml and args.export_fixes:
+    if yaml and hasattr(args, 'export_fixes'):
         print('Writing fixes to ' + args.export_fixes + ' ...')
         try:
-            merge_replacement_files(tmpdir, args.export_fixes)
+            merge_replacement_files(tmpdir, args.export_fixes, args.exclude)
         except:
             print('Error exporting fixes.\n', file=sys.stderr)
             traceback.print_exc()

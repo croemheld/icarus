@@ -19,7 +19,7 @@ CMAKE_TARGETS="${*}"
 # or any builtin headers, add target! #
 #######################################
 
-NINJA_TARGETS="clang clang-headers llvm-headers cmake-exports"
+NINJA_TARGETS="clang clang-tidy clang-format clang-headers llvm-headers cmake-exports"
 
 if [ "${#CMAKE_TARGETS[@]}" -gt "0" ]; then
   NINJA_TARGETS="${CMAKE_TARGETS} ${NINJA_TARGETS}"

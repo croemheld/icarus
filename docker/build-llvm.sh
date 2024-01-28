@@ -25,7 +25,7 @@ cmake -G "Ninja" \
   -DLLVM_BUILD_LLVM_DYLIB=OFF \
   -DLLVM_BUILD_LLVM_C_DYLIB=OFF \
   -DLLVM_ENABLE_TERMINFO=OFF \
-  -DLLVM_ENABLE_PROJECTS="clang" \
+  -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
   -DLLVM_TARGETS_TO_BUILD="X86" \
   -DLLVM_PARALLEL_COMPILE_JOBS="${PARALLEL_JOBS}" \
   -DLLVM_PARALLEL_LINK_JOBS="1" \
@@ -33,5 +33,4 @@ cmake -G "Ninja" \
   -DCMAKE_CXX_COMPILER=g++ \
   -S llvm -B build
 
-printf '%s\n' "Build llvm-project (major: ${LLVM_MAJORVER}) in: ${BUILD_ADDRESS}"
 cmake --build build
