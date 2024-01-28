@@ -95,6 +95,6 @@ ARG CMAKE_VERSION
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev && \
+        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev python3 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     ./install-cmake.sh "${CMAKE_VERSION}"

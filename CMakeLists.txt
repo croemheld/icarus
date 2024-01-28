@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.13.0)
 
 # Define the project name, and thus the executable.
 set(PROJECT_NAME icarus)
-set(LIBRARY_NAME icarus_library)
-set(TESTING_NAME icarus_tests)
+set(LIBRARY_NAME libIcarus)
 project(${PROJECT_NAME})
 
 # Options to enable if so wished.
@@ -12,6 +11,9 @@ option(OPTION_BUILD_DOCS "Build documentation." OFF)
 option(OPTION_BUILD_LIBS "Build project libraries." OFF)
 include(CMakeDependentOption)
 cmake_dependent_option(OPTION_BUILD_TEST "Build unit tests." ON "OPTION_BUILD_LIBS" OFF)
+
+# Options for compiling with coverage instrumentation
+option(OPTION_BUILD_COVERAGE "Build with coverage instrumentation." OFF)
 
 # Extend CMAKE_MODULE_PATH for reusable CMake scripts
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -23,11 +25,19 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 # C++ standard, RTTI-specific settings, debugging symbols
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-rtti -gdwarf-3 -glldb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-caret-diagnostics -fno-rtti")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-3 -glldb")
+
+# Fix clang-tidy warning for system headers
+
+# Add coverage instrumentation flags if enabled (currently Clang only)
+if (OPTION_BUILD_COVERAGE)
+    add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+    add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+endif (OPTION_BUILD_COVERAGE)
 
 # Add LLVM include directories for linking against libraries
-include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
@@ -41,8 +51,9 @@ include(LLVMLibraries)
 # to generate a fully working version of this project.
 set(EXTERNAL_LIBRARIES z rt dl pthread m)
 
-# Project include directory
-set(PROJECT_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+# Project and tests include directory
+set(PROJECT_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
+set(DOCTEST_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/tests/include")
 
 # Add main target for project executable
 add_executable(${PROJECT_NAME})
@@ -64,13 +75,8 @@ endif (OPTION_BUILD_LIBS)
 
 # Include unit tests using the doctest framework.
 if (OPTION_BUILD_TEST AND TARGET ${LIBRARY_NAME})
-    add_executable(${TESTING_NAME})
-    target_include_directories(${TESTING_NAME} PRIVATE
-            ${PROJECT_INCLUDE_DIR} tests
-    )
-    set_target_properties(${TESTING_NAME} PROPERTIES OUTPUT_NAME TestIcarus)
+    enable_testing()
     add_subdirectory(tests)
-    target_link_libraries(${TESTING_NAME} PRIVATE ${LIBRARY_NAME})
 endif (OPTION_BUILD_TEST AND TARGET ${LIBRARY_NAME})
 
 # Search for doxygen and include docs directory.

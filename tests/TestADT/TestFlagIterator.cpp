@@ -2,6 +2,7 @@
 // Created by croemheld on 27.05.2023.
 //
 
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.h>
 
 #include <icarus/ADT/FlagIterator.h>
@@ -26,16 +27,12 @@ enum TestFlags {
 using namespace icarus::adt;
 
 TEST_CASE("Testing FlagIterator with empty bitmask") {
-  std::size_t Count = 0;
+  auto FlagIter = FlagIterator(0UL);
 
-  for (auto FlagIter = FlagIterator(0UL); *FlagIter; ++FlagIter) {
-    ++Count;
-  }
-
-  CHECK(Count == 0);
+  CHECK(*FlagIter == 0);
 }
 
-TEST_CASE("Testing the FlagIterator") {
+TEST_CASE("Testing the FlagIterator (while and for loop)") {
   std::size_t Count = 0;
 
   std::uint64_t Mask = A | B | C | D | E | F | G | H | I | J | K | L | M | N;
@@ -73,6 +70,20 @@ TEST_CASE("Testing the FlagIterator") {
     for (; *FlagIter; ++FlagIter) {
       ++Count;
     }
+
+    // TODO CRO: Use magic_enum
+    CHECK(Count == 14);
+  }
+}
+
+TEST_CASE("Testing the FlagIterator (range-based loop)") {
+  std::size_t Count = 0;
+
+  std::uint64_t Mask = A | B | C | D | E | F | G | H | I | J | K | L | M | N;
+  auto const FlagRange = flag_range(Mask);
+
+  SUBCASE("Testing the range-based loop") {
+    Count += std::distance(FlagRange.begin(), FlagRange.end());
 
     // TODO CRO: Use magic_enum
     CHECK(Count == 14);

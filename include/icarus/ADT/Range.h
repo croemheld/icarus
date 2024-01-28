@@ -45,11 +45,11 @@ public:
   }
 };
 
-template <class T> Range<T> make_range(T x, T y) {
+template <class T> Range<T> make_range(T const &x, T const &y) {
   return Range<T>(std::move(x), std::move(y));
 }
 
-template <typename T> Range<T> make_range(std::pair<T, T> p) {
+template <typename T> Range<T> make_range(std::pair<T, T> const &p) {
   return Range<T>(std::move(p.first), std::move(p.second));
 }
 
