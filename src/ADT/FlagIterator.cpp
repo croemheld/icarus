@@ -21,6 +21,10 @@ FlagIterator &FlagIterator::operator++() {
   return *this;
 }
 
+bool FlagIterator::operator!=(const icarus::adt::FlagIterator &iterator) const {
+  return Flag != iterator.getFlag() || Iter != iterator.getIter();
+}
+
 adt::Range<FlagIterator> flag_range(std::uint64_t Mask) {
   return make_range(FlagIterator(Mask), FlagIterator(0UL));
 }

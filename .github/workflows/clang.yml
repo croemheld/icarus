@@ -37,7 +37,7 @@ jobs:
           -DOPTION_BUILD_DOCS=ON \
           -DOPTION_BUILD_LIBS=ON \
           -DOPTION_BUILD_TEST=ON \
-          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
           && ninja icarus
       - name: Upload ICARUS build artifact
         if: ${{ matrix.version == '17' }}
@@ -57,4 +57,4 @@ jobs:
         uses: actions/download-artifact@v3
       - name: Run clang-tidy on ICARUS build
         run: |
-          ls -al && ./tools/run-clang-tidy.py -p build
+          ./tools/run-clang-tidy.py -p build
