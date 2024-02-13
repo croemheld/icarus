@@ -2,8 +2,7 @@ set(VENV_PATH ${CMAKE_SOURCE_DIR}/venv/bin)
 find_program(WLLVM wllvm PATHS ${VENV_PATH})
 
 if (NOT WLLVM)
-    message(WARNING "The wllvm binary could not be found, the bitcode files will not be generated. This might lead
-                    to failing unit tests that depend on these bitcode files.")
+    message(WARNING "The wllvm binary could not be found, the bitcode files will not be generated. This might lead to failing unit tests that depend on these bitcode files.")
 else()
     set(CMAKE_C_COMPILER wllvm)
     set(CMAKE_CXX_COMPILER wllvm++)
