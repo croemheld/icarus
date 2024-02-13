@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   logger::initLoggerOptions(DebugOnly, DebugFile);
 
-  INFO_WITH("init", "Start icarus...");
+  ICARUS_INFO_WITH("init", "Start icarus...");
 
   /*
    * Maybe in the future we can do something like pass chaining where we run multiple
