@@ -2,7 +2,6 @@
 // Created by croemheld on 27.05.2023.
 //
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.h>
 
 #include <icarus/ADT/FlagIterator.h>
