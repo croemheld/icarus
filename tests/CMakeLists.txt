@@ -5,6 +5,9 @@ macro(add_doctest_test TEST_NAME)
     target_sources(TestIcarus PUBLIC ${TEST_NAME}.cpp)
 endmacro(add_doctest_test)
 
+# Add sample subdirectory
+add_subdirectory(samples)
+
 # Add unit test subdirectories
 add_subdirectory(TestADT)
 add_subdirectory(TestPasses)
