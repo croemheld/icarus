@@ -8,6 +8,7 @@ on:
 
 jobs:
   doxygen-build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     container: croemheld/icarus-ci:clang-17
     steps:
