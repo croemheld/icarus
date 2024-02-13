@@ -1,0 +1,36 @@
+name: Coverage
+
+on:
+  workflow_run:
+    workflows: ["Clang"]
+    types:
+      - completed
+
+jobs:
+  coverage:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    container: croemheld/icarus-ci:clang-15
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Install gcovr dependencies
+        run: |
+          apt update && \
+          apt-get install -y python3-pip python3-setuptools python3-venv libxml2-dev libxslt-dev python-dev \
+          && pip3 install gcovr
+      - name: Download ICARUS build artifact
+        uses: actions/download-artifact@v3
+      - name: Run unit tests for ICARUS
+        run: |
+          ./build/tests/TestIcarus
+      - name: Generate gcovr coverage output
+        run: |
+          ./tools/run-gcovr-coverage.sh --xml build
+      - name: Upload gcovr report to codecov
+        uses: codecov/codecov-action@v4.0.1
+        env:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: croemheld/icarus
+          file: ./build/coverage/coverage.xml
+
