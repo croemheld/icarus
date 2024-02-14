@@ -19,7 +19,7 @@ CMAKE_TARGETS="${*}"
 # or any builtin headers, add target! #
 #######################################
 
-NINJA_TARGETS="clang clang-tidy clang-format clang-headers llvm-headers cmake-exports"
+NINJA_TARGETS="clang clang-tidy clang-format clang-headers llvm-headers cmake-exports compiler-rt"
 
 if [ "${#CMAKE_TARGETS[@]}" -gt "0" ]; then
   NINJA_TARGETS="${CMAKE_TARGETS} ${NINJA_TARGETS}"
@@ -40,7 +40,11 @@ NINJA_INSTALL="$(printf '%s %s' "${NINJA_TARGETS}" "${LIBRARY_NAMES}" | sed 's/[
 # Build projects with CMake arguments #
 #######################################
 
-cd build && echo "Install targets: ${NINJA_INSTALL}" && ninja ${NINJA_INSTALL}
+cd build && echo "Install targets: ${NINJA_INSTALL}"
+
+cmake --build . --target help
+exit 1
+ninja ${NINJA_INSTALL}
 
 #######################################
 # Comment include of LLVMExports file #

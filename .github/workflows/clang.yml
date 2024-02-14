@@ -1,6 +1,10 @@
 name: Clang
 
-on: ["push"]
+on:
+  workflow_run:
+    workflows: ["Docker"]
+    types:
+      - completed
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -8,6 +12,7 @@ concurrency:
 
 jobs:
   clang-format:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     container: croemheld/icarus-ci:clang-17
     steps:
