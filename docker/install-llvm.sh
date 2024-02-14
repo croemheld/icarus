@@ -40,11 +40,7 @@ NINJA_INSTALL="$(printf '%s %s' "${NINJA_TARGETS}" "${LIBRARY_NAMES}" | sed 's/[
 # Build projects with CMake arguments #
 #######################################
 
-cd build && echo "Install targets: ${NINJA_INSTALL}"
-
-cmake --build . --target help
-exit 1
-ninja ${NINJA_INSTALL}
+cd build && echo "Install targets: ${NINJA_INSTALL}" && ninja ${NINJA_INSTALL}
 
 #######################################
 # Comment include of LLVMExports file #

@@ -10,10 +10,10 @@ jobs:
   doxygen-build:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    container: croemheld/icarus-ci:clang-17
+    container: croemheld/icarus-ci:clang-15
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install base packages and Doxygen
         run: |
           apt-get update
