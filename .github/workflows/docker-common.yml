@@ -30,7 +30,7 @@ jobs:
         with:
           base: origin/main
           comp: ${{ github.ref_name }}
-          glob: '+(cmake|docker)/*'
+          glob: '**/{cmake,docker}/**'
           type: 'M'
 
   docker-icarus:
