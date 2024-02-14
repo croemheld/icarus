@@ -95,6 +95,8 @@ ARG CMAKE_VERSION
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev python3 && \
+        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev && \
+    apt-get install -y python3-pip python3-setuptools python3-venv libxml2-dev libxslt-dev python-dev && \
+    pip3 install gcovr && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     ./install-cmake.sh "${CMAKE_VERSION}"

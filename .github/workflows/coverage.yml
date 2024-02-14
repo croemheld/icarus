@@ -14,11 +14,6 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-      - name: Install gcovr dependencies
-        run: |
-          apt update && \
-          apt-get install -y python3-pip python3-setuptools python3-venv libxml2-dev libxslt-dev python-dev \
-          && pip3 install gcovr
       - name: Download ICARUS build artifact
         uses: actions/download-artifact@v4.1.2
         with:
