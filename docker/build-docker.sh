@@ -23,11 +23,13 @@ CMAKE_TARGETS=""
 PARALLEL_JOBS=""
 PRINT_DRY_RUN=""
 
+INSTALL_WHOLE=0
+
 function show_usage() {
   cat << EOF
 Usage: ./docker/build-docker.sh [-h | --help] [-s | --source <source>] [-r | --repository <repository>]
                                 [-t | --tag <tag>] [-c | --commit <commit or branch>] [-i | --install-target <target>]
-                                [-j | --jobs <jobs>] [-d | --dry-run]
+                                [-j | --jobs <jobs>] [-d | --dry-run] [-a | --install-all]
 EOF
 }
 
@@ -73,6 +75,9 @@ while [[ "${#}" -gt "0" ]]; do
     -d|--dry-run)
       PRINT_DRY_RUN="1"
       shift;;
+    -a|--install-all)
+      INSTALL_WHOLE=1
+      shift;;
     *)
       printf '%s\n' "Unknown argument '${1}'"
       exit 1;;
@@ -114,7 +119,12 @@ if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
     "${ICARUS_SRC}"
 fi
 
+if [ "${INSTALL_WHOLE}" -eq "1" ]; then
+  CMAKE_TARGETS="all"
+fi
+
 docker_build docker build \
+  --force-rm \
   -t "${DOCKER_REP}:${DOCKER_TAG}" \
   -f "${ICARUS_SRC}/docker/Dockerfile" \
   --build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
