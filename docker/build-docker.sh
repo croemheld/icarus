@@ -12,6 +12,9 @@
 
 set -e
 
+UBUNTU_RELEASE="jammy"
+CMAKE_VERSION="3.27.7"
+
 ICARUS_SRC=""
 
 DOCKER_REP=""
@@ -115,7 +118,7 @@ if [ "$(docker images -q "${DOCKER_REP}:base" 2> /dev/null)" == "" ]; then
   docker_build docker build \
     -t "${DOCKER_REP}:base" \
     -f "${ICARUS_SRC}/docker/Dockerfile.base" \
-    --build-arg "UBUNTU_RELEASE=bionic" \
+    --build-arg "UBUNTU_RELEASE=${UBUNTU_RELEASE}" \
     "${ICARUS_SRC}"
 fi
 
@@ -128,8 +131,8 @@ docker_build docker build \
   -t "${DOCKER_REP}:${DOCKER_TAG}" \
   -f "${ICARUS_SRC}/docker/Dockerfile" \
   --build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \
-  --build-arg "UBUNTU_RELEASE=bionic" \
-  --build-arg "CMAKE_VERSION=3.27.7" \
+  --build-arg "UBUNTU_RELEASE=${UBUNTU_RELEASE}" \
+  --build-arg "CMAKE_VERSION=${CMAKE_VERSION}" \
   --build-arg "PARALLEL_JOBS=${PARALLEL_JOBS}" \
   --build-arg "LLVM_CHECKOUT=${LLVM_CHECKOUT}" \
   --build-arg "CMAKE_TARGETS=${CMAKE_TARGETS}" \
