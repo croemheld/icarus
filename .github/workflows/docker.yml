@@ -7,6 +7,9 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+    branches:
+      - main
+    types: [closed]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -33,7 +36,7 @@ jobs:
   docker-icarus:
     runs-on: ubuntu-latest
     needs: docker-change
-    if: ${{ needs.docker-change.outputs.changed-files != 0 }}
+    if: ${{ github.event.pull_request.merged == true || needs.docker-change.outputs.changed-files != 0 }}
     strategy:
       fail-fast: false
       matrix:
