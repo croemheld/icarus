@@ -29,6 +29,8 @@ COPY --from=base /root/llvm-project /root/llvm-project
 ADD docker/install-cmake.sh /root/install-cmake.sh
 ADD docker/build-llvm.sh /root/llvm-project/build-llvm.sh
 
+ADD docker/patches/MicrosoftDemangleNodes.patch /root/llvm-project/MicrosoftDemangleNodes.patch
+
 #######################################
 # Start building LLVM project & Clang #
 #######################################
@@ -40,7 +42,7 @@ ARG LLVM_CHECKOUT
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        ca-certificates git wget build-essential ninja-build python3 zlib1g-dev && \
+        ca-certificates git wget patch build-essential ninja-build python3 zlib1g-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     ./install-cmake.sh "${CMAKE_VERSION}" && \
     cd llvm-project && ./build-llvm.sh "${LLVM_CHECKOUT}" "${PARALLEL_JOBS}"
