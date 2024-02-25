@@ -65,7 +65,7 @@ void from_json(const nlohmann::json &JSON, InputArguments &IA, IcarusModule *IM)
  * IcarusModule methods
  */
 
-IcarusModule::IcarusModule(std::string &FilePath) : FilePath(FilePath) {
+IcarusModule::IcarusModule(std::string const &FilePath) : FilePath(FilePath) {
   FileName = llvm::StringRef(FilePath).rsplit('/').second;
   IRModule = llvm::parseIRFile(FilePath, Err, Context);
 }
@@ -159,7 +159,7 @@ llvm::Function *IcarusModule::parseFunction(const nlohmann::json &JSON) {
  * PassArguments methods
  */
 
-PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads)
+PassArguments::PassArguments(std::string const &FileArg, std::string const &JSONArg, unsigned NumThreads)
     : FileArg(FileArg), JSONArg(JSONArg), NumThreads(NumThreads) {
   /*
    * First, check if the input files exists and parse all potential LLVM modules
@@ -205,7 +205,7 @@ PassArguments::PassArguments(std::string &FileArg, std::string &JSONArg, unsigne
   JSONStream.close();
 }
 
-void PassArguments::insertModule(std::string &FilePath) {
+void PassArguments::insertModule(std::string const &FilePath) {
   if (auto M = std::make_unique<IcarusModule>(FilePath)) {
     Modules.push_back(std::move(M));
   }

@@ -57,6 +57,9 @@ while [[ "${#}" -gt "0" ]]; do
       shift
       LLVM_VERSIONS+=("${1}")
       shift;;
+    --install-all)
+      INSTALL_TARGETS+=("-a")
+      shift;;
     *)
       printf '%s\n' "Unknown argument '${1}'"
       exit 1;;

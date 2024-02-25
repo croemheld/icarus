@@ -37,7 +37,7 @@ void ThreadPool::doInitialize(unsigned ThreadNum) {
 }
 
 unsigned ThreadPool::doGetThreadID() const {
-  return ThreadIDMap.at(std::this_thread::get_id());
+  return ThreadIDMap.empty() ? 0 : ThreadIDMap.at(std::this_thread::get_id());
 }
 
 unsigned ThreadPool::doGetThreadNum() const {

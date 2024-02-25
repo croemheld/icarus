@@ -1,0 +1,1 @@
+add_doctest_test(TestICCPass)

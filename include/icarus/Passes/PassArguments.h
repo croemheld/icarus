@@ -44,14 +44,14 @@ struct InputArguments {
  */
 class IcarusModule {
 
-  std::string FilePath;
+  std::string const FilePath;
   std::string FileName;
   llvm::SMDiagnostic Err;
   llvm::LLVMContext Context;
   std::unique_ptr<llvm::Module> IRModule;
 
 public:
-  explicit IcarusModule(std::string &FilePath);
+  explicit IcarusModule(std::string const &FilePath);
 
   std::string getFilePath() const;
   std::string getFileName() const;
@@ -81,10 +81,10 @@ class PassArguments {
 
   nlohmann::json JSON;
 
-  void insertModule(std::string &FilePath);
+  void insertModule(std::string const &FilePath);
 
 public:
-  PassArguments(std::string &FileArg, std::string &JSONArg, unsigned NumThreads);
+  PassArguments(std::string const &FileArg, std::string const &JSONArg, unsigned NumThreads);
 
   std::string getFile() const;
   std::string getJSON() const;

@@ -111,7 +111,7 @@ protected:
     while (!PC.isStackEmpty()) {
       auto &FC = PC.getCurrentFunctionStack();
       llvm::Instruction &I = FC->nextInstruction();
-      INFO_WITH("iaa", "Interpreting: ", I);
+      ICARUS_INFO_WITH("iaa", "Interpreting: ", I);
       AIAContextImpl::visit(I);
     }
   }

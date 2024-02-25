@@ -46,7 +46,7 @@ int ICCPass::runAnalysisPass(PassArguments &IPA) {
   });
 
   for (auto &[Path, Count] : IndirectCalls) {
-    INFO(Path, ": ", Count);
+    ICARUS_INFO(Path, ": ", Count);
   }
 
   return 0;

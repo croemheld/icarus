@@ -28,12 +28,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-caret-diagnostics -fno-rtti")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-3 -glldb")
 
-# Fix clang-tidy warning for system headers
-
 # Add coverage instrumentation flags if enabled (currently Clang only)
 if (OPTION_BUILD_COVERAGE)
-    add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
-    add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
 endif (OPTION_BUILD_COVERAGE)
 
 # Add LLVM include directories for linking against libraries

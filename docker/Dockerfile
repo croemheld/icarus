@@ -72,7 +72,7 @@ ARG CMAKE_TARGETS
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        ca-certificates git wget build-essential ninja-build python3 zlib1g-dev && \
+        ca-certificates git wget build-essential ninja-build python3 python3-distutils zlib1g-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     ./install-cmake.sh "${CMAKE_VERSION}" && \
     cd llvm-project && ./install-llvm.sh ${CMAKE_TARGETS}
@@ -95,6 +95,10 @@ ARG CMAKE_VERSION
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev python3 && \
+        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && apt-get update && \
+    apt-get install --no-install-recommends -y \
+        python3-pip python3-setuptools python3-venv python3-lxml libxml2-dev libxslt-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    pip3 install gcovr wllvm && \
     ./install-cmake.sh "${CMAKE_VERSION}"

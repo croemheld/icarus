@@ -31,10 +31,23 @@ There are two main reasons for providing Docker images with a custom LLVM instal
 
 ## Docker image size comparison
 
-Below is a graph which displays the Docker image sizes for a full LLVM installation (red) and a custom LLVM installation
-based on the required libraries for the **icarus** project.
+Below is a graph which displays the Docker image sizes for a full LLVM installation (red) building only the `clang` and
+some of the `clang-tools-extra` targets, and two custom LLVM builds based on the required libraries for the **icarus**
+project. The first one (green) depicts the size of the uncompressed Docker image with only the required LLVM libraries
+installed, while the second (yellow) also includes the [compiler-rt Runtime Library](https://compiler-rt.llvm.org/) as well as additional system
+and pip3 packages required for the code coverage tool `gcovr`.
 
 ![Docker image size comparison](docker-image-comparison.png)
 
-The custom LLVM installation required for the **icarus** project only require about 3 to 5 times less memory compared to
-the full LLVM installation.
+The custom LLVM builds required for the **icarus** project only require between 20% and 50% of space compared to
+the full LLVM installation. In addition, we now also have everything present for additional analysis of **icarus**,
+such as a code coverage tool as well as a 
+
+## Full LLVM installation
+
+Since we also want to have code coverage reports using the [compiler-rt Runtime Library](https://compiler-rt.llvm.org/),
+we need a full LLVM installation. This is because the runtime library is built using `llvm-config`, which collects the
+previously built libraries. If a single library is not installed on the system, the build process fails.
+
+It might be possible to make `llvm-config` think that all installed libraries are in fact thecomplete collection of LLVM
+libraries that exist.

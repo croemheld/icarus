@@ -272,35 +272,35 @@ void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile);
 #define LOGS(Enum, ...)       logger::logs(Enum, __VA_ARGS__)
 #define EARLY_LOGS(Enum, ...) logger::earlyLogs(Enum, __VA_ARGS__)
 
-#define INFO(...) LOGS(logger::LOGTYPEINFO, __VA_ARGS__)
-#define CONF(...) LOGS(logger::LOGTYPECONF, __VA_ARGS__)
-#define WARN(...) LOGS(logger::LOGTYPEWARN, __VA_ARGS__)
-#define FAIL(...) LOGS(logger::LOGTYPEFAIL, __VA_ARGS__)
+#define ICARUS_INFO(...) LOGS(logger::LOGTYPEINFO, __VA_ARGS__)
+#define ICARUS_CONF(...) LOGS(logger::LOGTYPECONF, __VA_ARGS__)
+#define ICARUS_WARN(...) LOGS(logger::LOGTYPEWARN, __VA_ARGS__)
+#define ICARUS_FAIL(...) LOGS(logger::LOGTYPEFAIL, __VA_ARGS__)
 
 #define EARLY_INFO(...) EARLY_LOGS(logger::LOGTYPEINFO, __VA_ARGS__)
 #define EARLY_CONF(...) EARLY_LOGS(logger::LOGTYPECONF, __VA_ARGS__)
 #define EARLY_WARN(...) EARLY_LOGS(logger::LOGTYPEWARN, __VA_ARGS__)
 #define EARLY_FAIL(...) EARLY_LOGS(logger::LOGTYPEFAIL, __VA_ARGS__)
 
-#define INFO_COND(Cond, ...)                                                                                           \
+#define ICARUS_INFO_COND(Cond, ...)                                                                                    \
   do {                                                                                                                 \
     if (Cond)                                                                                                          \
-      INFO(__VA_ARGS__);                                                                                               \
+      ICARUS_INFO(__VA_ARGS__);                                                                                        \
   } while (0)
-#define CONF_COND(Cond, ...)                                                                                           \
+#define ICARUS_CONF_COND(Cond, ...)                                                                                    \
   do {                                                                                                                 \
     if (Cond)                                                                                                          \
-      CONF(__VA_ARGS__);                                                                                               \
+      ICARUS_CONF(__VA_ARGS__);                                                                                        \
   } while (0)
-#define WARN_COND(Cond, ...)                                                                                           \
+#define ICARUS_WARN_COND(Cond, ...)                                                                                    \
   do {                                                                                                                 \
     if (Cond)                                                                                                          \
-      WARN(__VA_ARGS__);                                                                                               \
+      ICARUS_WARN(__VA_ARGS__);                                                                                        \
   } while (0)
-#define FAIL_COND(Cond, ...)                                                                                           \
+#define ICARUS_FAIL_COND(Cond, ...)                                                                                    \
   do {                                                                                                                 \
     if (Cond)                                                                                                          \
-      FAIL(__VA_ARGS__);                                                                                               \
+      ICARUS_FAIL(__VA_ARGS__);                                                                                        \
   } while (0)
 
 #define EARLY_INFO_COND(Cond, ...)                                                                                     \
@@ -326,23 +326,23 @@ void initLoggerOptions(llvm::StringRef DebugOnly, llvm::StringRef DebugFile);
 
 #ifndef NDEBUG
 
-#define INFO_WITH(Type, ...) INFO_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
-#define CONF_WITH(Type, ...) CONF_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
-#define WARN_WITH(Type, ...) WARN_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
-#define FAIL_WITH(Type, ...) FAIL_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define ICARUS_INFO_WITH(Type, ...) ICARUS_INFO_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define ICARUS_CONF_WITH(Type, ...) ICARUS_CONF_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define ICARUS_WARN_WITH(Type, ...) ICARUS_WARN_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
+#define ICARUS_FAIL_WITH(Type, ...) ICARUS_FAIL_COND(llvm::DebugFlag || logger::isDebugType(Type), __VA_ARGS__)
 
 #else
 
-#define INFO_WITH(Type, ...)                                                                                           \
+#define ICARUS_INFO_WITH(Type, ...)                                                                                    \
   do {                                                                                                                 \
   } while (0)
-#define CONF_WITH(Type, ...)                                                                                           \
+#define ICARUS_CONF_WITH(Type, ...)                                                                                    \
   do {                                                                                                                 \
   } while (0)
-#define WARN_WITH(Type, ...)                                                                                           \
+#define ICARUS_WARN_WITH(Type, ...)                                                                                    \
   do {                                                                                                                 \
   } while (0)
-#define FAIL_WITH(Type, ...)                                                                                           \
+#define ICARUS_FAIL_WITH(Type, ...)                                                                                    \
   do {                                                                                                                 \
   } while (0)
 
