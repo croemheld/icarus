@@ -29,7 +29,7 @@ COPY --from=base /root/llvm-project /root/llvm-project
 ADD docker/install-cmake.sh /root/install-cmake.sh
 ADD docker/build-llvm.sh /root/llvm-project/build-llvm.sh
 
-ADD docker/patches/MicrosoftDemangleNodes.patch /root/llvm-project/MicrosoftDemangleNodes.patch
+ADD docker/patches/* /root/llvm-project/patches/
 
 #######################################
 # Start building LLVM project & Clang #
@@ -97,7 +97,7 @@ ARG CMAKE_VERSION
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        libc6-dev libstdc++-7-dev wget ca-certificates binutils ninja-build zlib1g-dev && \
+        libc6-dev libstdc++-10-dev wget ca-certificates binutils ninja-build zlib1g-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && apt-get update && \
     apt-get install --no-install-recommends -y \
         python3-pip python3-setuptools python3-venv python3-lxml libxml2-dev libxslt-dev && \

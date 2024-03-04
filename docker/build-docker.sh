@@ -127,7 +127,6 @@ if [ "${INSTALL_WHOLE}" -eq "1" ]; then
 fi
 
 docker_build docker build \
-  --force-rm \
   -t "${DOCKER_REP}:${DOCKER_TAG}" \
   -f "${ICARUS_SRC}/docker/Dockerfile" \
   --build-arg "DOCKER_BASEIMG=${DOCKER_REP}:base" \

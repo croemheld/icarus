@@ -1,0 +1,8 @@
+--- a/llvm/utils/benchmark/src/benchmark_register.h
+--- b/llvm/utils/benchmark/src/benchmark_register.h
+@@ -1,4 +1,5 @@
+ #ifndef BENCHMARK_REGISTER_H
+ #define BENCHMARK_REGISTER_H
+
++#include <limits>
+ #include <vector>

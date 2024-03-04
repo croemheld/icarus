@@ -14,6 +14,9 @@ CMAKE_ADDRESS="$(pwd)/llvm/CMakeLists.txt"
 LLVM_MAJORVER="$(grep 'LLVM_VERSION_MAJOR ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
 CMAKE_TARGETS="${*}"
 
+# Workaround for sh instead of bash
+COUNT_TARGETS="$(echo "${CMAKE_TARGETS}" | wc -w)"
+
 if [ "${CMAKE_TARGETS}" = "all" ]; then
   NINJA_INSTALL="install"
 else
@@ -24,7 +27,7 @@ else
 
   NINJA_TARGETS="clang clang-tidy clang-format clang-headers llvm-headers llvm-config cmake-exports"
 
-  if [ "${#CMAKE_TARGETS[@]}" -gt "0" ]; then
+  if [ "${COUNT_TARGETS}" -gt "0" ]; then
     NINJA_TARGETS="${CMAKE_TARGETS} ${NINJA_TARGETS}"
   fi
 
