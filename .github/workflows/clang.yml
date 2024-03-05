@@ -93,4 +93,4 @@ jobs:
           name: build
       - name: Run clang-tidy on ICARUS build
         run: |
-          ./tools/run-clang-tidy.py -p build
+          ./tools/run-clang-tidy.py -p ./build
