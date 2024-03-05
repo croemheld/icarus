@@ -11,7 +11,9 @@ patch_cmake_include() {
 }
 
 CMAKE_ADDRESS="$(pwd)/llvm/CMakeLists.txt"
-LLVM_MAJORVER="$(grep 'LLVM_VERSION_MAJOR ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
+LLVM_MAJOR_VERSION="$(grep 'LLVM_VERSION_MAJOR ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
+LLVM_MINOR_VERSION="$(grep 'LLVM_VERSION_MINOR ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
+LLVM_PATCH_VERSION="$(grep 'LLVM_VERSION_PATCH ' "${CMAKE_ADDRESS}" | awk -F'[()]' '{print $2}' | cut -d ' ' -f2)"
 CMAKE_TARGETS="${*}"
 
 # Workaround for sh instead of bash
@@ -31,7 +33,7 @@ else
     NINJA_TARGETS="${CMAKE_TARGETS} ${NINJA_TARGETS}"
   fi
 
-  if [ "${LLVM_MAJORVER}" -gt "8" ]; then
+  if [ "${LLVM_MAJOR_VERSION}" -gt "8" ]; then
     NINJA_TARGETS="${NINJA_TARGETS} clang-resource-headers clang-cmake-exports"
   fi
 
@@ -39,7 +41,7 @@ else
   # Only install minimum LLVM libraries #
   #######################################
 
-  LIBRARY_NAMES=$(cmake -DLLVM_PACKAGE_VERSION="${LLVM_MAJORVER}" -P ../LLVMLibraries.cmake 2>&1 | xargs -d ';')
+  LIBRARY_NAMES=$(cmake -DLLVM_PACKAGE_VERSION="${LLVM_MAJOR_VERSION}" -P ../LLVMLibraries.cmake 2>&1 | xargs -d ';')
   NINJA_INSTALL="$(printf '%s %s' "${NINJA_TARGETS}" "${LIBRARY_NAMES}" | sed 's/[^ ]* */install-&/g')"
 fi
 
@@ -58,7 +60,7 @@ if [ "${CMAKE_TARGETS}" != "all" ]; then
   # bare minimum of libraries that are needed for this project. If we include that file, we are going
   # to get a CMake error saying that the LLVM libraries were not installed completely.
   patch_cmake_include "LLVM_CMAKE_DIR" "LLVMExports.cmake" "/usr/local/lib/cmake/llvm/LLVMConfig.cmake"
-  if [ "${LLVM_MAJORVER}" -gt "8" ]; then
+  if [ "${LLVM_MAJOR_VERSION}" -gt "8" ]; then
     patch_cmake_include "CLANG_CMAKE_DIR" "ClangTargets.cmake" "/usr/local/lib/cmake/clang/ClangConfig.cmake"
   fi
 fi
@@ -77,7 +79,8 @@ mkdir -p build-compiler-rt && cd build-compiler-rt
 cmake -G "Ninja" \
   -DCMAKE_C_COMPILER=clang \
   -DCMAKE_CXX_COMPILER=clang++ \
-  -DLLVM_CONFIG_PATH=/usr/local/bin/llvm-config \
+  -DLLVM_CONFIG_PATH="/usr/local/bin/llvm-config" \
+  -DCMAKE_INSTALL_PREFIX="/usr/local/lib/clang/${LLVM_MAJOR_VERSION}.${LLVM_MINOR_VERSION}.${LLVM_PATCH_VERSION}" \
   ../compiler-rt
 ninja install
 
