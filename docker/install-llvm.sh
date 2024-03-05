@@ -75,12 +75,19 @@ cd .. && rm -rf build
 # Compile compiler-rt with LLVM build #
 #######################################
 
+CLANG_DIRECTORY_VERSION="${LLVM_MAJOR_VERSION}.${LLVM_MINOR_VERSION}.${LLVM_PATCH_VERSION}"
+
+# Apparently for version >= 16, the folder does not include the minor and patch version anymore.
+if [ "${LLVM_MAJOR_VERSION}" -ge "16" ]; then
+  CLANG_DIRECTORY_VERSION="${LLVM_MAJOR_VERSION}"
+fi
+
 mkdir -p build-compiler-rt && cd build-compiler-rt
 cmake -G "Ninja" \
   -DCMAKE_C_COMPILER=clang \
   -DCMAKE_CXX_COMPILER=clang++ \
   -DLLVM_CONFIG_PATH="/usr/local/bin/llvm-config" \
-  -DCMAKE_INSTALL_PREFIX="/usr/local/lib/clang/${LLVM_MAJOR_VERSION}.${LLVM_MINOR_VERSION}.${LLVM_PATCH_VERSION}" \
+  -DCMAKE_INSTALL_PREFIX="/usr/local/lib/clang/${CLANG_DIRECTORY_VERSION}" \
   ../compiler-rt
 ninja install
 
