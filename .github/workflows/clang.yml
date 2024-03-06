@@ -88,9 +88,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Download ICARUS build artifact
+        id: build-artifact
         uses: actions/download-artifact@v4.1.2
         with:
           name: build
       - name: Run clang-tidy on ICARUS build
         run: |
-          ./tools/run-clang-tidy.py -p ./build
+          ./tools/run-clang-tidy.py -p ${{ join([steps.build-artifact.outputs.download-path, 'build'], '/') }}
