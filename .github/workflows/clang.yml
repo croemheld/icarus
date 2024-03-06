@@ -92,6 +92,7 @@ jobs:
         uses: actions/download-artifact@v4.1.2
         with:
           name: build
+          path: build
       - name: Run clang-tidy on ICARUS build
         run: |
           ./tools/run-clang-tidy.py -p ${{ format('{0}/build', steps.build-artifact.outputs.download-path) }}
