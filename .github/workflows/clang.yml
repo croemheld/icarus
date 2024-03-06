@@ -95,4 +95,4 @@ jobs:
           path: build
       - name: Run clang-tidy on ICARUS build
         run: |
-          ./tools/run-clang-tidy.py -p ${{ format('{0}/build', steps.build-artifact.outputs.download-path) }}
+          ./tools/run-clang-tidy.py -p build
