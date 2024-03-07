@@ -4,8 +4,8 @@ find_program(WLLVM wllvm PATHS ${VENV_PATH})
 if (NOT WLLVM)
     message(WARNING "The wllvm binary could not be found, the bitcode files will not be generated. This might lead to failing unit tests that depend on these bitcode files.")
 else()
-    set(CMAKE_C_COMPILER wllvm)
-    set(CMAKE_CXX_COMPILER wllvm++)
+    set(CMAKE_C_COMPILER ${WLLVM})
+    set(CMAKE_CXX_COMPILER ${WLLVM}++)
 
     macro(add_bitcode_test TEST_NAME COMPILER)
         add_custom_command(OUTPUT ${TEST_NAME}.ll
