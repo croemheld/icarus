@@ -9,7 +9,7 @@ else()
 
     macro(add_bitcode_test TEST_NAME COMPILER)
         add_custom_command(OUTPUT ${TEST_NAME}.ll
-                COMMAND LLVM_COMPILER=clang ${VENV_PATH}/${COMPILER} -c -emit-llvm -S -O0 ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.c
+                COMMAND LLVM_COMPILER=clang ${COMPILER} -c -emit-llvm -S -O0 ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.c
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.c
                 COMMENT "Building LLVM IR file ${TEST_NAME}.ll"
                 VERBATIM
