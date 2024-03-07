@@ -55,7 +55,7 @@ fi
 
 gcovr \
   --exclude ".*/Test*" --exclude ".*/json.hpp" --exclude ".*/doctest.h" \
-  --gcov-executable "llvm-cov-15 gcov" \
+  --gcov-executable "llvm-cov gcov" \
   --gcov-ignore-parse-errors all \
   --output "${path}/coverage/coverage.${mime}" \
   ${args[*]} \
