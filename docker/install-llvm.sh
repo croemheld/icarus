@@ -27,7 +27,7 @@ else
   # or any builtin headers, add target! #
   #######################################
 
-  NINJA_TARGETS="clang clang-tidy clang-format clang-headers llvm-headers llvm-config cmake-exports"
+  NINJA_TARGETS="clang clang-tidy clang-format clang-headers llvm-headers llvm-config llvm-cov cmake-exports"
 
   if [ "${COUNT_TARGETS}" -gt "0" ]; then
     NINJA_TARGETS="${CMAKE_TARGETS} ${NINJA_TARGETS}"
