@@ -28,7 +28,7 @@ jobs:
         run: |
           ./tools/run-gcovr-coverage.sh --xml build
       - name: Upload gcovr report to codecov
-        uses: codecov/codecov-action@v4-beta
+        uses: codecov/codecov-action@v4.1.0
         with:
           fail_ci_if_error: true
           slug: croemheld/icarus
