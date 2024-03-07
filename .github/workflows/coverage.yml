@@ -21,9 +21,9 @@ jobs:
           path: build
           github-token: ${{ secrets.ARTIFACT_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
-      - name: Run unit tests for ICARUS
+      - name: Fix and run unit tests for ICARUS
         run: |
-          ./build/tests/TestIcarus
+          chmod 755 ./build/tests/TestIcarus && ./build/tests/TestIcarus
       - name: Generate gcovr coverage output
         run: |
           ./tools/run-gcovr-coverage.sh --xml build
