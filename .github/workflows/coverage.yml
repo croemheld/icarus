@@ -29,7 +29,7 @@ jobs:
           ./tools/run-gcovr-coverage.sh --xml build
       - name: Install gpg binary for codecov
         run: |
-          apt-get update && apt-get install -y gpg
+          apt-get update && apt-get install -y gpg git
       - name: Upload gcovr report to codecov
         uses: codecov/codecov-action@v4.1.0
         with:
