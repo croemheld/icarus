@@ -35,7 +35,8 @@ jobs:
         with:
           fail_ci_if_error: true
           slug: croemheld/icarus
-          file: ./build/coverage/coverage.xml
+          directory: ./build/coverage/
+          file: ./coverage.xml
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
