@@ -37,7 +37,7 @@ jobs:
           slug: croemheld/icarus
           root_dir: ${{ github.workspace }}
           directory: ${{ github.workspace }}
-          working_dir: ${{ github.workspace }}
+          working-directory: ${{ github.workspace }}
           file: ./coverage.xml
           verbose: true
         env:
