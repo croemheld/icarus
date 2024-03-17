@@ -35,6 +35,9 @@ jobs:
         with:
           fail_ci_if_error: true
           slug: croemheld/icarus
+          root_dir: ${{ github.workspace }}
+          directory: ${{ github.workspace }}
+          working_dir: ${{ github.workspace }}
           file: ./coverage.xml
           verbose: true
         env:
