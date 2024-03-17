@@ -27,7 +27,7 @@ while [[ "${#}" -gt "0" ]]; do
       shift
       path="$(readlink -f -- "${1}")"
       mime="xml"
-      args+=(--jacoco-pretty)
+      args+=(--cobertura-pretty)
       shift;;
     --html)
       shift

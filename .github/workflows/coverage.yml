@@ -26,19 +26,16 @@ jobs:
           chmod 755 ./build/tests/TestIcarus && ./build/tests/TestIcarus
       - name: Generate gcovr coverage output
         run: |
-          ./tools/run-gcovr-coverage.sh --xml build && cp ./build/coverage/coverage.xml .
+          ./tools/run-gcovr-coverage.sh --xml build
       - name: Install gpg binary for codecov
         run: |
           apt-get update && apt-get install -y gpg git
       - name: Upload gcovr report to codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
           slug: croemheld/icarus
-          root_dir: ${{ github.workspace }}
-          directory: ${{ github.workspace }}
-          working-directory: ${{ github.workspace }}
-          file: ./coverage.xml
+          file: ./build/coverage/coverage.xml
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
