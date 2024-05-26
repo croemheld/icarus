@@ -31,7 +31,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y gpg git
       - name: Upload gcovr report to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           slug: croemheld/icarus
