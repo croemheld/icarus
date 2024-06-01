@@ -26,7 +26,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++ \
-          -DOPTION_BUILD_DOCS=On .. \
+          -DBUILD_DOCS=ON .. \
           && ninja doxygen
       - name: Create .nojekyll file
         run: touch build/docs/doxygen/html/.nojekyll
