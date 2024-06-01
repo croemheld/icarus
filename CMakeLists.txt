@@ -7,13 +7,13 @@ set(LIBRARY_NAME libIcarus)
 project(${PROJECT_NAME})
 
 # Options to enable if so wished.
-option(OPTION_BUILD_DOCS "Build documentation." OFF)
-option(OPTION_BUILD_LIBS "Build project libraries." OFF)
+option(BUILD_DOCS "Build documentation." OFF)
+option(BUILD_LIBS "Build project libraries." OFF)
 include(CMakeDependentOption)
-cmake_dependent_option(OPTION_BUILD_TEST "Build unit tests." ON "OPTION_BUILD_LIBS" OFF)
+cmake_dependent_option(BUILD_TEST "Build unit tests." ON "BUILD_LIBS" OFF)
 
 # Options for compiling with coverage instrumentation
-option(OPTION_BUILD_COVERAGE "Build with coverage instrumentation." OFF)
+option(BUILD_COVERAGE "Build with coverage instrumentation." OFF)
 
 # Extend CMAKE_MODULE_PATH for reusable CMake scripts
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -29,10 +29,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-caret-diagnostics -fno-rtti")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-3 -glldb")
 
 # Add coverage instrumentation flags if enabled (currently Clang only)
-if (OPTION_BUILD_COVERAGE)
+if (BUILD_COVERAGE)
     add_compile_options(--coverage)
     add_link_options(--coverage)
-endif (OPTION_BUILD_COVERAGE)
+endif (BUILD_COVERAGE)
 
 # Add LLVM include directories for linking against libraries
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
@@ -60,7 +60,7 @@ add_executable(${PROJECT_NAME})
 add_subdirectory(src)
 
 # Add library target if option has been enabled
-if (OPTION_BUILD_LIBS)
+if (BUILD_LIBS)
     get_target_property(LIBRARY_SOURCES ${PROJECT_NAME} SOURCES)
     add_library(${LIBRARY_NAME} STATIC ${LIBRARY_SOURCES})
     target_include_directories(${LIBRARY_NAME} PRIVATE ${PROJECT_INCLUDE_DIR})
@@ -69,19 +69,19 @@ if (OPTION_BUILD_LIBS)
             ${LLVM_LIBRARIES}
             ${EXTERNAL_LIBRARIES}
     )
-endif (OPTION_BUILD_LIBS)
+endif (BUILD_LIBS)
 
 # Include unit tests using the doctest framework.
-if (OPTION_BUILD_TEST AND TARGET ${LIBRARY_NAME})
+if (BUILD_TEST AND TARGET ${LIBRARY_NAME})
     enable_testing()
     add_subdirectory(tests)
-endif (OPTION_BUILD_TEST AND TARGET ${LIBRARY_NAME})
+endif (BUILD_TEST AND TARGET ${LIBRARY_NAME})
 
 # Search for doxygen and include docs directory.
-if (OPTION_BUILD_DOCS)
-    find_package(Doxygen)
+if (BUILD_DOCS)
+    find_package(Doxygen REQUIRED)
     add_subdirectory(docs)
-endif (OPTION_BUILD_DOCS)
+endif (BUILD_DOCS)
 
 # We place the remaining instructions for the project executable here, in order
 # to not add the additional Icarus.cpp file to the other target's sources. That
