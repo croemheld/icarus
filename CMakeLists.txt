@@ -79,6 +79,7 @@ endif (BUILD_TEST AND TARGET ${LIBRARY_NAME})
 
 # Search for doxygen and include docs directory.
 if (BUILD_DOCS)
+    find_package(Doxygen REQUIRED)
     add_subdirectory(docs)
 endif (BUILD_DOCS)
 
