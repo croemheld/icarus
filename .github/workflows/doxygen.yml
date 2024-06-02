@@ -27,6 +27,7 @@ jobs:
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++ \
           -DBUILD_DOCS=ON .. \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
           && ninja doxygen
       - name: Create .nojekyll file
         run: touch build/docs/doxygen/html/.nojekyll

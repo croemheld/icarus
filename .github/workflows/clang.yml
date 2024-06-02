@@ -67,7 +67,6 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_C_COMPILER=clang \
           -DCMAKE_CXX_COMPILER=clang++ \
-          -DBUILD_DOCS=ON \
           -DBUILD_LIBS=ON \
           -DBUILD_TEST=ON \
           -DBUILD_COVERAGE=ON \
